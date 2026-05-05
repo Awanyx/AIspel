@@ -142,6 +142,24 @@ Location: `public/assets/ui/`
 
 ---
 
+## 10. Level Backgrounds — ⬜ Not done
+
+One full-screen background image per level, shown behind the game board.
+
+| File | Level | Display size | Deliver at |
+|---|---|---|---|
+| `level_bg_1.png` | Nivå 1 | 390 × 844 px | 780 × 1688 px |
+| `level_bg_2.png` | Nivå 2 | 390 × 844 px | 780 × 1688 px |
+| `level_bg_3.png` | Nivå 3 | 390 × 844 px | 780 × 1688 px |
+| `level_bg_4.png` | Nivå 4 | 390 × 844 px | 780 × 1688 px |
+| `level_bg_5.png` | Nivå 5 | 390 × 844 px | 780 × 1688 px |
+
+**Aspect ratio: 390∶844 (same as game canvas)**  
+The game falls back to the current dark purple gradient if a file is missing.  
+Location: `public/assets/ui/`
+
+---
+
 ## Summary
 
 | # | Asset group | Files | Status |
@@ -155,4 +173,5 @@ Location: `public/assets/ui/`
 | 7 | Special activation animations | 4 | ⬜ |
 | 8 | Menu (bg + logo + play btn) | 3 | ✅ Done |
 | 9 | Map background | 1 | ✅ Done |
-| | **Total** | **24** | |
+| 10 | Level backgrounds | 5 | ⬜ |
+| | **Total** | **29** | |

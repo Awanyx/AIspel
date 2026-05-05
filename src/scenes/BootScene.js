@@ -42,6 +42,11 @@ export class BootScene extends Phaser.Scene {
       this.load.image(`special_${type}`, `assets/tiles/special_${type}.png`);
     }
 
+    // Level backgrounds — silently skipped if not yet present.
+    for (let i = 1; i <= 5; i++) {
+      this.load.image(`level_bg_${i}`, `assets/ui/level_bg_${i}.png`);
+    }
+
     // Win / fail reaction art — silently skipped if not yet present.
     this.load.image('reaction_win',  'assets/ui/reaction_win.png');
     this.load.image('reaction_fail', 'assets/ui/reaction_fail.png');
@@ -104,7 +109,7 @@ export class BootScene extends Phaser.Scene {
     const cx = GAME_WIDTH / 2;
     const cy = GAME_HEIGHT / 2;
 
-    this.add.text(cx, cy - 60, 'SVT Arkiv', {
+    this.add.text(cx, cy - 60, 'Karaktärskaos', {
       fontSize: '36px',
       fontFamily: 'Arial Black, Arial, sans-serif',
       color: '#ffffff',

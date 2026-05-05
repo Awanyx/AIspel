@@ -29,7 +29,7 @@ export class WinScene extends Phaser.Scene {
       this.add.text(cx, 200, '🎉', { fontSize: '72px' }).setOrigin(0.5);
     }
 
-    this.add.text(cx, 300, 'LEVEL COMPLETE!', {
+    this.add.text(cx, 300, 'NIVÅ KLAR!', {
       fontSize: '34px',
       fontFamily: 'Arial Black, Arial, sans-serif',
       color: '#ffffff',
@@ -37,7 +37,7 @@ export class WinScene extends Phaser.Scene {
       strokeThickness: 5,
     }).setOrigin(0.5);
 
-    this.add.text(cx, 368, 'Score', {
+    this.add.text(cx, 368, 'Poäng', {
       fontSize: '16px', fontFamily: 'Arial, sans-serif', color: '#aaaacc',
     }).setOrigin(0.5);
 
@@ -49,12 +49,12 @@ export class WinScene extends Phaser.Scene {
 
     const hasNext = !!getNextLevel(this.levelId);
     if (hasNext) {
-      this._makeButton(cx, 530, 'NEXT LEVEL', 0x27ae60, () => {
+      this._makeButton(cx, 530, 'NÄSTA NIVÅ', 0x27ae60, () => {
         this.scene.start('GameScene', { levelId: this.levelId + 1 });
       });
     }
 
-    this._makeButton(cx, hasNext ? 612 : 530, 'WORLD MAP', 0x555577, () => {
+    this._makeButton(cx, hasNext ? 612 : 530, 'VÄRLDSKARTA', 0x555577, () => {
       this.scene.start('MapScene');
     });
   }

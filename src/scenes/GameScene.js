@@ -82,9 +82,15 @@ export class GameScene extends Phaser.Scene {
   // ─── Background ──────────────────────────────────────────────────────────
 
   _drawBackground() {
-    const g = this.add.graphics();
-    g.fillGradientStyle(0x1a0a2e, 0x1a0a2e, 0x2d1b5e, 0x2d1b5e, 1);
-    g.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    const key = `level_bg_${this.levelId}`;
+    const t = this.textures.get(key);
+    if (t && t.source.length > 0 && t.source[0].width > 32) {
+      this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, key).setDisplaySize(GAME_WIDTH, GAME_HEIGHT);
+    } else {
+      const g = this.add.graphics();
+      g.fillGradientStyle(0x1a0a2e, 0x1a0a2e, 0x2d1b5e, 0x2d1b5e, 1);
+      g.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    }
   }
 
   _drawBoardBackground() {
@@ -234,10 +240,10 @@ export class GameScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // Score (always shown)
-    this.scoreText = this.add.text(30, 56, '0', {
+    this.scoreText = this.add.text(30, 72, '0', {
       fontSize: '30px', fontFamily: 'Arial Black, Arial, sans-serif', color: '#ffffff',
     }).setOrigin(0, 0.5);
-    this.add.text(30, 76, 'SCORE', {
+    this.add.text(30, 92, 'POÄNG', {
       fontSize: '11px', fontFamily: 'Arial, sans-serif', color: '#888899',
     }).setOrigin(0, 0.5);
 
@@ -269,7 +275,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   _setupScoreHUD(cx, target) {
-    const barW = 160; const barH = 12; const barX = cx - barW / 2; const barY = 50;
+    const barW = 160; const barH = 10; const barX = cx - barW / 2; const barY = 66;
     this.add.graphics().fillStyle(0x000000, 0.4).fillRoundedRect(barX, barY, barW, barH, 4);
     this._scoreBarFill = this.add.graphics();
     this._scoreBarMeta = { x: barX, y: barY, w: barW, h: barH, target };
@@ -279,37 +285,37 @@ export class GameScene extends Phaser.Scene {
   }
 
   _setupBlockerHUD(cx) {
-    this.add.text(cx, 42, 'BLOCKERS', {
+    this.add.text(cx, 58, 'BLOCKERARE', {
       fontSize: '11px', fontFamily: 'Arial, sans-serif', color: '#aaaacc',
     }).setOrigin(0.5);
-    this.blockerCountText = this.add.text(cx, 62, String(this.board.blockerCount()), {
+    this.blockerCountText = this.add.text(cx, 78, String(this.board.blockerCount()), {
       fontSize: '26px', fontFamily: 'Arial Black, Arial, sans-serif', color: '#e8b4f0',
     }).setOrigin(0.5);
   }
 
   _setupTimerHUD(cx) {
-    this.add.text(cx, 42, 'TIME', {
+    this.add.text(cx, 58, 'TID', {
       fontSize: '11px', fontFamily: 'Arial, sans-serif', color: '#aaaacc',
     }).setOrigin(0.5);
-    this.timerText = this.add.text(cx, 66, this._formatTime(this._timeLeft), {
+    this.timerText = this.add.text(cx, 82, this._formatTime(this._timeLeft), {
       fontSize: '32px', fontFamily: 'Arial Black, Arial, sans-serif', color: '#e8b4f0',
     }).setOrigin(0.5);
   }
 
   _setupScoreTarget(cx, target) {
-    this.add.text(GAME_WIDTH - 30, 42, 'TARGET', {
+    this.add.text(GAME_WIDTH - 30, 58, 'MÅL', {
       fontSize: '11px', fontFamily: 'Arial, sans-serif', color: '#aaaacc',
     }).setOrigin(1, 0.5);
-    this.add.text(GAME_WIDTH - 30, 62, String(target), {
+    this.add.text(GAME_WIDTH - 30, 78, String(target), {
       fontSize: '18px', fontFamily: 'Arial Black, Arial, sans-serif', color: '#888899',
     }).setOrigin(1, 0.5);
   }
 
   _setupMoveHUD() {
-    this.movesText = this.add.text(GAME_WIDTH - 30, 56, String(this.moves), {
+    this.movesText = this.add.text(GAME_WIDTH - 30, 72, String(this.moves), {
       fontSize: '30px', fontFamily: 'Arial Black, Arial, sans-serif', color: '#e8b4f0',
     }).setOrigin(1, 0.5);
-    this.add.text(GAME_WIDTH - 30, 76, 'MOVES', {
+    this.add.text(GAME_WIDTH - 30, 92, 'DRAG', {
       fontSize: '11px', fontFamily: 'Arial, sans-serif', color: '#888899',
     }).setOrigin(1, 0.5);
     this._movesWarnActive = false;
@@ -691,7 +697,7 @@ export class GameScene extends Phaser.Scene {
     this.busy = true;
 
     const cx = GAME_WIDTH / 2;
-    const toast = this.add.text(cx, GAME_HEIGHT / 2, 'RESHUFFLING…', {
+    const toast = this.add.text(cx, GAME_HEIGHT / 2, 'BLANDAR…', {
       fontSize: '24px', fontFamily: 'Arial Black, Arial, sans-serif',
       color: '#ffffff', stroke: '#9b59b6', strokeThickness: 4,
       backgroundColor: '#00000099', padding: { x: 18, y: 10 },
@@ -753,15 +759,15 @@ export class GameScene extends Phaser.Scene {
     if (type === 'score') {
       won  = this.score >= target;
       lost = !won && this.moves <= 0;
-      reason = 'Out of moves!';
+      reason = 'Inga drag kvar!';
     } else if (type === 'blockers') {
       won  = this.board.blockerCount() === 0;
       lost = !won && this.moves <= 0;
-      reason = 'Out of moves!';
+      reason = 'Inga drag kvar!';
     } else if (type === 'time') {
       won  = this.score >= target;
       lost = !won && this._timeLeft <= 0;
-      reason = 'Time\'s up!';
+      reason = 'Tiden är ute!';
     }
 
     if (won) {

@@ -11,7 +11,7 @@ export class FailScene extends Phaser.Scene {
   init(data) {
     this.levelId = data.levelId ?? 1;
     this.score   = data.score   ?? 0;
-    this.reason  = data.reason  ?? 'Out of moves!';
+    this.reason  = data.reason  ?? 'Inga drag kvar!';
   }
 
   create() {
@@ -34,7 +34,7 @@ export class FailScene extends Phaser.Scene {
       repeat: -1,
     });
 
-    this.add.text(cx, 300, 'SO CLOSE!', {
+    this.add.text(cx, 300, 'SÅ NÄRA!', {
       fontSize: '36px',
       fontFamily: 'Arial Black, Arial, sans-serif',
       color: '#e8b4f0',
@@ -49,7 +49,7 @@ export class FailScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // Score
-    this.add.text(cx, 410, 'Score', {
+    this.add.text(cx, 410, 'Poäng', {
       fontSize: '15px', fontFamily: 'Arial, sans-serif', color: '#888899',
     }).setOrigin(0.5);
 
@@ -60,11 +60,11 @@ export class FailScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // Buttons
-    this._makeButton(cx, 540, 'TRY AGAIN', 0x9b59b6, () => {
+    this._makeButton(cx, 540, 'FÖRSÖK IGEN', 0x9b59b6, () => {
       this.scene.start('GameScene', { levelId: this.levelId });
     });
 
-    this._makeButton(cx, 612, 'WORLD MAP', 0x555577, () => {
+    this._makeButton(cx, 612, 'VÄRLDSKARTA', 0x555577, () => {
       this.scene.start('MapScene');
     });
   }
