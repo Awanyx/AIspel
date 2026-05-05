@@ -570,10 +570,12 @@ export class GameScene extends Phaser.Scene {
     this.tweens.add({
       targets: spr, y: targetY, duration: dur, ease: 'Quad.easeIn',
       onComplete: () => {
+        // Capture scale AFTER setDisplaySize so we multiply from the correct base
+        const sx = spr.scaleX, sy = spr.scaleY;
         this.tweens.add({
-          targets: spr, scaleX: 1.25, scaleY: 0.75, duration: 60, ease: 'Sine.easeOut',
+          targets: spr, scaleX: sx * 1.25, scaleY: sy * 0.75, duration: 60, ease: 'Sine.easeOut',
           onComplete: () => {
-            this.tweens.add({ targets: spr, scaleX: 1, scaleY: 1, duration: 140, ease: 'Back.easeOut' });
+            this.tweens.add({ targets: spr, scaleX: sx, scaleY: sy, duration: 140, ease: 'Back.easeOut' });
           },
         });
       },
