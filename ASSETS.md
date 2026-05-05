@@ -125,14 +125,14 @@ Location: `public/assets/ui/`
 
 ## 9. World Map — Background — ⬜ Not done
 
-Optional. The map is a scrollable vertical list of level nodes on a gradient. A custom background image (forest path, starscape, etc.) would enhance it.
+Optional. The map is a scrollable vertical list of level nodes on a gradient. A custom background image would enhance it.
 
 | File | Display size | Deliver at |
 |---|---|---|
-| `map_bg.png` | 390 × 1440 px (scrollable, taller than screen) | 780 × 2880 px |
+| `map_bg.png` | 390 × 912 px | 780 × 1824 px |
 
-**Aspect ratio: 390∶1440 ≈ 3∶11**  
-Tileable vertically, or one tall illustration. Dark enough that the purple node circles remain readable on top.  
+**Aspect ratio: 390∶912 ≈ 3∶7**  
+Height is based on 5 levels at 160px spacing (80px top pad + 4×160 + 120px bottom pad + 72px node radius = 912px). Barely taller than one screen — minimal or no scroll. Dark enough that the purple node circles remain readable on top.  
 Location: `public/assets/ui/`
 
 ---
