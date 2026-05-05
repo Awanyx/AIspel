@@ -65,7 +65,7 @@ Location: `public/assets/animations/`
 
 ---
 
-## 10. Level Backgrounds — ⬜ Not done
+## 10. Level Backgrounds — ✅ Done
 
 One full-screen background image per level, shown behind the game board.
 
@@ -96,5 +96,5 @@ Location: `public/assets/ui/`
 | 7 | Special activation animations | 4 | ⬜ |
 | 8 | Menu (bg + logo + play btn) | 3 | ✅ Done |
 | 9 | Map background | 1 | ✅ Done |
-| 10 | Level backgrounds | 5 | ⬜ |
+| 10 | Level backgrounds | 5 | ✅ Done |
 | | **Total** | **29** | |
