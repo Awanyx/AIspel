@@ -431,6 +431,10 @@ export class GameScene extends Phaser.Scene {
     const matchCells = this.board.findMatches();
     if (matchCells.length === 0) {
       this.busy = false;
+      if (!this._ended && !this.board.hasValidMove()) {
+        this._shuffleBoard();
+        return;
+      }
       this._checkEndCondition();
       return;
     }
@@ -640,6 +644,61 @@ export class GameScene extends Phaser.Scene {
     flash.fillStyle(color, 0.55);
     flash.fillRoundedRect(minX, minY, maxX - minX, maxY - minY, 8);
     this.tweens.add({ targets: flash, alpha: 0, duration: 350, ease: 'Cubic.easeOut', onComplete: () => flash.destroy() });
+  }
+
+  // ─── Shuffle ─────────────────────────────────────────────────────────────
+
+  _shuffleBoard() {
+    this.busy = true;
+
+    const cx = GAME_WIDTH / 2;
+    const toast = this.add.text(cx, GAME_HEIGHT / 2, 'RESHUFFLING…', {
+      fontSize: '24px', fontFamily: 'Arial Black, Arial, sans-serif',
+      color: '#ffffff', stroke: '#9b59b6', strokeThickness: 4,
+      backgroundColor: '#00000099', padding: { x: 18, y: 10 },
+    }).setOrigin(0.5).setAlpha(0).setDepth(20);
+    this.tweens.add({ targets: toast, alpha: 1, duration: 200 });
+
+    // Collect all live tile sprites
+    const sprites = [];
+    for (let r = 0; r < ROWS; r++)
+      for (let c = 0; c < COLS; c++)
+        if (this.tileSprites[r][c]) sprites.push(this.tileSprites[r][c]);
+
+    this.tweens.add({
+      targets: sprites, alpha: 0, duration: 280, ease: 'Sine.easeIn',
+      onComplete: () => {
+        this.board.reshuffleUntilMovable();
+
+        // Update every sprite texture to match the new board positions
+        for (let r = 0; r < ROWS; r++)
+          for (let c = 0; c < COLS; c++) {
+            const spr = this.tileSprites[r][c];
+            if (!spr) continue;
+            const type = this.board.get(r, c);
+            if (type !== null) spr.setTexture(`tile_${type}`).setDisplaySize(TILE_SIZE, TILE_SIZE);
+          }
+
+        this._rebuildSpecialOverlays();
+
+        const toFadeIn = [];
+        for (let r = 0; r < ROWS; r++)
+          for (let c = 0; c < COLS; c++)
+            if (this.tileSprites[r][c]) toFadeIn.push(this.tileSprites[r][c]);
+
+        this.tweens.add({
+          targets: toFadeIn, alpha: 1, duration: 300, ease: 'Sine.easeOut',
+          onComplete: () => {
+            this.tweens.add({
+              targets: toast, alpha: 0, delay: 400, duration: 200,
+              onComplete: () => toast.destroy(),
+            });
+            this.busy = false;
+            this._checkEndCondition();
+          },
+        });
+      },
+    });
   }
 
   // ─── End conditions ───────────────────────────────────────────────────────

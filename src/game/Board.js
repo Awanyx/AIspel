@@ -62,6 +62,45 @@ export class Board {
     return has;
   }
 
+  /** Returns true if at least one adjacent swap would create a match. */
+  hasValidMove() {
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        if (this.isBlocker(r, c)) continue;
+        if (c + 1 < COLS && !this.isBlocker(r, c + 1) && this.wouldMatch(r, c, r, c + 1)) return true;
+        if (r + 1 < ROWS && !this.isBlocker(r + 1, c) && this.wouldMatch(r, c, r + 1, c)) return true;
+      }
+    }
+    return false;
+  }
+
+  /** Fisher-Yates shuffle of all non-blocker, non-null cells (carries specials). */
+  shuffle() {
+    const cells = [];
+    for (let r = 0; r < ROWS; r++)
+      for (let c = 0; c < COLS; c++)
+        if (!this.isBlocker(r, c) && this.grid[r][c] !== null) cells.push({ r, c });
+
+    for (let i = cells.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const a = cells[i], b = cells[j];
+      [this.grid[a.r][a.c], this.grid[b.r][b.c]] = [this.grid[b.r][b.c], this.grid[a.r][a.c]];
+      const ka = `${a.r},${a.c}`, kb = `${b.r},${b.c}`;
+      const sa = this.specials[ka], sb = this.specials[kb];
+      if (sa) this.specials[kb] = sa; else delete this.specials[kb];
+      if (sb) this.specials[ka] = sb; else delete this.specials[ka];
+    }
+  }
+
+  /** Shuffle repeatedly until no immediate matches exist and at least one valid move is available. */
+  reshuffleUntilMovable() {
+    let attempts = 0;
+    do {
+      this.shuffle();
+      attempts++;
+    } while ((this.findMatches().length > 0 || !this.hasValidMove()) && attempts < 100);
+  }
+
   // ─── Match detection ───────────────────────────────────────────────────────
 
   findMatches() {
