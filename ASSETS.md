@@ -24,7 +24,7 @@ Location: `public/assets/tiles/`
 
 ---
 
-## 2. Special Tile Frames — ⬜ Not done
+## 2. Special Tile Frames — ✅ Done
 
 Each special tile is an upgraded version of a regular tile with a distinct coloured border overlay.  
 Currently drawn in-code as coloured glow rectangles. Replace with art for a polished look.
@@ -133,7 +133,7 @@ Location: `public/assets/ui/`
 | # | Asset group | Files | Status |
 |---|---|---|---|
 | 1 | Tile icons | 6 | ✅ Done |
-| 2 | Special tile frames | 4 | ⬜ |
+| 2 | Special tile frames | 4 | ✅ Done |
 | 3 | Blocker tile | 1 | ⬜ |
 | 4 | Win reaction | 1 | ⬜ |
 | 5 | Fail reaction | 1 | ⬜ |
