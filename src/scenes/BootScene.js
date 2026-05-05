@@ -2,13 +2,14 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, TILE_SIZE, TILE_COLORS, TILE_LABELS } from '../game/constants.js';
 
 // Character names in tile-index order (matches TILE_COLORS)
+// Character per tile index — must match TILE_COLORS order in constants.js
 const TILE_NAMES = [
-  'bolibompadraken',
-  'sommarskuggan',
-  'ratatoskr',
-  'pippi',
-  'zombie',
-  'laszlo',
+  'bolibompadraken', // 0
+  'sommarskuggan',   // 1 — black cat creature
+  'ratatoskr',       // 2
+  'pippi',           // 3
+  'zombie',          // 4
+  'laszlo',          // 5 — scary person
 ];
 
 export class BootScene extends Phaser.Scene {

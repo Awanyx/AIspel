@@ -20,11 +20,11 @@ export const TILE_TYPES = 6;
 
 export const TILE_COLORS = [
   0x9b59b6, // 0 Bolibompadraken — purple
-  0x2c3e7a, // 1 Sommarskuggan   — dark blue
+  0x1a1a2e, // 1 Sommarskuggan   — near-black (black cat)
   0xd4652a, // 2 Ratatoskr        — warm orange
   0xe74c3c, // 3 Pippi            — red
   0x27ae60, // 4 Zombie           — green
-  0x2a9d8f, // 5 Laszlo           — teal
+  0x2a9d8f, // 5 Laszlo           — teal (scary person)
 ];
 
 export const TILE_LABELS = ['B', 'S', 'R', 'P', 'Z', 'L'];
