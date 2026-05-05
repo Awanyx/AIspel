@@ -42,7 +42,7 @@ Location: `public/assets/tiles/`
 
 ---
 
-## 3. Blocker Tile — ⬜ Not done
+## 3. Blocker Tile — ✅ Done
 
 Tiles locked in place; adjacent matches chip them away. Currently an X-cross drawn in-code.
 
@@ -56,7 +56,7 @@ Location: `public/assets/tiles/`
 
 ---
 
-## 4. Win Screen — Character Reaction Art — ⬜ Not done
+## 4. Win Screen — Character Reaction Art — ✅ Done
 
 Shown on the level-complete screen. Currently a 🎉 emoji placeholder.
 
@@ -70,7 +70,7 @@ Location: `public/assets/ui/`
 
 ---
 
-## 5. Fail Screen — Character Reaction Art — ⬜ Not done
+## 5. Fail Screen — Character Reaction Art — ✅ Done
 
 Shown on the game-over screen. Currently a 😔 emoji placeholder — explicitly marked in code as _"placeholder for character reaction art"_.
 
@@ -134,9 +134,9 @@ Location: `public/assets/ui/`
 |---|---|---|---|
 | 1 | Tile icons | 6 | ✅ Done |
 | 2 | Special tile frames | 4 | ✅ Done |
-| 3 | Blocker tile | 1 | ⬜ |
-| 4 | Win reaction | 1 | ⬜ |
-| 5 | Fail reaction | 1 | ⬜ |
+| 3 | Blocker tile | 1 | ✅ Done |
+| 4 | Win reaction | 1 | ✅ Done |
+| 5 | Fail reaction | 1 | ✅ Done |
 | 6 | HUD icons | 3 | ⬜ |
 | 7 | Menu hero | 1 | ⬜ (optional) |
 | 8 | Map background | 1 | ⬜ (optional) |
