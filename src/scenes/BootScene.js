@@ -1,15 +1,14 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, TILE_SIZE, TILE_COLORS, TILE_LABELS } from '../game/constants.js';
 
-// Character names in tile-index order (matches TILE_COLORS)
 // Character per tile index — must match TILE_COLORS order in constants.js
 const TILE_NAMES = [
-  'bolibompadraken', // 0
-  'sommarskuggan',   // 1 — black cat creature
-  'ratatoskr',       // 2
-  'pippi',           // 3
-  'zombie',          // 4
-  'laszlo',          // 5 — scary person
+  'bolibompa',     // 0 — Bolibompadraken
+  'sommarskuggan', // 1 — black cat creature
+  'ratatoskr',     // 2
+  'pippi',         // 3
+  'zombie',        // 4
+  'laszlo',        // 5 — scary person
 ];
 
 export class BootScene extends Phaser.Scene {
@@ -20,12 +19,12 @@ export class BootScene extends Phaser.Scene {
   preload() {
     this._createLoadingBar();
 
-    // Attempt to load PNG tile assets; fall back to generated textures for
-    // any that fail (e.g. file not yet dropped into public/assets/tiles/).
-    for (let i = 0; i < TILE_COLORS.length; i++) {
+    // Load PNG tile assets by character name; fall back to generated textures
+    // for any that fail to load.
+    for (let i = 0; i < TILE_NAMES.length; i++) {
       const key = `tile_${i}`;
       if (!this.textures.exists(key)) {
-        this.load.image(key, `assets/tiles/tile_${i}.png`);
+        this.load.image(key, `assets/tiles/tile_${TILE_NAMES[i]}.png`);
       }
     }
 
