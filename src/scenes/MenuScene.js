@@ -4,7 +4,7 @@ import { Snd } from '../game/Audio.js';
 
 const CX = GAME_WIDTH / 2;
 const LOGO_Y    = 190;   // centre of logo
-const PLAY_Y    = 600;   // centre of play button
+const PLAY_Y    = 500;   // centre of play button
 const MAX_LOGO_W  = 280; // max display width for logo
 const MAX_PLAY_W  = 260; // max display width for play button
 
