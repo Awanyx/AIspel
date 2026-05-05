@@ -123,7 +123,7 @@ Location: `public/assets/ui/`
 
 ---
 
-## 9. World Map — Background — ⬜ Not done
+## 9. World Map — Background — ✅ Done
 
 Optional. The map is a scrollable vertical list of level nodes on a gradient. A custom background image would enhance it.
 
@@ -149,5 +149,5 @@ Location: `public/assets/ui/`
 | 6 | HUD icons | — | ✅ Emoji (no PNG needed) |
 | 7 | Special activation animations | 4 | ⬜ |
 | 8 | Menu hero | 1 | ⬜ (optional) |
-| 9 | Map background | 1 | ⬜ (optional) |
+| 9 | Map background | 1 | ✅ Done |
 | | **Total** | **22** | |
