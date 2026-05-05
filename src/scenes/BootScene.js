@@ -36,6 +36,11 @@ export class BootScene extends Phaser.Scene {
       });
     }
 
+    // Custom menu assets — silently skipped if not yet present.
+    this.load.image('menu_bg',       'assets/ui/menu_bg.png');
+    this.load.image('menu_logo',     'assets/ui/menu_logo.png');
+    this.load.image('menu_play_btn', 'assets/ui/menu_play_btn.png');
+
     // If an image/sheet fails to load, generate a coloured placeholder for tiles.
     this.load.on('loaderror', (file) => {
       const match = file.key.match(/^tile_(\d+)$/);

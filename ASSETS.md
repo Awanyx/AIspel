@@ -109,16 +109,21 @@ Location: `public/assets/animations/`
 
 ---
 
-## 8. Menu Screen — Hero Illustration — ⬜ Not done
+## 8. Menu Screen — Full Custom Design — ⬜ Not done
 
-Optional. The main menu currently shows title text on a purple gradient. A hero image behind the title would add strong visual identity.
+Three assets that together replace the entire programmatic menu. The game falls back to the current gradient/text design if any are missing.
 
-| File | Display size | Deliver at |
-|---|---|---|
-| `menu_hero.png` | 390 × 460 px | 780 × 920 px |
+| File | Purpose | Display size | Deliver at |
+|---|---|---|---|
+| `menu_bg.png` | Full-screen background | 390 × 844 px | 780 × 1688 px |
+| `menu_logo.png` | Game logo / title treatment | up to 340 × any px (centred at y ≈ 310) | 2× display size |
+| `menu_play_btn.png` | Play button — tapped to start | up to 260 × any px (centred at y ≈ 600) | 2× display size |
 
-**Aspect ratio: 390∶460 ≈ 6∶7**  
-Placed in the upper portion of the menu (above the PLAY button). Characters or logo treatment.  
+**Notes**
+- `menu_bg.png` — full portrait canvas, covers the whole screen.
+- `menu_logo.png` — transparent background. Will be scaled down if wider than 340 px.
+- `menu_play_btn.png` — transparent background. Will be scaled down if wider than 260 px. Hover tints it slightly blue; tap scales it down 5% for press feedback. Design for the default/idle state only — no separate hover/pressed assets needed.
+
 Location: `public/assets/ui/`
 
 ---
@@ -148,6 +153,6 @@ Location: `public/assets/ui/`
 | 5 | Fail reaction | 1 | ✅ Done |
 | 6 | HUD icons | — | ✅ Emoji (no PNG needed) |
 | 7 | Special activation animations | 4 | ⬜ |
-| 8 | Menu hero | 1 | ⬜ (optional) |
+| 8 | Menu (bg + logo + play btn) | 3 | ⬜ |
 | 9 | Map background | 1 | ✅ Done |
-| | **Total** | **22** | |
+| | **Total** | **24** | |
