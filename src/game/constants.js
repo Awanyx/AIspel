@@ -9,9 +9,9 @@ export const TILE_SIZE = 44;
 export const TILE_GAP = 2;
 export const TILE_STEP = TILE_SIZE + TILE_GAP;
 
-// Board origin — centered horizontally and vertically (below HUD band ~90px)
+// Board origin — centred horizontally; vertically flush below HUD (stats bottom ~100px)
 export const BOARD_ORIGIN_X = (GAME_WIDTH - COLS * TILE_STEP + TILE_GAP) / 2;
-export const BOARD_ORIGIN_Y = Math.round((GAME_HEIGHT + 90 - (ROWS * TILE_STEP - TILE_GAP)) / 2);
+export const BOARD_ORIGIN_Y = 112;
 
 export const SWIPE_THRESHOLD = 20; // px
 

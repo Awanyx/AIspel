@@ -166,11 +166,11 @@ export class MapScene extends Phaser.Scene {
     this._closePopup();
     const cx = GAME_WIDTH / 2;
     const scrollY = -this._container.y;
-    const popupY = Math.min(nodeY + NODE_RADIUS + 12 - scrollY, GAME_HEIGHT - 210);
+    const popupY = Math.min(nodeY + NODE_RADIUS + 12 - scrollY, GAME_HEIGHT - 175);
 
     const popup = this.add.container(0, 0).setDepth(10);
 
-    const panelW = 250, panelH = 185;
+    const panelW = 250, panelH = 160;
     const panel = this.add.graphics();
     panel.fillStyle(0x1a0a2e, 0.97);
     panel.fillRoundedRect(cx - panelW / 2, popupY, panelW, panelH, 14);
@@ -178,27 +178,27 @@ export class MapScene extends Phaser.Scene {
     panel.strokeRoundedRect(cx - panelW / 2, popupY, panelW, panelH, 14);
     popup.add(panel);
 
-    popup.add(this.add.text(cx, popupY + 22, level.label.toUpperCase(), {
+    popup.add(this.add.text(cx, popupY + 18, level.label.toUpperCase(), {
       fontSize: '16px', fontFamily: 'Arial Black, Arial, sans-serif', color: '#ffffff',
     }).setOrigin(0.5));
 
     const obj = level.objective;
-    const objLine = obj.type === 'score'    ? `${OBJ_LABELS.score} ${obj.target}  •  ${obj.moves} moves`
-                  : obj.type === 'blockers' ? `${OBJ_LABELS.blockers}  •  ${obj.moves} moves`
-                  :                           `${OBJ_LABELS.time} ${obj.seconds}s  •  Target ${obj.target}`;
-    popup.add(this.add.text(cx, popupY + 48, objLine, {
+    const objLine = obj.type === 'score'    ? `${OBJ_LABELS.score} ${obj.target}  •  ${obj.moves} drag`
+                  : obj.type === 'blockers' ? `${OBJ_LABELS.blockers}  •  ${obj.moves} drag`
+                  :                           `${OBJ_LABELS.time} ${obj.seconds}s  •  Mål ${obj.target}`;
+    popup.add(this.add.text(cx, popupY + 40, objLine, {
       fontSize: '11px', fontFamily: 'Arial, sans-serif', color: '#aaaacc',
     }).setOrigin(0.5));
 
     const completed = isCompleted(level.id);
     if (completed) {
-      popup.add(this.add.text(cx, popupY + 72, '✓  Klar', {
+      popup.add(this.add.text(cx, popupY + 60, '✓  Klar', {
         fontSize: '13px', fontFamily: 'Arial, sans-serif', color: '#27ae60',
       }).setOrigin(0.5));
     }
 
     // Play button — use menu_play_btn image (520×272 px source → 180px wide display)
-    const btnY = popupY + 138;
+    const btnY = popupY + 110;
     const btn = this.add.image(cx, btnY, 'menu_play_btn').setInteractive({ useHandCursor: true });
     const btnDisplayW = 180;
     btn.setDisplaySize(btnDisplayW, btn.height * (btnDisplayW / btn.width));
