@@ -28,7 +28,15 @@ export class BootScene extends Phaser.Scene {
       }
     }
 
-    // If an image fails to load, generate a coloured placeholder instead.
+    // Special activation sprite sheets — 8 frames × 400×400px horizontal strip.
+    // Silently skipped if the file is not yet in public/assets/animations/.
+    for (const type of ['bolibompa', 'pippi', 'ratatoskr', 'sommarskuggan']) {
+      this.load.spritesheet(`anim_${type}`, `assets/animations/anim_${type}.png`, {
+        frameWidth: 400, frameHeight: 400,
+      });
+    }
+
+    // If an image/sheet fails to load, generate a coloured placeholder for tiles.
     this.load.on('loaderror', (file) => {
       const match = file.key.match(/^tile_(\d+)$/);
       if (match) this._generateTileTexture(Number(match[1]));

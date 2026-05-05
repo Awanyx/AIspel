@@ -90,7 +90,26 @@ Mute/unmute (🔇/🔊) and back (←) kept as emoji/text — no PNG needed.
 
 ---
 
-## 7. Menu Screen — Hero Illustration — ⬜ Not done
+## 7. Special Activation Animations — ⬜ Not done
+
+Played on top of the board when a special tile activates. Each is a **PNG sprite sheet** — a horizontal strip of frames with a transparent background. The coloured area-flash already shows which cells are affected; these animations show the character performing their action.
+
+| File | Character | Action | Frame size | Frames | Sheet size | fps |
+|---|---|---|---|---|---|---|
+| `anim_bolibompa.png` | Bolibompadraken | Fire breath — erupts outward from tile | 400 × 400 px | 8 | 3200 × 400 px | 12 |
+| `anim_pippi.png` | Pippi Långstrump | Row toss — sweeps tiles across the full row | 400 × 400 px | 8 | 3200 × 400 px | 14 |
+| `anim_ratatoskr.png` | Ratatoskr | Column sprint — dashes top-to-bottom down the column | 400 × 400 px | 8 | 3200 × 400 px | 16 |
+| `anim_sommarskuggan.png` | Sommarskuggan | Goo splash — splats goo that spreads outward | 400 × 400 px | 8 | 3200 × 400 px | 10 |
+
+**Aspect ratio per frame: 1∶1 (square)**  
+All frames left-to-right in a single row. Transparent background (alpha required).  
+Displayed at **200 × 200 px** centred on the activating tile, depth above the board.  
+The game falls back gracefully (coloured flash only) if a sheet is missing.  
+Location: `public/assets/animations/`
+
+---
+
+## 8. Menu Screen — Hero Illustration — ⬜ Not done
 
 Optional. The main menu currently shows title text on a purple gradient. A hero image behind the title would add strong visual identity.
 
@@ -104,7 +123,7 @@ Location: `public/assets/ui/`
 
 ---
 
-## 8. World Map — Background — ⬜ Not done
+## 9. World Map — Background — ⬜ Not done
 
 Optional. The map is a scrollable vertical list of level nodes on a gradient. A custom background image (forest path, starscape, etc.) would enhance it.
 
@@ -128,6 +147,7 @@ Location: `public/assets/ui/`
 | 4 | Win reaction | 1 | ✅ Done |
 | 5 | Fail reaction | 1 | ✅ Done |
 | 6 | HUD icons | — | ✅ Emoji (no PNG needed) |
-| 7 | Menu hero | 1 | ⬜ (optional) |
-| 8 | Map background | 1 | ⬜ (optional) |
-| | **Total** | **18** | |
+| 7 | Special activation animations | 4 | ⬜ |
+| 8 | Menu hero | 1 | ⬜ (optional) |
+| 9 | Map background | 1 | ⬜ (optional) |
+| | **Total** | **22** | |

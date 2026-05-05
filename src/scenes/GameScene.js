@@ -47,8 +47,36 @@ export class GameScene extends Phaser.Scene {
     this._buildBlockerOverlays();
     this._setupHUD();
     this._setupInput();
+    this._setupAnimations();
 
     if (this.level.objective.type === 'time') this._startTimer();
+  }
+
+  // ─── Special animations ───────────────────────────────────────────────────
+
+  _setupAnimations() {
+    const fps = { bolibompa: 12, pippi: 14, ratatoskr: 16, sommarskuggan: 10 };
+    for (const [type, frameRate] of Object.entries(fps)) {
+      const key = `anim_${type}`;
+      // frameTotal > 1 means the spritesheet loaded correctly (not a missing-texture placeholder)
+      if (this.textures.get(key).frameTotal > 1 && !this.anims.exists(key)) {
+        this.anims.create({
+          key,
+          frames: this.anims.generateFrameNumbers(key, { start: 0, end: 7 }),
+          frameRate,
+          repeat: 0,
+        });
+      }
+    }
+  }
+
+  _playSpecialAnimation(row, col, type) {
+    const key = `anim_${type}`;
+    if (!this.anims.exists(key)) return;
+    const { x, y } = this._tileXY(row, col);
+    const spr = this.add.sprite(x, y, key).setDisplaySize(200, 200).setDepth(6);
+    spr.play(key);
+    spr.once('animationcomplete', () => spr.destroy());
   }
 
   // ─── Background ──────────────────────────────────────────────────────────
@@ -473,6 +501,7 @@ export class GameScene extends Phaser.Scene {
       this._flashSpecialEffect(row, col, type);
       this._removeSpecialOverlay(row, col);
       Snd.specialActivate(type);
+      this._playSpecialAnimation(row, col, type);
     }
 
     // ── 6. Animate pop ──────────────────────────────────────────────────────
