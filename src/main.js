@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { BootScene } from './scenes/BootScene.js';
 import { MenuScene } from './scenes/MenuScene.js';
+import { MapScene } from './scenes/MapScene.js';
 import { GameScene } from './scenes/GameScene.js';
 import { UIScene } from './scenes/UIScene.js';
 import { WinScene } from './scenes/WinScene.js';
@@ -18,7 +19,7 @@ const config = {
     min: { width: 320, height: 568 },
     max: { width: 430, height: 932 },
   },
-  scene: [BootScene, MenuScene, GameScene, UIScene, WinScene, FailScene],
+  scene: [BootScene, MenuScene, MapScene, GameScene, UIScene, WinScene, FailScene],
 };
 
 const game = new Phaser.Game(config);

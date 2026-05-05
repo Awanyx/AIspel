@@ -63,8 +63,8 @@ export class FailScene extends Phaser.Scene {
       this.scene.start('GameScene', { levelId: this.levelId });
     });
 
-    this._makeButton(cx, 612, 'MAIN MENU', 0x555577, () => {
-      this.scene.start('MenuScene');
+    this._makeButton(cx, 612, 'WORLD MAP', 0x555577, () => {
+      this.scene.start('MapScene');
     });
   }
 

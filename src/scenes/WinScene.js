@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, TILE_COLORS } from '../game/constants.js';
 import { getNextLevel } from '../game/levels.js';
+import { recordCompletion } from '../game/Storage.js';
 
 const STAR_COLOR_EMPTY = 0x444466;
 const STAR_COLOR_FILL  = 0xffd700;
@@ -16,6 +17,8 @@ export class WinScene extends Phaser.Scene {
     this.levelId = data.levelId ?? 1;
     this.score   = data.score   ?? 0;
     this.stars   = data.stars   ?? 0;
+    // Persist immediately so MapScene reflects latest progress on return
+    recordCompletion(this.levelId, this.stars);
   }
 
   create() {
@@ -54,8 +57,8 @@ export class WinScene extends Phaser.Scene {
       });
     }
 
-    this._makeButton(cx, hasNext ? 600 : 540, 'MAIN MENU', 0x555577, () => {
-      this.scene.start('MenuScene');
+    this._makeButton(cx, hasNext ? 600 : 540, 'WORLD MAP', 0x555577, () => {
+      this.scene.start('MapScene');
     });
   }
 

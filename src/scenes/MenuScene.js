@@ -53,7 +53,7 @@ export class MenuScene extends Phaser.Scene {
     const btnZone = this.add.zone(cx, btnY, 220, 56).setInteractive({ useHandCursor: true });
     btnZone.on('pointerover', () => { btn.clear(); btn.fillStyle(0xb07cc8, 1); btn.fillRoundedRect(cx - 110, btnY - 28, 220, 56, 14); });
     btnZone.on('pointerout',  () => { btn.clear(); btn.fillStyle(0x9b59b6, 1); btn.fillRoundedRect(cx - 110, btnY - 28, 220, 56, 14); });
-    btnZone.on('pointerup',   () => this.scene.start('GameScene', { levelId: 1 }));
+    btnZone.on('pointerup',   () => this.scene.start('MapScene'));
   }
 
   _scatterDecoTiles() {
