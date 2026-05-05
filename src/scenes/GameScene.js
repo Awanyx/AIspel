@@ -256,7 +256,7 @@ export class GameScene extends Phaser.Scene {
     this.add.text(30, 30, '←', {
       fontSize: '22px', fontFamily: 'Arial, sans-serif', color: '#aaaacc',
     }).setOrigin(0, 0.5).setInteractive({ useHandCursor: true })
-      .on('pointerup', () => { if (!this._ended) { this._stopTimer(); this.scene.start('MenuScene'); } });
+      .on('pointerup', () => { if (!this._ended) { this._stopTimer(); this.scene.start('MapScene'); } });
 
     // Mute toggle
     this._muteBtn = this.add.text(GAME_WIDTH - 30, 28, Snd.muted ? '🔇' : '🔊', {
