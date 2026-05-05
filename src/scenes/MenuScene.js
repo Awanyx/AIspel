@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, TILE_COLORS } from '../game/constants.js';
+import { Snd } from '../game/Audio.js';
 
 export class MenuScene extends Phaser.Scene {
   constructor() {
@@ -53,7 +54,21 @@ export class MenuScene extends Phaser.Scene {
     const btnZone = this.add.zone(cx, btnY, 220, 56).setInteractive({ useHandCursor: true });
     btnZone.on('pointerover', () => { btn.clear(); btn.fillStyle(0xb07cc8, 1); btn.fillRoundedRect(cx - 110, btnY - 28, 220, 56, 14); });
     btnZone.on('pointerout',  () => { btn.clear(); btn.fillStyle(0x9b59b6, 1); btn.fillRoundedRect(cx - 110, btnY - 28, 220, 56, 14); });
-    btnZone.on('pointerup',   () => this.scene.start('MapScene'));
+    btnZone.on('pointerup',   () => {
+      Snd.resume();
+      Snd.startMusic();
+      this.scene.start('MapScene');
+    });
+
+    // Mute toggle
+    const muteBtn = this.add.text(GAME_WIDTH - 24, 28, Snd.muted ? '🔇' : '🔊', {
+      fontSize: '22px',
+    }).setOrigin(1, 0.5).setInteractive({ useHandCursor: true });
+    muteBtn.on('pointerdown', () => { Snd.resume(); });
+    muteBtn.on('pointerup', () => {
+      Snd.toggle();
+      muteBtn.setText(Snd.muted ? '🔇' : '🔊');
+    });
   }
 
   _scatterDecoTiles() {

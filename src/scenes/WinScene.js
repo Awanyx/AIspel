@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, TILE_COLORS } from '../game/constants.js';
 import { getNextLevel } from '../game/levels.js';
 import { recordCompletion } from '../game/Storage.js';
+import { Snd } from '../game/Audio.js';
 
 export class WinScene extends Phaser.Scene {
   constructor() {
@@ -18,6 +19,7 @@ export class WinScene extends Phaser.Scene {
   create() {
     const cx = GAME_WIDTH / 2;
 
+    Snd.levelComplete();
     this._drawBackground();
 
     this.add.text(cx, 200, '🎉', { fontSize: '72px' }).setOrigin(0.5);

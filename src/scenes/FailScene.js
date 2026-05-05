@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../game/constants.js';
+import { Snd } from '../game/Audio.js';
 
 export class FailScene extends Phaser.Scene {
   constructor() {
@@ -16,6 +17,7 @@ export class FailScene extends Phaser.Scene {
   create() {
     const cx = GAME_WIDTH / 2;
 
+    Snd.fail();
     this._drawBackground();
 
     // Sad face emoji stand-in (placeholder for character reaction art)

@@ -8,6 +8,7 @@ import {
   GAME_WIDTH, GAME_HEIGHT, TILE_COLORS,
 } from '../game/constants.js';
 import { getLevel } from '../game/levels.js';
+import { Snd } from '../game/Audio.js';
 
 // Glow colour per special type
 const SPECIAL_GLOW = {
@@ -216,6 +217,15 @@ export class GameScene extends Phaser.Scene {
       fontSize: '22px', fontFamily: 'Arial, sans-serif', color: '#aaaacc',
     }).setOrigin(0, 0.5).setInteractive({ useHandCursor: true })
       .on('pointerup', () => { if (!this._ended) { this._stopTimer(); this.scene.start('MenuScene'); } });
+
+    // Mute toggle
+    this._muteBtn = this.add.text(GAME_WIDTH - 30, 28, Snd.muted ? '🔇' : '🔊', {
+      fontSize: '20px',
+    }).setOrigin(1, 0.5).setInteractive({ useHandCursor: true })
+      .on('pointerup', () => {
+        Snd.toggle();
+        this._muteBtn.setText(Snd.muted ? '🔇' : '🔊');
+      });
   }
 
   _setupScoreHUD(cx, target) {
@@ -262,6 +272,7 @@ export class GameScene extends Phaser.Scene {
     this.add.text(GAME_WIDTH - 30, 76, 'MOVES', {
       fontSize: '11px', fontFamily: 'Arial, sans-serif', color: '#888899',
     }).setOrigin(1, 0.5);
+    this._movesWarnActive = false;
   }
 
   _updateHUD() {
@@ -274,6 +285,24 @@ export class GameScene extends Phaser.Scene {
       const pct = Math.min(this.score / target, 1);
       this._scoreBarFill.clear();
       if (pct > 0) { this._scoreBarFill.fillStyle(0x9b59b6, 1); this._scoreBarFill.fillRoundedRect(x, y, w * pct, h, 4); }
+    }
+
+    // Low-moves warning: pulse red when ≤ 5 moves left
+    if (this.movesText && this.moves !== null) {
+      if (this.moves <= 5 && this.moves > 0 && !this._movesWarnActive) {
+        this._movesWarnActive = true;
+        this.movesText.setColor('#ff4444');
+        this.tweens.add({
+          targets: this.movesText,
+          scaleX: 1.25, scaleY: 1.25,
+          duration: 280, ease: 'Sine.easeInOut',
+          yoyo: true, repeat: -1,
+        });
+      } else if (this.moves > 5 && this._movesWarnActive) {
+        this._movesWarnActive = false;
+        this.tweens.killTweensOf(this.movesText);
+        this.movesText.setScale(1).setColor('#e8b4f0');
+      }
     }
   }
 
@@ -314,7 +343,10 @@ export class GameScene extends Phaser.Scene {
 
   _setupInput() {
     let startX = 0, startY = 0;
-    this.input.on('pointerdown', (p) => { startX = p.x; startY = p.y; });
+    this.input.on('pointerdown', (p) => {
+      Snd.resume(); // unlock AudioContext on first gesture
+      startX = p.x; startY = p.y;
+    });
     this.input.on('pointerup', (p) => {
       if (this.busy || this._ended) return;
       const dx = p.x - startX, dy = p.y - startY;
@@ -350,6 +382,7 @@ export class GameScene extends Phaser.Scene {
 
   _doSwap(r1, c1, r2, c2) {
     this.busy = true;
+    Snd.swap();
     this.board.swap(r1, c1, r2, c2);
 
     const sprA = this.tileSprites[r1][c1], sprB = this.tileSprites[r2][c2];
@@ -433,6 +466,7 @@ export class GameScene extends Phaser.Scene {
     for (const { row, col, type } of activatedSpecials) {
       this._flashSpecialEffect(row, col, type);
       this._removeSpecialOverlay(row, col);
+      Snd.specialActivate(type);
     }
 
     // ── 6. Animate pop ──────────────────────────────────────────────────────
@@ -453,7 +487,10 @@ export class GameScene extends Phaser.Scene {
       }
 
       // Destroy blocker overlays that were cleared
-      for (const { row, col } of destroyedBlockers) this._destroyBlockerOverlay(row, col);
+      for (const { row, col } of destroyedBlockers) {
+        this._destroyBlockerOverlay(row, col);
+        Snd.blockerCrack();
+      }
 
       // Animate falling tiles
       let maxFallDur = 0;
@@ -466,10 +503,10 @@ export class GameScene extends Phaser.Scene {
         const dist = Math.abs(targetY - spr.y);
         const dur = FALL_DURATION_BASE + dist * FALL_DURATION_PER_PX;
         if (dur > maxFallDur) maxFallDur = dur;
-        this.tweens.add({ targets: spr, y: targetY, duration: dur, ease: 'Bounce.easeOut' });
+        this._animateFall(spr, targetY, dur);
         // Also move blocker overlay if present
         const bov = this.blockerOverlays[fromRow][col];
-        if (bov) { this.blockerOverlays[toRow][col] = bov; this.blockerOverlays[fromRow][col] = null; this.tweens.add({ targets: bov, y: `+=${targetY - spr.y}`, duration: dur, ease: 'Bounce.easeOut' }); }
+        if (bov) { this.blockerOverlays[toRow][col] = bov; this.blockerOverlays[fromRow][col] = null; this.tweens.add({ targets: bov, y: `+=${targetY - spr.y}`, duration: dur, ease: 'Quad.easeIn' }); }
       }
 
       // Spawn new tiles
@@ -481,19 +518,22 @@ export class GameScene extends Phaser.Scene {
         const dist = Math.abs(targetY - sy);
         const dur = FALL_DURATION_BASE + dist * FALL_DURATION_PER_PX;
         if (dur > maxFallDur) maxFallDur = dur;
-        this.tweens.add({ targets: spr, y: targetY, duration: dur, ease: 'Bounce.easeOut' });
+        this._animateFall(spr, targetY, dur);
       }
 
       // Rebuild special overlays after all falls, then burst newly created ones
       this.time.delayedCall(maxFallDur + 50, () => {
         this._rebuildSpecialOverlays();
         // Burst only for specials that were just created this pass
+        let anyNew = false;
         for (const { type, row, col } of validNewSpecials) {
           if (this.board.specialType(row, col) === type) {
             const { x, y } = this._tileXY(row, col);
             this._emitSpecialBurst(x, y, SPECIAL_GLOW[type]);
+            anyNew = true;
           }
         }
+        if (anyNew) Snd.specialCreate();
         this.time.delayedCall(CASCADE_PAUSE, () => this._processMatches(cascadeLevel + 1));
       });
     });
@@ -505,9 +545,12 @@ export class GameScene extends Phaser.Scene {
     if (cells.length === 0) { onComplete(); return; }
     let remaining = cells.length;
     const done = () => { if (--remaining === 0) onComplete(); };
+    let idx = 0;
     for (const { row, col } of cells) {
       const spr = this.tileSprites[row][col];
       if (!spr) { done(); continue; }
+
+      Snd.pop(idx++);
 
       // Particle burst at the tile's position, coloured to match tile type
       const type = this.board.get(row, col);
@@ -518,6 +561,21 @@ export class GameScene extends Phaser.Scene {
         duration: POP_DURATION, ease: 'Cubic.easeOut', onComplete: done,
       });
     }
+  }
+
+  /** Fall tween with squash-and-stretch on landing. */
+  _animateFall(spr, targetY, dur) {
+    this.tweens.add({
+      targets: spr, y: targetY, duration: dur, ease: 'Quad.easeIn',
+      onComplete: () => {
+        this.tweens.add({
+          targets: spr, scaleX: 1.25, scaleY: 0.75, duration: 60, ease: 'Sine.easeOut',
+          onComplete: () => {
+            this.tweens.add({ targets: spr, scaleX: 1, scaleY: 1, duration: 140, ease: 'Back.easeOut' });
+          },
+        });
+      },
+    });
   }
 
   /**
@@ -607,6 +665,11 @@ export class GameScene extends Phaser.Scene {
     if (won) {
       this._ended = true;
       this._stopTimer();
+      // +50 pts per remaining move for move-limited objectives
+      if ((type === 'score' || type === 'blockers') && this.moves > 0) {
+        this.score += this.moves * 50;
+        this._updateHUD();
+      }
       this.time.delayedCall(400, () => this.scene.start('WinScene', { levelId: this.levelId, score: this.score }));
     } else if (lost) {
       this._ended = true;

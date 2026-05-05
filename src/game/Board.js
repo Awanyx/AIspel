@@ -67,10 +67,23 @@ export class Board {
   findMatches() {
     const matched = Array.from({ length: ROWS }, () => Array(COLS).fill(false));
 
+    // Two adjacent cells "match" if they are the same type OR either is a
+    // special tile (specials are wild — they extend any run).
+    const cellsMatch = (r, c1, c2) => {
+      const a = this.grid[r][c1], b = this.grid[r][c2];
+      if (a === null || b === null) return false;
+      return a === b || !!this.specials[`${r},${c1}`] || !!this.specials[`${r},${c2}`];
+    };
+    const rowsMatch = (r1, r2, c) => {
+      const a = this.grid[r1][c], b = this.grid[r2][c];
+      if (a === null || b === null) return false;
+      return a === b || !!this.specials[`${r1},${c}`] || !!this.specials[`${r2},${c}`];
+    };
+
     for (let r = 0; r < ROWS; r++) {
       let run = 1;
       for (let c = 1; c <= COLS; c++) {
-        const same = c < COLS && this.grid[r][c] !== null && this.grid[r][c] === this.grid[r][c - 1];
+        const same = c < COLS && cellsMatch(r, c - 1, c);
         if (same) { run++; }
         else { if (run >= 3) for (let k = c - run; k < c; k++) matched[r][k] = true; run = 1; }
       }
@@ -78,7 +91,7 @@ export class Board {
     for (let c = 0; c < COLS; c++) {
       let run = 1;
       for (let r = 1; r <= ROWS; r++) {
-        const same = r < ROWS && this.grid[r][c] !== null && this.grid[r][c] === this.grid[r - 1][c];
+        const same = r < ROWS && rowsMatch(r - 1, r, c);
         if (same) { run++; }
         else { if (run >= 3) for (let k = r - run; k < r; k++) matched[k][c] = true; run = 1; }
       }
