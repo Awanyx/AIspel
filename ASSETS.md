@@ -84,19 +84,9 @@ Location: `public/assets/ui/`
 
 ---
 
-## 6. HUD Icons — ⬜ Not done
+## 6. HUD Icons — ✅ Done (emoji)
 
-Small icons used in the game HUD and menus. Currently emoji text.
-
-| File | Used for | Display size | Deliver at |
-|---|---|---|---|
-| `icon_mute.png` | Sound off button | 28 × 28 px | 56 × 56 px |
-| `icon_unmute.png` | Sound on button | 28 × 28 px | 56 × 56 px |
-| `icon_back.png` | Back / return button | 28 × 28 px | 56 × 56 px |
-
-**Aspect ratio: 1∶1 (square)**  
-Transparent background. Simple, high-contrast icon style.  
-Location: `public/assets/ui/`
+Mute/unmute (🔇/🔊) and back (←) kept as emoji/text — no PNG needed.
 
 ---
 
@@ -137,7 +127,7 @@ Location: `public/assets/ui/`
 | 3 | Blocker tile | 1 | ✅ Done |
 | 4 | Win reaction | 1 | ✅ Done |
 | 5 | Fail reaction | 1 | ✅ Done |
-| 6 | HUD icons | 3 | ⬜ |
+| 6 | HUD icons | — | ✅ Emoji (no PNG needed) |
 | 7 | Menu hero | 1 | ⬜ (optional) |
 | 8 | Map background | 1 | ⬜ (optional) |
 | | **Total** | **18** | |
