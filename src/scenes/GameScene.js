@@ -10,18 +10,26 @@ import {
   POP_DURATION, CASCADE_PAUSE,
   GAME_WIDTH, GAME_HEIGHT,
 } from '../game/constants.js';
+import { getLevel, calcStars } from '../game/levels.js';
 
 export class GameScene extends Phaser.Scene {
   constructor() {
     super({ key: 'GameScene' });
   }
 
+  /** init() receives data passed via scene.start('GameScene', { levelId }) */
+  init(data) {
+    this.levelId = data?.levelId ?? 1;
+  }
+
   create() {
-    this.board = new Board();
-    this.tileSprites = [];   // tileSprites[row][col] = Phaser.GameObjects.Image
-    this.busy = false;       // lock input while animations run
-    this.score = 0;
-    this.moves = 30;
+    this.level  = getLevel(this.levelId);
+    this.board  = new Board();
+    this.tileSprites = [];
+    this.busy   = false;
+    this.score  = 0;
+    this.moves  = this.level.objective.moves;
+    this._ended = false;
 
     this._drawBackground();
     this._drawBoardBackground();
@@ -92,35 +100,103 @@ export class GameScene extends Phaser.Scene {
 
   _setupHUD() {
     const cx = GAME_WIDTH / 2;
+    const target = this.level.objective.target;
 
-    // Score
-    this.scoreLabelText = this.add.text(cx, 60, 'SCORE', {
+    // Level label
+    this.add.text(cx, 28, this.level.label.toUpperCase(), {
       fontSize: '13px', fontFamily: 'Arial, sans-serif', color: '#aaaacc',
     }).setOrigin(0.5);
 
-    this.scoreText = this.add.text(cx, 82, '0', {
-      fontSize: '32px', fontFamily: 'Arial Black, Arial, sans-serif', color: '#ffffff',
-    }).setOrigin(0.5);
+    // Score progress bar background
+    const barW = 180;
+    const barH = 14;
+    const barX = cx - barW / 2;
+    const barY = 50;
+    const barBg = this.add.graphics();
+    barBg.fillStyle(0x000000, 0.4);
+    barBg.fillRoundedRect(barX, barY, barW, barH, 5);
+
+    this._scoreBarFill = this.add.graphics();
+    this._scoreBarTarget = target;
+    this._scoreBarX = barX;
+    this._scoreBarY = barY;
+    this._scoreBarW = barW;
+    this._scoreBarH = barH;
+
+    // Target label
+    this.add.text(cx + barW / 2 + 6, barY + barH / 2, `/${target}`, {
+      fontSize: '11px', fontFamily: 'Arial, sans-serif', color: '#888899',
+    }).setOrigin(0, 0.5);
+
+    // Score number
+    this.add.text(cx - barW / 2 - 6, barY + barH / 2, 'SCORE', {
+      fontSize: '10px', fontFamily: 'Arial, sans-serif', color: '#888899',
+    }).setOrigin(1, 0.5);
 
     // Moves
-    this.movesLabelText = this.add.text(GAME_WIDTH - 48, 60, 'MOVES', {
-      fontSize: '13px', fontFamily: 'Arial, sans-serif', color: '#aaaacc',
-    }).setOrigin(0.5);
+    this.add.text(GAME_WIDTH - 30, 30, 'MOVES', {
+      fontSize: '11px', fontFamily: 'Arial, sans-serif', color: '#aaaacc',
+    }).setOrigin(1, 0.5);
 
-    this.movesText = this.add.text(GAME_WIDTH - 48, 82, String(this.moves), {
-      fontSize: '32px', fontFamily: 'Arial Black, Arial, sans-serif', color: '#e8b4f0',
-    }).setOrigin(0.5);
+    this.movesText = this.add.text(GAME_WIDTH - 30, 56, String(this.moves), {
+      fontSize: '30px', fontFamily: 'Arial Black, Arial, sans-serif', color: '#e8b4f0',
+    }).setOrigin(1, 0.5);
 
-    // Back to menu
-    const backText = this.add.text(30, 60, '←', {
-      fontSize: '28px', fontFamily: 'Arial, sans-serif', color: '#aaaacc',
+    // Score number (top-left)
+    this.scoreText = this.add.text(30, 56, '0', {
+      fontSize: '30px', fontFamily: 'Arial Black, Arial, sans-serif', color: '#ffffff',
+    }).setOrigin(0, 0.5);
+
+    // Star thresholds row (bottom area)
+    this._buildStarIndicators();
+
+    // Back / pause button
+    const back = this.add.text(30, 30, '←', {
+      fontSize: '22px', fontFamily: 'Arial, sans-serif', color: '#aaaacc',
     }).setOrigin(0, 0.5).setInteractive({ useHandCursor: true });
-    backText.on('pointerup', () => this.scene.start('MenuScene'));
+    back.on('pointerup', () => {
+      if (!this._ended) this.scene.start('MenuScene');
+    });
+
+    this._updateHUD();
+  }
+
+  _buildStarIndicators() {
+    const [t1, t2, t3] = this.level.starThresholds;
+    const labels = [`★ ${t1}`, `★★ ${t2}`, `★★★ ${t3}`];
+    const cx = GAME_WIDTH / 2;
+    const y = GAME_HEIGHT - 32;
+    const spacing = GAME_WIDTH / 4;
+
+    this._starTexts = labels.map((lbl, i) => {
+      return this.add.text(cx - spacing + i * spacing, y, lbl, {
+        fontSize: '12px', fontFamily: 'Arial, sans-serif', color: '#555577',
+      }).setOrigin(0.5);
+    });
   }
 
   _updateHUD() {
     this.scoreText.setText(String(this.score));
     this.movesText.setText(String(this.moves));
+
+    // Score bar
+    const pct = Math.min(this.score / this._scoreBarTarget, 1);
+    this._scoreBarFill.clear();
+    if (pct > 0) {
+      this._scoreBarFill.fillStyle(0x9b59b6, 1);
+      this._scoreBarFill.fillRoundedRect(
+        this._scoreBarX, this._scoreBarY,
+        this._scoreBarW * pct, this._scoreBarH, 5
+      );
+    }
+
+    // Star threshold colours
+    const [t1, t2, t3] = this.level.starThresholds;
+    const thresholds = [t1, t2, t3];
+    const colors = ['#c8a000', '#e0b800', '#ffd700'];
+    this._starTexts?.forEach((txt, i) => {
+      txt.setColor(this.score >= thresholds[i] ? colors[i] : '#555577');
+    });
   }
 
   // ─── Input ─────────────────────────────────────────────────────────────────
@@ -135,7 +211,7 @@ export class GameScene extends Phaser.Scene {
     });
 
     this.input.on('pointerup', (pointer) => {
-      if (this.busy) return;
+      if (this.busy || this._ended) return;
 
       const dx = pointer.x - startX;
       const dy = pointer.y - startY;
@@ -173,13 +249,13 @@ export class GameScene extends Phaser.Scene {
     if (r2 < 0 || r2 >= ROWS || c2 < 0 || c2 >= COLS) return;
 
     if (this.board.wouldMatch(row, col, r2, c2)) {
-      this._doSwap(row, col, r2, c2, true);
+      this._doSwap(row, col, r2, c2);
     } else {
       this._animateInvalidSwap(row, col, r2, c2);
     }
   }
 
-  _doSwap(r1, c1, r2, c2, consumeMove) {
+  _doSwap(r1, c1, r2, c2) {
     this.busy = true;
     this.board.swap(r1, c1, r2, c2);
 
@@ -195,10 +271,8 @@ export class GameScene extends Phaser.Scene {
     this.tweens.add({
       targets: sprB, x: posA.x, y: posA.y, duration: SWAP_DURATION, ease: 'Sine.easeInOut',
       onComplete: () => {
-        if (consumeMove) {
-          this.moves--;
-          this._updateHUD();
-        }
+        this.moves--;
+        this._updateHUD();
         this._processMatches(0);
       },
     });
@@ -211,7 +285,6 @@ export class GameScene extends Phaser.Scene {
     const posA = this._tileXY(r1, c1);
     const posB = this._tileXY(r2, c2);
 
-    // Slide towards target then bounce back
     this.tweens.add({
       targets: sprA,
       x: posA.x + (posB.x - posA.x) * 0.35,
@@ -231,10 +304,6 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  /**
-   * Find matches → pop them → apply gravity → fill → repeat (cascades).
-   * cascadeLevel is used for future score multipliers.
-   */
   _processMatches(cascadeLevel) {
     const matches = this.board.findMatches();
     if (matches.length === 0) {
@@ -243,8 +312,7 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
-    // Score: simple 100 per tile for now; multiplied by cascade
-    const multiplier = Math.pow(1.5, cascadeLevel) | 0 || 1;
+    const multiplier = Math.max(1, Math.floor(Math.pow(1.5, cascadeLevel)));
     this.score += matches.length * 100 * multiplier;
     this._updateHUD();
 
@@ -252,7 +320,6 @@ export class GameScene extends Phaser.Scene {
       const falls = this.board.removeMatches(matches);
       const spawns = this.board.fillEmpty();
 
-      // Destroy popped sprites and update grid reference
       for (const { row, col } of matches) {
         if (this.tileSprites[row][col]) {
           this.tileSprites[row][col].destroy();
@@ -260,7 +327,6 @@ export class GameScene extends Phaser.Scene {
         }
       }
 
-      // Move existing sprites to their new rows (gravity)
       for (const { col, toRow, fromRow } of falls) {
         const spr = this.tileSprites[fromRow][col];
         if (!spr) continue;
@@ -276,15 +342,11 @@ export class GameScene extends Phaser.Scene {
         });
       }
 
-      // Spawn new tiles above the board and fall into place
       let maxFallDuration = 0;
       for (const { col, row, type } of spawns) {
         const above = this._spawnAboveBoard(col);
         const spr = this.add.image(above.x, above.y, `tile_${type}`)
-          .setDisplaySize(TILE_SIZE, TILE_SIZE)
-          .setData('row', row)
-          .setData('col', col)
-          .setData('type', type);
+          .setDisplaySize(TILE_SIZE, TILE_SIZE);
         this.tileSprites[row][col] = spr;
 
         const { y: targetY } = this._tileXY(row, col);
@@ -292,15 +354,9 @@ export class GameScene extends Phaser.Scene {
         const dur = FALL_DURATION_BASE + dist * FALL_DURATION_PER_PX;
         if (dur > maxFallDuration) maxFallDuration = dur;
 
-        this.tweens.add({
-          targets: spr,
-          y: targetY,
-          duration: dur,
-          ease: 'Bounce.easeOut',
-        });
+        this.tweens.add({ targets: spr, y: targetY, duration: dur, ease: 'Bounce.easeOut' });
       }
 
-      // After all falls settle, check for cascade
       this.time.delayedCall(maxFallDuration + CASCADE_PAUSE, () => {
         this._processMatches(cascadeLevel + 1);
       });
@@ -314,7 +370,6 @@ export class GameScene extends Phaser.Scene {
     for (const { row, col } of cells) {
       const spr = this.tileSprites[row][col];
       if (!spr) { done(); continue; }
-
       this.tweens.add({
         targets: spr,
         scaleX: 1.3, scaleY: 1.3,
@@ -326,10 +381,29 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  // ─── End conditions ────────────────────────────────────────────────────────
+
   _checkEndCondition() {
-    if (this.moves <= 0) {
+    if (this._ended) return;
+    const { type, target } = this.level.objective;
+
+    const won  = type === 'score' && this.score >= target;
+    const lost = this.moves <= 0 && !won;
+
+    if (won) {
+      this._ended = true;
+      const stars = calcStars(this.level, this.score);
       this.time.delayedCall(400, () => {
-        this.scene.start('MenuScene');
+        this.scene.start('WinScene', { levelId: this.levelId, score: this.score, stars });
+      });
+    } else if (lost) {
+      this._ended = true;
+      this.time.delayedCall(400, () => {
+        this.scene.start('FailScene', {
+          levelId: this.levelId,
+          score: this.score,
+          reason: 'Out of moves!',
+        });
       });
     }
   }
