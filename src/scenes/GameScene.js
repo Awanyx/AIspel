@@ -465,7 +465,7 @@ export class GameScene extends Phaser.Scene {
 
     // ── 4. Score ────────────────────────────────────────────────────────────
     const multiplier = Math.max(1, Math.floor(Math.pow(1.5, cascadeLevel)));
-    this.score += validClear.length * 100 * multiplier;
+    this.score += validClear.length * 50 * multiplier;
     this._updateHUD();
 
     // ── 5. Activate visual flash for special effects ────────────────────────
