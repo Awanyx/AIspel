@@ -23,6 +23,7 @@ const config = {
 };
 
 const game = new Phaser.Game(config);
+window.__phaserGame = game; // dev convenience for screenshots / debugging
 
 // Prevent default touch behavior (scroll / zoom) on the canvas
 game.canvas.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });

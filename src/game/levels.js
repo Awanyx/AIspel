@@ -1,59 +1,63 @@
 /**
- * Level definitions for SVT Arkiv.
- * objective.type: "score" | "blockers" | "time"  (only "score" active in this build)
- * starThresholds: [1-star, 2-star, 3-star] minimum scores
+ * 8-level structure per the GDD.
+ * objective.type: "score" | "blockers" | "time"
+ *   score   → target (pts), moves
+ *   blockers→ moves; blockerPositions defines the layout
+ *   time    → target (pts), seconds
  */
 export const LEVELS = [
   {
     id: 1,
     label: 'Level 1',
-    gridSize: { cols: 8, rows: 8 },
     objective: { type: 'score', target: 2000, moves: 25 },
-    starThresholds: [2000, 2400, 3000],
   },
   {
     id: 2,
     label: 'Level 2',
-    gridSize: { cols: 8, rows: 8 },
-    objective: { type: 'score', target: 4000, moves: 25 },
-    starThresholds: [4000, 4800, 6000],
+    objective: { type: 'score', target: 4500, moves: 25 },
   },
   {
     id: 3,
     label: 'Level 3',
-    gridSize: { cols: 8, rows: 8 },
-    objective: { type: 'score', target: 6000, moves: 28 },
-    starThresholds: [6000, 7200, 9000],
+    objective: { type: 'blockers', moves: 28 },
+    blockerPositions: [
+      { row: 2, col: 2 }, { row: 2, col: 5 },
+      { row: 4, col: 1 }, { row: 4, col: 3 }, { row: 4, col: 4 }, { row: 4, col: 6 },
+    ],
   },
   {
     id: 4,
     label: 'Level 4',
-    gridSize: { cols: 8, rows: 8 },
-    objective: { type: 'score', target: 8000, moves: 30 },
-    starThresholds: [8000, 9600, 12000],
+    objective: { type: 'time', target: 4000, seconds: 60 },
   },
   {
     id: 5,
     label: 'Level 5',
-    gridSize: { cols: 8, rows: 8 },
-    objective: { type: 'score', target: 10000, moves: 30 },
-    starThresholds: [10000, 12000, 15000],
+    objective: { type: 'score', target: 8000, moves: 30 },
+  },
+  {
+    id: 6,
+    label: 'Level 6',
+    objective: { type: 'blockers', moves: 30 },
+    blockerPositions: [
+      { row: 1, col: 1 }, { row: 1, col: 6 },
+      { row: 3, col: 3 }, { row: 3, col: 4 },
+      { row: 5, col: 0 }, { row: 5, col: 2 }, { row: 5, col: 5 }, { row: 5, col: 7 },
+      { row: 7, col: 3 }, { row: 7, col: 4 },
+    ],
+  },
+  {
+    id: 7,
+    label: 'Level 7',
+    objective: { type: 'time', target: 8000, seconds: 45 },
+  },
+  {
+    id: 8,
+    label: 'Level 8',
+    objective: { type: 'score', target: 12000, moves: 30 },
   },
 ];
 
-export function getLevel(id) {
-  return LEVELS.find((l) => l.id === id) ?? LEVELS[0];
-}
+export function getLevel(id) { return LEVELS.find((l) => l.id === id) ?? LEVELS[0]; }
 
-export function getNextLevel(id) {
-  return LEVELS.find((l) => l.id === id + 1) ?? null;
-}
-
-/** Compute 0–3 stars for a given score against a level's thresholds. */
-export function calcStars(level, score) {
-  const [t1, t2, t3] = level.starThresholds;
-  if (score >= t3) return 3;
-  if (score >= t2) return 2;
-  if (score >= t1) return 1;
-  return 0;
-}
+export function getNextLevel(id) { return LEVELS.find((l) => l.id === id + 1) ?? null; }
