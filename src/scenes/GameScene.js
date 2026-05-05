@@ -5,7 +5,7 @@ import {
   BOARD_ORIGIN_X, BOARD_ORIGIN_Y,
   SWIPE_THRESHOLD, SWAP_DURATION, INVALID_SWAP_DURATION,
   FALL_DURATION_BASE, FALL_DURATION_PER_PX, POP_DURATION, CASCADE_PAUSE,
-  GAME_WIDTH, GAME_HEIGHT,
+  GAME_WIDTH, GAME_HEIGHT, TILE_COLORS,
 } from '../game/constants.js';
 import { getLevel } from '../game/levels.js';
 
@@ -484,9 +484,16 @@ export class GameScene extends Phaser.Scene {
         this.tweens.add({ targets: spr, y: targetY, duration: dur, ease: 'Bounce.easeOut' });
       }
 
-      // Rebuild special overlays after all falls
+      // Rebuild special overlays after all falls, then burst newly created ones
       this.time.delayedCall(maxFallDur + 50, () => {
         this._rebuildSpecialOverlays();
+        // Burst only for specials that were just created this pass
+        for (const { type, row, col } of validNewSpecials) {
+          if (this.board.specialType(row, col) === type) {
+            const { x, y } = this._tileXY(row, col);
+            this._emitSpecialBurst(x, y, SPECIAL_GLOW[type]);
+          }
+        }
         this.time.delayedCall(CASCADE_PAUSE, () => this._processMatches(cascadeLevel + 1));
       });
     });
@@ -501,11 +508,55 @@ export class GameScene extends Phaser.Scene {
     for (const { row, col } of cells) {
       const spr = this.tileSprites[row][col];
       if (!spr) { done(); continue; }
+
+      // Particle burst at the tile's position, coloured to match tile type
+      const type = this.board.get(row, col);
+      if (type !== null) this._emitPopParticles(spr.x, spr.y, TILE_COLORS[type]);
+
       this.tweens.add({
         targets: spr, scaleX: 1.3, scaleY: 1.3, alpha: 0,
         duration: POP_DURATION, ease: 'Cubic.easeOut', onComplete: done,
       });
     }
+  }
+
+  /**
+   * Burst of coloured dots flying outward from (x, y).
+   * Used for normal tile pops.
+   */
+  _emitPopParticles(x, y, color) {
+    const emitter = this.add.particles(x, y, 'particle', {
+      speed:    { min: 60, max: 200 },
+      angle:    { min: 0, max: 360 },
+      scale:    { start: 1.0, end: 0 },
+      alpha:    { start: 1,   end: 0 },
+      lifespan: { min: 220,   max: 420 },
+      gravityY: 220,
+      tint: color,
+      emitting: false,
+    });
+    emitter.explode(10, x, y);
+    // Destroy the emitter once all particles have died
+    this.time.delayedCall(500, () => emitter.destroy());
+  }
+
+  /**
+   * Larger burst of gold + special-colour sparks when a special tile
+   * is created (called once per newly placed special after gravity).
+   */
+  _emitSpecialBurst(x, y, color) {
+    const emitter = this.add.particles(x, y, 'particle', {
+      speed:    { min: 80, max: 240 },
+      angle:    { min: 0, max: 360 },
+      scale:    { start: 1.4, end: 0 },
+      alpha:    { start: 1,   end: 0 },
+      lifespan: { min: 300,   max: 550 },
+      gravityY: 160,
+      tint: [color, 0xffd700, 0xffffff],
+      emitting: false,
+    });
+    emitter.explode(16, x, y);
+    this.time.delayedCall(650, () => emitter.destroy());
   }
 
   _flashSpecialEffect(row, col, type) {

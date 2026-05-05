@@ -14,6 +14,7 @@ export class BootScene extends Phaser.Scene {
     for (let i = 0; i < TILE_COLORS.length; i++) {
       this._generateTileTexture(i);
     }
+    this._generateParticleTexture();
   }
 
   _generateTileTexture(index) {
@@ -84,6 +85,19 @@ export class BootScene extends Phaser.Scene {
       fill.destroy();
       outline.destroy();
     });
+  }
+
+  _generateParticleTexture() {
+    if (this.textures.exists('particle')) return;
+    const size = 10;
+    const rt = this.add.renderTexture(0, 0, size, size);
+    const g = this.add.graphics();
+    g.fillStyle(0xffffff, 1);
+    g.fillCircle(size / 2, size / 2, size / 2);
+    rt.draw(g, 0, 0);
+    g.destroy();
+    rt.saveTexture('particle');
+    rt.destroy();
   }
 
   create() {
