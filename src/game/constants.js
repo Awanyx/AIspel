@@ -23,11 +23,11 @@ export const TILE_COLORS = [
   0x2c3e7a, // 1 Sommarskuggan   — dark blue
   0xd4652a, // 2 Ratatoskr        — warm orange
   0xe74c3c, // 3 Pippi            — red
-  0x27ae60, // 4 Gamingtrollet    — green
+  0x27ae60, // 4 Zombie           — green
   0x2a9d8f, // 5 Laszlo           — teal
 ];
 
-export const TILE_LABELS = ['B', 'S', 'R', 'P', 'G', 'L'];
+export const TILE_LABELS = ['B', 'S', 'R', 'P', 'Z', 'L'];
 
 // Durations (ms)
 export const SWAP_DURATION = 120;

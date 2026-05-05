@@ -80,7 +80,9 @@ export class GameScene extends Phaser.Scene {
 
   _createSprite(row, col, type) {
     const { x, y } = this._tileXY(row, col);
-    const img = this.add.image(x, y, `tile_${type}`).setDisplaySize(TILE_SIZE, TILE_SIZE);
+    const img = this.add.image(x, y, `tile_${type}`);
+    // Scale to fit TILE_SIZE regardless of source resolution
+    img.setDisplaySize(TILE_SIZE, TILE_SIZE);
     this.tileSprites[row][col] = img;
     return img;
   }

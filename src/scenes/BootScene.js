@@ -1,6 +1,16 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, TILE_SIZE, TILE_COLORS, TILE_LABELS } from '../game/constants.js';
 
+// Character names in tile-index order (matches TILE_COLORS)
+const TILE_NAMES = [
+  'bolibompadraken',
+  'sommarskuggan',
+  'ratatoskr',
+  'pippi',
+  'zombie',
+  'laszlo',
+];
+
 export class BootScene extends Phaser.Scene {
   constructor() {
     super({ key: 'BootScene' });
@@ -9,11 +19,21 @@ export class BootScene extends Phaser.Scene {
   preload() {
     this._createLoadingBar();
 
-    // Generate colored rectangle textures for each tile type at runtime.
-    // These act as placeholders until real character art is ready.
+    // Attempt to load PNG tile assets; fall back to generated textures for
+    // any that fail (e.g. file not yet dropped into public/assets/tiles/).
     for (let i = 0; i < TILE_COLORS.length; i++) {
-      this._generateTileTexture(i);
+      const key = `tile_${i}`;
+      if (!this.textures.exists(key)) {
+        this.load.image(key, `assets/tiles/tile_${i}.png`);
+      }
     }
+
+    // If an image fails to load, generate a coloured placeholder instead.
+    this.load.on('loaderror', (file) => {
+      const match = file.key.match(/^tile_(\d+)$/);
+      if (match) this._generateTileTexture(Number(match[1]));
+    });
+
     this._generateParticleTexture();
   }
 
