@@ -109,7 +109,7 @@ Location: `public/assets/animations/`
 
 ---
 
-## 8. Menu Screen — Full Custom Design — ⬜ Not done
+## 8. Menu Screen — Full Custom Design — ✅ Done
 
 Three assets that together replace the entire programmatic menu. The game falls back to the current gradient/text design if any are missing.
 
@@ -153,6 +153,6 @@ Location: `public/assets/ui/`
 | 5 | Fail reaction | 1 | ✅ Done |
 | 6 | HUD icons | — | ✅ Emoji (no PNG needed) |
 | 7 | Special activation animations | 4 | ⬜ |
-| 8 | Menu (bg + logo + play btn) | 3 | ⬜ |
+| 8 | Menu (bg + logo + play btn) | 3 | ✅ Done |
 | 9 | Map background | 1 | ✅ Done |
 | | **Total** | **24** | |
