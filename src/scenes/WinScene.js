@@ -22,7 +22,12 @@ export class WinScene extends Phaser.Scene {
     Snd.levelComplete();
     this._drawBackground();
 
-    this.add.text(cx, 200, '🎉', { fontSize: '72px' }).setOrigin(0.5);
+    const reactionT = this.textures.get('reaction_win');
+    if (reactionT && reactionT.source.length > 0 && reactionT.source[0].width > 32) {
+      this.add.image(cx, 200, 'reaction_win').setDisplaySize(200, 200);
+    } else {
+      this.add.text(cx, 200, '🎉', { fontSize: '72px' }).setOrigin(0.5);
+    }
 
     this.add.text(cx, 300, 'LEVEL COMPLETE!', {
       fontSize: '34px',

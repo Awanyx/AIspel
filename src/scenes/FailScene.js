@@ -20,14 +20,13 @@ export class FailScene extends Phaser.Scene {
     Snd.fail();
     this._drawBackground();
 
-    // Sad face emoji stand-in (placeholder for character reaction art)
-    this.add.text(cx, 200, '😔', {
-      fontSize: '72px',
-    }).setOrigin(0.5);
+    const reactionT = this.textures.get('reaction_fail');
+    const reaction = (reactionT && reactionT.source.length > 0 && reactionT.source[0].width > 32)
+      ? this.add.image(cx, 200, 'reaction_fail').setDisplaySize(200, 200)
+      : this.add.text(cx, 200, '😔', { fontSize: '72px' }).setOrigin(0.5);
 
-    // Wobble the emoji sympathetically
     this.tweens.add({
-      targets: this.children.list[this.children.list.length - 1],
+      targets: reaction,
       angle: { from: -8, to: 8 },
       duration: 600,
       ease: 'Sine.easeInOut',

@@ -36,6 +36,19 @@ export class BootScene extends Phaser.Scene {
       });
     }
 
+    // Blocker tile and special frame overlays
+    this.load.image('tile_blocker', 'assets/tiles/tile_blocker.png');
+    for (const type of ['bolibompa', 'pippi', 'ratatoskr', 'sommarskuggan']) {
+      this.load.image(`special_${type}`, `assets/tiles/special_${type}.png`);
+    }
+
+    // Win / fail reaction art — silently skipped if not yet present.
+    this.load.image('reaction_win',  'assets/ui/reaction_win.png');
+    this.load.image('reaction_fail', 'assets/ui/reaction_fail.png');
+
+    // World map background — silently skipped if not yet present.
+    this.load.image('map_bg', 'assets/ui/map_bg.png');
+
     // Custom menu assets — silently skipped if not yet present.
     this.load.image('menu_bg',       'assets/ui/menu_bg.png');
     this.load.image('menu_logo',     'assets/ui/menu_logo.png');

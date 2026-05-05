@@ -31,10 +31,16 @@ export class MapScene extends Phaser.Scene {
   // ─── Background ───────────────────────────────────────────────────────────
 
   _drawBg(h) {
-    const g = this.add.graphics();
-    g.fillGradientStyle(0x0d0520, 0x0d0520, 0x1a1060, 0x1a1060, 1);
-    g.fillRect(0, 0, GAME_WIDTH, h);
-    this._container.add(g);
+    const t = this.textures.get('map_bg');
+    if (t && t.source.length > 0 && t.source[0].width > 32) {
+      const img = this.add.image(GAME_WIDTH / 2, h / 2, 'map_bg').setDisplaySize(GAME_WIDTH, h);
+      this._container.add(img);
+    } else {
+      const g = this.add.graphics();
+      g.fillGradientStyle(0x0d0520, 0x0d0520, 0x1a1060, 0x1a1060, 1);
+      g.fillRect(0, 0, GAME_WIDTH, h);
+      this._container.add(g);
+    }
   }
 
   _drawDecos(h) {

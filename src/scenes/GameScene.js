@@ -136,18 +136,22 @@ export class GameScene extends Phaser.Scene {
 
   _createBlockerOverlay(row, col) {
     const { x, y } = this._tileXY(row, col);
-    const g = this.add.graphics();
-    const half = TILE_SIZE / 2 - 1;
-    // Dark frosted overlay
-    g.fillStyle(0x000000, 0.55);
-    g.fillRoundedRect(x - half, y - half, TILE_SIZE - 2, TILE_SIZE - 2, 8);
-    // Chain / tape visual: two diagonal lines
-    g.lineStyle(2, 0x8888aa, 0.8);
-    g.lineBetween(x - half + 4, y - half + 4, x + half - 4, y + half - 4);
-    g.lineBetween(x + half - 4, y - half + 4, x - half + 4, y + half - 4);
-    g.lineStyle(2, 0xaaaacc, 0.5);
-    g.strokeRoundedRect(x - half, y - half, TILE_SIZE - 2, TILE_SIZE - 2, 8);
-    this.blockerOverlays[row][col] = g;
+    const bt = this.textures.get('tile_blocker');
+    if (bt && bt.source.length > 0 && bt.source[0].width > 32) {
+      const spr = this.add.image(x, y, 'tile_blocker').setDisplaySize(TILE_SIZE, TILE_SIZE).setDepth(2);
+      this.blockerOverlays[row][col] = spr;
+    } else {
+      const g = this.add.graphics();
+      const half = TILE_SIZE / 2 - 1;
+      g.fillStyle(0x000000, 0.55);
+      g.fillRoundedRect(x - half, y - half, TILE_SIZE - 2, TILE_SIZE - 2, 8);
+      g.lineStyle(2, 0x8888aa, 0.8);
+      g.lineBetween(x - half + 4, y - half + 4, x + half - 4, y + half - 4);
+      g.lineBetween(x + half - 4, y - half + 4, x - half + 4, y + half - 4);
+      g.lineStyle(2, 0xaaaacc, 0.5);
+      g.strokeRoundedRect(x - half, y - half, TILE_SIZE - 2, TILE_SIZE - 2, 8);
+      this.blockerOverlays[row][col] = g;
+    }
   }
 
   _destroyBlockerOverlay(row, col) {
@@ -171,20 +175,26 @@ export class GameScene extends Phaser.Scene {
     if (this.specialOverlays[key]) { this.specialOverlays[key].destroy(); }
 
     const { x, y } = this._tileXY(row, col);
-    const half = TILE_SIZE / 2 - 1;
-    const color = SPECIAL_GLOW[type];
 
-    const g = this.add.graphics();
-    g.lineStyle(3, color, 1);
-    g.strokeRoundedRect(x - half, y - half, TILE_SIZE - 2, TILE_SIZE - 2, 8);
-    g.fillStyle(color, 0.25);
-    g.fillRoundedRect(x - half, y - half, TILE_SIZE - 2, TILE_SIZE - 2, 8);
-    // Corner dot indicator
-    g.fillStyle(color, 1);
-    g.fillCircle(x + half - 5, y - half + 5, 4);
-
-    this.tweens.add({ targets: g, alpha: 0.4, duration: 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-    this.specialOverlays[key] = g;
+    const frameKey = `special_${type}`;
+    const ft = this.textures.get(frameKey);
+    if (ft && ft.source.length > 0 && ft.source[0].width > 32) {
+      const spr = this.add.image(x, y, frameKey).setDisplaySize(TILE_SIZE, TILE_SIZE).setDepth(3);
+      this.tweens.add({ targets: spr, alpha: 0.5, duration: 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+      this.specialOverlays[key] = spr;
+    } else {
+      const half = TILE_SIZE / 2 - 1;
+      const color = SPECIAL_GLOW[type];
+      const g = this.add.graphics();
+      g.lineStyle(3, color, 1);
+      g.strokeRoundedRect(x - half, y - half, TILE_SIZE - 2, TILE_SIZE - 2, 8);
+      g.fillStyle(color, 0.25);
+      g.fillRoundedRect(x - half, y - half, TILE_SIZE - 2, TILE_SIZE - 2, 8);
+      g.fillStyle(color, 1);
+      g.fillCircle(x + half - 5, y - half + 5, 4);
+      this.tweens.add({ targets: g, alpha: 0.4, duration: 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+      this.specialOverlays[key] = g;
+    }
   }
 
   _removeSpecialOverlay(row, col) {
