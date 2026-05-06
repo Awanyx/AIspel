@@ -3,7 +3,7 @@ import { GAME_WIDTH, GAME_HEIGHT } from '../game/constants.js';
 import { Snd } from '../game/Audio.js';
 
 const CX = GAME_WIDTH / 2;
-const LOGO_Y    = 260;   // centre of logo
+const LOGO_Y    = 147;   // centre of logo
 const PLAY_Y    = 500;   // centre of play button
 const MAX_LOGO_W  = 330; // max display width for logo
 const MAX_PLAY_W  = 260; // max display width for play button
