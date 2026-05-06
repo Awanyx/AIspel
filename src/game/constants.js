@@ -15,19 +15,24 @@ export const BOARD_ORIGIN_Y = 112;
 
 export const SWIPE_THRESHOLD = 20; // px
 
-// Tile type indices 0–5
-export const TILE_TYPES = 6;
+// Tile type indices 0–10
+export const TILE_TYPES = 11;
 
 export const TILE_COLORS = [
-  0x9b59b6, // 0 Bolibompadraken — purple
-  0x1a1a2e, // 1 Sommarskuggan   — near-black (black cat)
-  0xd4652a, // 2 Ratatoskr        — warm orange
-  0xe74c3c, // 3 Pippi            — red
-  0x27ae60, // 4 Zombie           — green
-  0x2a9d8f, // 5 Laszlo           — teal (scary person)
+  0x9b59b6, // 0  Bolibompadraken — purple
+  0x1a1a2e, // 1  Sommarskuggan   — near-black
+  0xd4652a, // 2  Ratatoskr       — warm orange
+  0xe74c3c, // 3  Pippi           — red
+  0x27ae60, // 4  Zombie          — green
+  0x2a9d8f, // 5  Laszlo          — teal
+  0xa0935a, // 6  Snigel          — sandy brown
+  0xcc00cc, // 7  Gamingtrollet   — magenta
+  0x4fc3f7, // 8  Vinterskuggan   — icy blue
+  0xf39c12, // 9  Tussen          — amber
+  0xc0392b, // 10 Chefen          — crimson
 ];
 
-export const TILE_LABELS = ['B', 'S', 'R', 'P', 'Z', 'L'];
+export const TILE_LABELS = ['B', 'S', 'R', 'P', 'Z', 'L', 'N', 'G', 'V', 'T', 'C'];
 
 // Durations (ms)
 export const SWAP_DURATION = 120;

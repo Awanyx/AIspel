@@ -6,8 +6,22 @@ Recommend 2× resolution (double the display size) for sharp rendering on modern
 
 ---
 
-## 1. Tile Icons — ✅ Done
-6 files · `public/assets/tiles/` · 44 × 44 px display, deliver at 256 × 256 px
+## 1. Tile Icons — ⬜ 5 new tiles needed
+11 files total · `public/assets/tiles/` · 44 × 44 px display, deliver at 256 × 256 px
+
+Original 6 — ✅ Done: `tile_bolibompa.png`, `tile_sommarskuggan.png`, `tile_ratatoskr.png`, `tile_pippi.png`, `tile_zombie.png`, `tile_laszlo.png`
+
+New 5 — ⬜ Needed:
+
+| File | Character | Fallback colour |
+|---|---|---|
+| `tile_snigel.png` | Snigel | Sandy brown `#a0935a` |
+| `tile_gamingtrollet.png` | Gamingtrollet | Magenta `#cc00cc` |
+| `tile_vinterskuggan.png` | Vinterskuggan | Icy blue `#4fc3f7` |
+| `tile_tussen.png` | Tussen | Amber `#f39c12` |
+| `tile_chefen.png` | Chefen | Crimson `#c0392b` |
+
+Place in `public/assets/tiles/`. The game falls back to a coloured square until the PNG is present.
 
 ---
 

@@ -9,6 +9,11 @@ const TILE_NAMES = [
   'pippi',         // 3
   'zombie',        // 4
   'laszlo',        // 5 — scary person
+  'snigel',        // 6 — Snigel
+  'gamingtrollet', // 7 — Gamingtrollet
+  'vinterskuggan', // 8 — Vinterskuggan
+  'tussen',        // 9 — Tussen
+  'chefen',        // 10 — Chefen
 ];
 
 export class BootScene extends Phaser.Scene {
