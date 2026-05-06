@@ -10,13 +10,13 @@ export const LEVELS = [
     id: 1,
     label: 'Nivå 1',
     tileTypes: 5,
-    objective: { type: 'score', target: 1500, moves: 28 },
+    objective: { type: 'score', target: 2500, moves: 28 },
   },
   {
     id: 2,
     label: 'Nivå 2',
     tileTypes: 6,
-    objective: { type: 'score', target: 2500, moves: 26 },
+    objective: { type: 'score', target: 3000, moves: 26 },
   },
   {
     id: 3,

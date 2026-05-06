@@ -257,8 +257,8 @@ export class Board {
     if (cells.length >= 5 && minR === maxR) {
       return { type: 'pippi', row: pivot.row, col: pivot.col };
     }
-    // Priority 3 — Ratatoskr: 4+ cells in a straight column
-    if (cells.length >= 4 && minC === maxC) {
+    // Priority 3 — Ratatoskr: 4+ cells in a straight line (row or column)
+    if (cells.length >= 4 && (minC === maxC || minR === maxR)) {
       return { type: 'ratatoskr', row: pivot.row, col: pivot.col };
     }
     // Priority 4 — Sommarskuggan: any 2×2 square within the group
