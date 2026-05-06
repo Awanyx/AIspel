@@ -86,10 +86,51 @@ export class GameScene extends Phaser.Scene {
   _playSpecialAnimation(row, col, type) {
     const key = `anim_${type}`;
     if (!this.anims.exists(key)) return;
+
+    if (type === 'ratatoskr') {
+      this._playRatatoskrBonusClip();
+      return;
+    }
+
     const { x, y } = this._tileXY(row, col);
     const spr = this.add.sprite(x, y, key).setDisplaySize(200, 200).setDepth(6);
     spr.play(key);
     spr.once('animationcomplete', () => spr.destroy());
+  }
+
+  _playRatatoskrBonusClip() {
+    const cx   = GAME_WIDTH / 2;
+    const panelY = GAME_HEIGHT - 160;  // centre of the below-board panel
+
+    // Semi-transparent backdrop
+    const bg = this.add.graphics().setDepth(18).setAlpha(0);
+    bg.fillStyle(0x000000, 0.55);
+    bg.fillRoundedRect(cx - 160, panelY - 80, 320, 160, 16);
+
+    // Animation sprite
+    const spr = this.add.sprite(cx - 60, panelY, 'anim_ratatoskr')
+      .setDisplaySize(140, 140).setDepth(19).setAlpha(0);
+
+    // "4 i rad!" label
+    const label = this.add.text(cx + 40, panelY, '4 i rad!', {
+      fontSize: '32px', fontFamily: 'Arial Black, Arial, sans-serif',
+      color: '#ffdd00', stroke: '#000000', strokeThickness: 4,
+    }).setOrigin(0.5).setDepth(19).setAlpha(0);
+
+    // Fade everything in
+    this.tweens.add({ targets: [bg, spr, label], alpha: 1, duration: 180, ease: 'Sine.easeOut',
+      onComplete: () => {
+        spr.play('anim_ratatoskr');
+        spr.once('animationcomplete', () => {
+          // Hold briefly then fade out
+          this.tweens.add({
+            targets: [bg, spr, label], alpha: 0, duration: 300,
+            delay: 300, ease: 'Sine.easeIn',
+            onComplete: () => { bg.destroy(); spr.destroy(); label.destroy(); },
+          });
+        });
+      },
+    });
   }
 
   // ─── Background ──────────────────────────────────────────────────────────
