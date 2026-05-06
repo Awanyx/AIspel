@@ -59,6 +59,7 @@ export class GameScene extends Phaser.Scene {
     this._setupInput();
     this._setupAnimations();
 
+    Snd.startMusic(this.levelId);
     if (this.level.objective.type === 'time') this._startTimer();
   }
 
@@ -347,6 +348,7 @@ export class GameScene extends Phaser.Scene {
     if (this.movesText && this.moves !== null) {
       if (this.moves <= 5 && this.moves > 0 && !this._movesWarnActive) {
         this._movesWarnActive = true;
+        Snd.setUrgency(true);
         this.movesText.setColor('#ff4444');
         this.tweens.add({
           targets: this.movesText,
@@ -381,8 +383,9 @@ export class GameScene extends Phaser.Scene {
         this._timeLeft = Math.max(0, this._timeLeft - 1);
         this._updateHUD();
         // Flash timer red in last 10 seconds
-        if (this._timeLeft <= 10 && this.timerText) {
-          this.timerText.setColor(this._timeLeft % 2 === 0 ? '#ff4444' : '#e8b4f0');
+        if (this._timeLeft <= 10) {
+          Snd.setUrgency(true);
+          if (this.timerText) this.timerText.setColor(this._timeLeft % 2 === 0 ? '#ff4444' : '#e8b4f0');
         }
         if (this._timeLeft <= 0) this._checkEndCondition();
       },

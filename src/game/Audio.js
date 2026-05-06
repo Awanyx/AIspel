@@ -1,54 +1,147 @@
 /**
  * Synthesised audio — no external files required.
  * All sounds are generated on-the-fly via the Web Audio API.
- * Import the `Snd` singleton and call its methods from any scene.
  */
 
 const MUTE_KEY = 'svt_arkiv_muted';
 
-// Am-pentatonic melody: A3 C4 D4 E4 G4 — soft background arpeggio
-// Each entry: [frequency Hz, duration s]
-const MUSIC_PATTERN = [
-  [220, 0.35], [261, 0.35], [293, 0.35], [330, 0.70],
-  [392, 0.35], [330, 0.35], [261, 0.35], [220, 0.70],
-  [0,   0.35],
-  [293, 0.35], [392, 0.35], [440, 0.35], [392, 0.70],
-  [330, 0.35], [293, 0.35], [261, 0.70],
-  [0,   0.35],
+// ─── Music patterns ──────────────────────────────────────────────────────────
+// Each entry: [frequency Hz, duration s]  (freq 0 = rest)
+// Index 0 = menu/map, indices 1-8 = levels 1-8
+
+const PATTERNS = [
+  // 0 — Menu: Am pentatonic, gentle arpeggio
+  [
+    [220,0.35],[261,0.35],[293,0.35],[330,0.70],
+    [392,0.35],[330,0.35],[261,0.35],[220,0.70],[0,0.35],
+    [293,0.35],[392,0.35],[440,0.35],[392,0.70],
+    [330,0.35],[293,0.35],[261,0.70],[0,0.35],
+  ],
+  // 1 — Level 1: C major pentatonic, simple and friendly
+  [
+    [261,0.35],[293,0.35],[330,0.35],[392,0.70],
+    [440,0.35],[392,0.35],[330,0.35],[261,0.70],[0,0.35],
+    [293,0.35],[330,0.35],[392,0.35],[523,0.70],
+    [440,0.35],[392,0.35],[330,0.70],[0,0.35],
+  ],
+  // 2 — Level 2: G major, brighter and slightly faster
+  [
+    [392,0.30],[440,0.30],[494,0.30],[587,0.60],
+    [523,0.30],[494,0.30],[440,0.30],[392,0.60],[0,0.30],
+    [392,0.30],[494,0.30],[587,0.30],[659,0.60],
+    [587,0.30],[523,0.30],[440,0.30],[392,0.60],[0,0.30],
+  ],
+  // 3 — Level 3: D minor, darker feel for blocker level
+  [
+    [293,0.40],[349,0.40],[293,0.40],[440,0.80],
+    [392,0.40],[349,0.40],[293,0.80],[0,0.40],
+    [349,0.40],[392,0.40],[440,0.40],[349,0.80],
+    [293,0.40],[261,0.40],[293,0.80],[0,0.40],
+  ],
+  // 4 — Level 4: E minor, tense driving pulse (time attack)
+  [
+    [330,0.28],[330,0.28],[392,0.28],[494,0.56],
+    [440,0.28],[392,0.28],[330,0.28],[294,0.56],[0,0.28],
+    [330,0.28],[392,0.28],[440,0.28],[494,0.56],
+    [587,0.28],[494,0.28],[440,0.56],[0,0.28],
+  ],
+  // 5 — Level 5: F major, triumphant mid-game surge
+  [
+    [349,0.32],[440,0.32],[523,0.32],[587,0.64],
+    [523,0.32],[440,0.32],[349,0.32],[294,0.64],[0,0.32],
+    [349,0.32],[392,0.32],[440,0.32],[523,0.64],
+    [587,0.32],[523,0.32],[440,0.32],[349,0.64],[0,0.32],
+  ],
+  // 6 — Level 6: B minor, mysterious/eerie for hard blockers
+  [
+    [247,0.38],[294,0.38],[370,0.38],[330,0.76],
+    [247,0.38],[220,0.38],[247,0.76],[0,0.38],
+    [294,0.38],[370,0.38],[440,0.38],[494,0.76],
+    [440,0.38],[370,0.38],[294,0.76],[0,0.38],
+  ],
+  // 7 — Level 7: A minor high-octave, racing urgency (short time attack)
+  [
+    [440,0.22],[523,0.22],[587,0.22],[659,0.44],
+    [587,0.22],[523,0.22],[440,0.22],[392,0.44],[0,0.22],
+    [440,0.22],[494,0.22],[587,0.22],[659,0.44],
+    [784,0.22],[659,0.22],[587,0.44],[0,0.22],
+  ],
+  // 8 — Level 8: C# minor, dramatic finale
+  [
+    [277,0.28],[330,0.28],[415,0.28],[494,0.56],
+    [554,0.28],[494,0.28],[415,0.28],[330,0.56],[0,0.28],
+    [277,0.28],[370,0.28],[415,0.28],[554,0.56],
+    [622,0.28],[554,0.28],[415,0.28],[277,0.56],[0,0.28],
+  ],
 ];
-const MUSIC_LOOP_DUR = MUSIC_PATTERN.reduce((s, [, d]) => s + d, 0); // ≈ 7.2 s
 
 class AudioManager {
   constructor() {
-    this._actx       = null;
-    this._master     = null;
-    this._musicRun   = false;
-    this._musicTimer = null;
-    this._musicBeat  = 0;      // Web Audio clock time for next note
-    this._muted      = localStorage.getItem(MUTE_KEY) === '1';
+    this._actx           = null;
+    this._master         = null;
+    this._musicRun       = false;
+    this._musicTimer     = null;
+    this._musicBeat      = 0;
+    this._currentPattern = PATTERNS[0];
+    this._currentIdx     = -1;
+    this._tempoMult      = 1.0;
+    this._muted          = localStorage.getItem(MUTE_KEY) === '1';
   }
 
   // ─── Public API ────────────────────────────────────────────────────────────
 
   get muted() { return this._muted; }
 
-  /** Toggle mute; returns new muted state. */
   toggle() {
     this._muted = !this._muted;
     localStorage.setItem(MUTE_KEY, this._muted ? '1' : '0');
     if (this._master) {
-      this._master.gain.setTargetAtTime(
-        this._muted ? 0 : 1,
-        this._actx.currentTime,
-        0.05
-      );
+      this._master.gain.setTargetAtTime(this._muted ? 0 : 1, this._actx.currentTime, 0.05);
     }
     return this._muted;
   }
 
-  /** Call once on the first user gesture to unlock the AudioContext. */
   resume() {
     if (this._actx?.state === 'suspended') this._actx.resume();
+  }
+
+  /** Start (or switch to) the music for a given level (0 = menu/map). */
+  startMusic(levelId = 0) {
+    const idx     = Math.max(0, Math.min(levelId, PATTERNS.length - 1));
+    const pattern = PATTERNS[idx];
+
+    // Same pattern already playing — don't interrupt
+    if (this._currentIdx === idx && this._musicRun) return;
+
+    this._currentIdx     = idx;
+    this._currentPattern = pattern;
+    this._tempoMult      = 1.0;
+
+    clearTimeout(this._musicTimer);
+    this._musicRun  = true;
+    const ctx = this._getCtx();
+    this._musicBeat = ctx.currentTime + 0.15;
+    this._scheduleMusic();
+  }
+
+  stopMusic() {
+    this._musicRun = false;
+    clearTimeout(this._musicTimer);
+  }
+
+  /**
+   * Switch tempo for urgency (low moves / low time).
+   * urgent=true → ~1.65× faster; urgent=false → normal.
+   * Restarts the loop immediately so the change is heard right away.
+   */
+  setUrgency(urgent) {
+    const target = urgent ? 0.6 : 1.0;
+    if (this._tempoMult === target) return;
+    this._tempoMult = target;
+    if (!this._musicRun) return;
+    clearTimeout(this._musicTimer);
+    this._musicBeat = this._getCtx().currentTime + 0.05;
+    this._scheduleMusic();
   }
 
   // ── SFX ───────────────────────────────────────────────────────────────────
@@ -60,17 +153,14 @@ class AudioManager {
   }
 
   pop(tileIndex = 0) {
-    // Each tile in a match gets a slightly higher pitch (ascending cascade)
     const [ctx, t] = this._ready();
     const freq = 520 + tileIndex * 40;
     this._osc(ctx, 'sine', freq, t, 0.22, 0.06);
-    // Tiny click transient
     this._noise(ctx, t, 0.015, 0.15, 4000, 'highpass');
   }
 
   specialCreate() {
     const [ctx, t] = this._ready();
-    // Ascending 3-note chime: C5 E5 G5
     [[523, 0], [659, 0.1], [784, 0.2]].forEach(([f, delay]) => {
       this._osc(ctx, 'triangle', f, t + delay, 0.3, 0.28);
     });
@@ -79,16 +169,15 @@ class AudioManager {
   specialActivate(type) {
     const [ctx, t] = this._ready();
     switch (type) {
-      case 'bolibompa':    this._sfxBolibompa(ctx, t);     break;
-      case 'pippi':        this._sfxPippi(ctx, t);         break;
-      case 'ratatoskr':    this._sfxRatatoskr(ctx, t);     break;
-      case 'sommarskuggan':this._sfxSommarskuggan(ctx, t); break;
+      case 'bolibompa':     this._sfxBolibompa(ctx, t);     break;
+      case 'pippi':         this._sfxPippi(ctx, t);         break;
+      case 'ratatoskr':     this._sfxRatatoskr(ctx, t);     break;
+      case 'sommarskuggan': this._sfxSommarskuggan(ctx, t); break;
     }
   }
 
   levelComplete() {
     const [ctx, t] = this._ready();
-    // Ascending fanfare: C5 E5 G5 C6
     [[523, 0], [659, 0.12], [784, 0.24], [1047, 0.38]].forEach(([f, delay]) => {
       this._osc(ctx, 'triangle', f, t + delay, 0.55, 0.38);
     });
@@ -96,7 +185,6 @@ class AudioManager {
 
   fail() {
     const [ctx, t] = this._ready();
-    // Descending minor fall
     [[320, 0], [254, 0.16], [180, 0.32]].forEach(([f, delay]) => {
       this._osc(ctx, 'sawtooth', f, t + delay, 0.25, 0.22);
     });
@@ -106,21 +194,6 @@ class AudioManager {
     const [ctx, t] = this._ready();
     this._noise(ctx, t, 0.08, 0.45, 1200, 'bandpass');
     this._noise(ctx, t, 0.04, 0.20, 4000, 'highpass');
-  }
-
-  // ── Music ──────────────────────────────────────────────────────────────────
-
-  startMusic() {
-    if (this._musicRun) return;
-    this._musicRun  = true;
-    const ctx = this._getCtx();
-    this._musicBeat = ctx.currentTime + 0.15;
-    this._scheduleMusic();
-  }
-
-  stopMusic() {
-    this._musicRun = false;
-    clearTimeout(this._musicTimer);
   }
 
   // ─── Private helpers ───────────────────────────────────────────────────────
@@ -141,7 +214,6 @@ class AudioManager {
     return this._actx;
   }
 
-  /** Create an oscillator with a simple attack/decay envelope. */
   _osc(ctx, type, startFreq, startTime, gain, duration, endFreq = null) {
     const osc = ctx.createOscillator();
     const g   = ctx.createGain();
@@ -157,7 +229,6 @@ class AudioManager {
     osc.stop(startTime + duration + 0.01);
   }
 
-  /** White-noise burst through a filter. */
   _noise(ctx, startTime, gain, duration, filterFreq, filterType = 'bandpass') {
     const bufSize = Math.ceil(ctx.sampleRate * duration);
     const buf  = ctx.createBuffer(1, bufSize, ctx.sampleRate);
@@ -176,32 +247,26 @@ class AudioManager {
     src.stop(startTime + duration + 0.01);
   }
 
-  // ── Special activation sounds ──────────────────────────────────────────────
-
   _sfxBolibompa(ctx, t) {
-    // Low rumble sweep + noise burst
-    this._osc(ctx, 'sawtooth', 90, t, 0.45, 0.35, 40);
-    this._osc(ctx, 'sawtooth', 180, t, 0.25, 0.35, 60);
-    this._noise(ctx, t, 0.55, 0.30, 220, 'bandpass');
+    this._osc(ctx, 'sawtooth', 90,  t,        0.45, 0.35, 40);
+    this._osc(ctx, 'sawtooth', 180, t,        0.25, 0.35, 60);
+    this._noise(ctx, t,        0.55, 0.30, 220, 'bandpass');
     this._noise(ctx, t + 0.05, 0.30, 0.15, 800, 'bandpass');
   }
 
   _sfxPippi(ctx, t) {
-    // Rising whoosh + bright sweep
-    this._osc(ctx, 'sawtooth', 140, t, 0.40, 0.28, 900);
+    this._osc(ctx, 'sawtooth', 140, t,        0.40, 0.28, 900);
     this._osc(ctx, 'triangle', 280, t + 0.05, 0.20, 0.22, 1200);
     this._noise(ctx, t, 0.15, 0.28, 3000, 'highpass');
   }
 
   _sfxRatatoskr(ctx, t) {
-    // Rapid staccato ascending notes
     [360, 450, 570, 720, 900].forEach((f, i) => {
       this._osc(ctx, 'square', f, t + i * 0.055, 0.18, 0.08);
     });
   }
 
   _sfxSommarskuggan(ctx, t) {
-    // Low warbling goo sound with LFO-like pitch wobble
     this._osc(ctx, 'sine',     100, t,        0.45, 0.55, 55);
     this._osc(ctx, 'sine',     150, t + 0.05, 0.30, 0.45, 80);
     this._osc(ctx, 'triangle', 200, t + 0.10, 0.20, 0.35, 100);
@@ -212,27 +277,28 @@ class AudioManager {
 
   _scheduleMusic() {
     if (!this._musicRun) return;
-    const ctx  = this._getCtx();
-    const gain = 0.045; // quiet background level
+    const ctx     = this._getCtx();
+    const gain    = 0.045;
+    const mult    = this._tempoMult;
+    const pattern = this._currentPattern;
 
     let offset = 0;
-    for (const [freq, dur] of MUSIC_PATTERN) {
+    for (const [freq, dur] of pattern) {
+      const scaledDur = dur * mult;
       if (freq > 0) {
         const t = this._musicBeat + offset;
-        this._osc(ctx, 'triangle', freq, t, gain, dur * 0.85);
-        // Subtle bass an octave lower on the first note of each phrase
-        if (offset === 0) this._osc(ctx, 'sine', freq / 2, t, gain * 0.6, dur * 0.9);
+        this._osc(ctx, 'triangle', freq, t, gain, scaledDur * 0.85);
+        if (offset === 0) this._osc(ctx, 'sine', freq / 2, t, gain * 0.6, scaledDur * 0.9);
       }
-      offset += dur;
+      offset += scaledDur;
     }
 
-    this._musicBeat += MUSIC_LOOP_DUR;
+    this._musicBeat += offset;
 
-    // Re-schedule 0.6 s before the loop ends so notes are always pre-buffered
     const msUntilReschedule = (this._musicBeat - ctx.currentTime - 0.6) * 1000;
     this._musicTimer = setTimeout(
       () => this._scheduleMusic(),
-      Math.max(0, msUntilReschedule)
+      Math.max(0, msUntilReschedule),
     );
   }
 }

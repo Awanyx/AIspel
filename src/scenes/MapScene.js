@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, TILE_COLORS } from '../game/constants.js';
 import { LEVELS } from '../game/levels.js';
 import { isUnlocked, isCompleted } from '../game/Storage.js';
+import { Snd } from '../game/Audio.js';
 
 const NODE_RADIUS    = 36;
 const MAP_PAD_TOP    = 80;
@@ -16,6 +17,7 @@ export class MapScene extends Phaser.Scene {
 
   create() {
     this._popup = null;
+    Snd.startMusic(0);
     const totalH = MAP_PAD_TOP + (LEVELS.length - 1) * NODE_SPACING_Y + MAP_PAD_BOTTOM + NODE_RADIUS * 2;
     const scrollH = Math.max(totalH, GAME_HEIGHT);
 
