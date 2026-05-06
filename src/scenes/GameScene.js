@@ -533,7 +533,7 @@ export class GameScene extends Phaser.Scene {
 
     // ── 4. Score ────────────────────────────────────────────────────────────
     const multiplier = Math.max(1, cascadeLevel);   // +1× per cascade (was 1.5^n)
-    this.score += validClear.length * 20 * multiplier;
+    this.score += validClear.length * 30 * multiplier;
     this._updateHUD();
 
     // ── 5. Activate visual flash for special effects ────────────────────────
@@ -839,7 +839,7 @@ export class GameScene extends Phaser.Scene {
       this._stopTimer();
       // +20 pts per remaining move for move-limited objectives
       if ((type === 'score' || type === 'blockers') && this.moves > 0) {
-        this.score += this.moves * 20;
+        this.score += this.moves * 30;
         this._updateHUD();
       }
       this.time.delayedCall(400, () => this.scene.start('WinScene', { levelId: this.levelId, score: this.score }));
