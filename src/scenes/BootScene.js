@@ -43,7 +43,7 @@ export class BootScene extends Phaser.Scene {
     }
 
     // Level backgrounds — silently skipped if not yet present.
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 8; i++) {
       this.load.image(`level_bg_${i}`, `assets/ui/level_bg_${i}.png`);
     }
 

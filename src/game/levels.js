@@ -9,17 +9,17 @@ export const LEVELS = [
   {
     id: 1,
     label: 'Nivå 1',
-    objective: { type: 'score', target: 2000, moves: 25 },
+    objective: { type: 'score', target: 3000, moves: 25 },
   },
   {
     id: 2,
     label: 'Nivå 2',
-    objective: { type: 'score', target: 4500, moves: 25 },
+    objective: { type: 'score', target: 6000, moves: 23 },
   },
   {
     id: 3,
     label: 'Nivå 3',
-    objective: { type: 'blockers', moves: 28 },
+    objective: { type: 'blockers', moves: 25 },
     blockerPositions: [
       { row: 2, col: 2 }, { row: 2, col: 5 },
       { row: 4, col: 1 }, { row: 4, col: 3 }, { row: 4, col: 4 }, { row: 4, col: 6 },
@@ -28,17 +28,17 @@ export const LEVELS = [
   {
     id: 4,
     label: 'Nivå 4',
-    objective: { type: 'time', target: 4000, seconds: 60 },
+    objective: { type: 'time', target: 5000, seconds: 60 },
   },
   {
     id: 5,
     label: 'Nivå 5',
-    objective: { type: 'score', target: 8000, moves: 30 },
+    objective: { type: 'score', target: 10000, moves: 27 },
   },
   {
     id: 6,
     label: 'Nivå 6',
-    objective: { type: 'blockers', moves: 30 },
+    objective: { type: 'blockers', moves: 27 },
     blockerPositions: [
       { row: 1, col: 1 }, { row: 1, col: 6 },
       { row: 3, col: 3 }, { row: 3, col: 4 },
@@ -49,12 +49,12 @@ export const LEVELS = [
   {
     id: 7,
     label: 'Nivå 7',
-    objective: { type: 'time', target: 8000, seconds: 45 },
+    objective: { type: 'time', target: 10000, seconds: 45 },
   },
   {
     id: 8,
     label: 'Nivå 8',
-    objective: { type: 'score', target: 12000, moves: 30 },
+    objective: { type: 'score', target: 16000, moves: 27 },
   },
 ];
 
