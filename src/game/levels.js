@@ -62,7 +62,7 @@ export const LEVELS = [
     id: 8,
     label: 'Nivå 8',
     tileTypes: 11,
-    objective: { type: 'score', target: 6500, moves: 30 },
+    objective: { type: 'score', target: 5500, moves: 30 },
   },
 ];
 
