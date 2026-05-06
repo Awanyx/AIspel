@@ -63,6 +63,20 @@ export class Board {
     return has;
   }
 
+  /** Returns the first valid swap as {r1,c1,r2,c2}, or null if none exists. */
+  findHint() {
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        if (this.isBlocker(r, c)) continue;
+        if (c + 1 < COLS && !this.isBlocker(r, c + 1) && this.wouldMatch(r, c, r, c + 1))
+          return { r1: r, c1: c, r2: r, c2: c + 1 };
+        if (r + 1 < ROWS && !this.isBlocker(r + 1, c) && this.wouldMatch(r, c, r + 1, c))
+          return { r1: r, c1: c, r2: r + 1, c2: c };
+      }
+    }
+    return null;
+  }
+
   /** Returns true if at least one adjacent swap would create a match. */
   hasValidMove() {
     for (let r = 0; r < ROWS; r++) {

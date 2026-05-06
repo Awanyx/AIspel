@@ -50,6 +50,8 @@ export class GameScene extends Phaser.Scene {
     this._scoreBarFill   = null;
     this._scoreBarMeta   = null;
     this._movesWarnActive = false;
+    this._hintHighlights = [];
+    this._hintTween      = null;
 
     this._drawBackground();
     this._drawBoardBackground();
@@ -275,6 +277,14 @@ export class GameScene extends Phaser.Scene {
     }).setOrigin(0, 0.5).setInteractive({ useHandCursor: true })
       .on('pointerup', () => { if (!this._ended) { this._stopTimer(); this.scene.start('MapScene'); } });
 
+    // Hint button — bottom-left corner of board area
+    this._hintHighlights = [];
+    this._hintTween = null;
+    const hintBtn = this.add.text(30, GAME_HEIGHT - 36, '💡', {
+      fontSize: '26px',
+    }).setOrigin(0, 0.5).setInteractive({ useHandCursor: true })
+      .on('pointerup', () => this._showHint());
+
     // Mute toggle
     this._muteBtn = this.add.text(GAME_WIDTH - 30, 28, Snd.muted ? '🔇' : '🔊', {
       fontSize: '20px',
@@ -441,6 +451,7 @@ export class GameScene extends Phaser.Scene {
 
   _doSwap(r1, c1, r2, c2) {
     this.busy = true;
+    this._clearHint();
     Snd.swap();
     this.board.swap(r1, c1, r2, c2);
 
@@ -704,6 +715,41 @@ export class GameScene extends Phaser.Scene {
     this.tweens.add({ targets: flash, alpha: 0, duration: 350, ease: 'Cubic.easeOut', onComplete: () => flash.destroy() });
   }
 
+  // ─── Hint ────────────────────────────────────────────────────────────────
+
+  _clearHint() {
+    if (this._hintTween) { this._hintTween.stop(); this._hintTween = null; }
+    for (const g of this._hintHighlights) g.destroy();
+    this._hintHighlights = [];
+  }
+
+  _showHint() {
+    if (this.busy || this._ended) return;
+    this._clearHint();
+
+    const hint = this.board.findHint();
+    if (!hint) return;
+
+    const { r1, c1, r2, c2 } = hint;
+    const positions = [{ row: r1, col: c1 }, { row: r2, col: c2 }];
+
+    for (const { row, col } of positions) {
+      const { x, y } = this._tileXY(row, col);
+      const g = this.add.graphics().setDepth(10);
+      g.lineStyle(3, 0xffdd00, 1);
+      g.strokeRoundedRect(x - TILE_SIZE / 2 + 1, y - TILE_SIZE / 2 + 1, TILE_SIZE - 2, TILE_SIZE - 2, 6);
+      this._hintHighlights.push(g);
+    }
+
+    // Pulse the highlights for 2.5 s then fade out
+    this._hintTween = this.tweens.add({
+      targets: this._hintHighlights,
+      alpha: { from: 1, to: 0.2 },
+      duration: 400, yoyo: true, repeat: 4,
+      onComplete: () => this._clearHint(),
+    });
+  }
+
   // ─── Shuffle ─────────────────────────────────────────────────────────────
 
   _shuffleBoard() {
@@ -752,7 +798,12 @@ export class GameScene extends Phaser.Scene {
               onComplete: () => toast.destroy(),
             });
             this.busy = false;
-            this._checkEndCondition();
+            // If still no valid move after reshuffle, chain another shuffle
+            if (!this._ended && !this.board.hasValidMove()) {
+              this._shuffleBoard();
+            } else {
+              this._checkEndCondition();
+            }
           },
         });
       },
