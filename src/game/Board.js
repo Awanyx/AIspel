@@ -57,6 +57,7 @@ export class Board {
   }
 
   wouldMatch(r1, c1, r2, c2) {
+    if (this.isBlocker(r1, c1) || this.isBlocker(r2, c2)) return false;
     this.swap(r1, c1, r2, c2);
     const has = this.findMatches().length > 0;
     this.swap(r1, c1, r2, c2);
@@ -157,11 +158,13 @@ export class Board {
     const cellsMatch = (r, c1, c2) => {
       const a = this.grid[r][c1], b = this.grid[r][c2];
       if (a === null || b === null) return false;
+      if (this.isBlocker(r, c1) || this.isBlocker(r, c2)) return false;
       return a === b || !!this.specials[`${r},${c1}`] || !!this.specials[`${r},${c2}`];
     };
     const rowsMatch = (r1, r2, c) => {
       const a = this.grid[r1][c], b = this.grid[r2][c];
       if (a === null || b === null) return false;
+      if (this.isBlocker(r1, c) || this.isBlocker(r2, c)) return false;
       return a === b || !!this.specials[`${r1},${c}`] || !!this.specials[`${r2},${c}`];
     };
 
