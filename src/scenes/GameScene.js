@@ -41,6 +41,16 @@ export class GameScene extends Phaser.Scene {
     this._timeLeft = this.level.objective.seconds ?? 0;
     this._timerEvent = null;
 
+    // Null out HUD refs so stale destroyed objects from a previous session
+    // don't cause setText() calls to throw in _updateHUD().
+    this.scoreText       = null;
+    this.movesText       = null;
+    this.timerText       = null;
+    this.blockerCountText = null;
+    this._scoreBarFill   = null;
+    this._scoreBarMeta   = null;
+    this._movesWarnActive = false;
+
     this._drawBackground();
     this._drawBoardBackground();
     this._buildSprites();
