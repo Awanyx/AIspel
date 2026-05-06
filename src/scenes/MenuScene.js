@@ -13,6 +13,7 @@ export class MenuScene extends Phaser.Scene {
 
   create() {
     this._hasAsset('menu_bg') ? this._buildCustomMenu() : this._buildFallbackMenu();
+    this._addExitButton();
     this._addMuteButton();
   }
 
@@ -70,6 +71,15 @@ export class MenuScene extends Phaser.Scene {
     Snd.resume();
     Snd.startMusic();
     this.scene.start('MapScene');
+  }
+
+  _addExitButton() {
+    this.add.text(20, 20, '✕', {
+      fontSize: '24px',
+      fontFamily: 'Arial Black, Arial, sans-serif',
+      color: '#ffffff',
+    }).setOrigin(0, 0).setInteractive({ useHandCursor: true })
+      .on('pointerup', () => window.history.back());
   }
 
   _addMuteButton() {
