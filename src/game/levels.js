@@ -56,7 +56,7 @@ export const LEVELS = [
     id: 7,
     label: 'Nivå 7',
     tileTypes: 10,
-    objective: { type: 'time', target: 3500, seconds: 55 },
+    objective: { type: 'time', target: 2700, seconds: 55 },
   },
   {
     id: 8,
