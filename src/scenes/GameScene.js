@@ -349,7 +349,7 @@ export class GameScene extends Phaser.Scene {
       .on('pointerup', () => this._showHint());
 
     if (isMoveLevel) {
-      this._hintLabel = this.add.text(hintX, hintY - 32, `${this._hintsLeft} ledtrådar kvar`, {
+      this._hintLabel = this.add.text(hintX, hintY - 32, `${this._hintsLeft}`, {
         fontSize: '11px', fontFamily: 'Arial, sans-serif',
         color: '#ffffff', stroke: '#000000', strokeThickness: 3,
       }).setOrigin(0.5, 1).setDepth(16);
@@ -806,9 +806,7 @@ export class GameScene extends Phaser.Scene {
 
     this._hintsLeft--;
     if (this._hintLabel) {
-      this._hintLabel.setText(
-        this._hintsLeft === 0 ? 'Inga ledtrådar kvar' : `${this._hintsLeft} ledtrådar kvar`
-      );
+      this._hintLabel.setText(`${this._hintsLeft}`);
     }
 
     const { r1, c1, r2, c2 } = hint;
