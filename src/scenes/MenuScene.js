@@ -79,7 +79,7 @@ export class MenuScene extends Phaser.Scene {
       fontFamily: 'Arial Black, Arial, sans-serif',
       color: '#ffffff',
     }).setOrigin(0, 0).setInteractive({ useHandCursor: true })
-      .on('pointerup', () => window.history.back());
+      .on('pointerup', () => { window.close(); setTimeout(() => window.history.back(), 300); });
   }
 
   _addMuteButton() {
