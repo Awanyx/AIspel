@@ -33,15 +33,19 @@ export class BootScene extends Phaser.Scene {
       }
     }
 
-    // Special activation sprite sheets — 8 frames × 400×400px horizontal strip.
-    for (const type of ['bolibompa', 'pippi', 'sommarskuggan']) {
+    // Special activation sprite sheets
+    for (const type of ['bolibompa', 'pippi']) {
       this.load.spritesheet(`anim_${type}`, `assets/animations/anim_${type}.png`, {
         frameWidth: 400, frameHeight: 400,
       });
     }
-    // ratatoskr uses the v1 sheet (3200×400, 8 frames)
+    // ratatoskr: 8 frames, 400×400
     this.load.spritesheet('anim_ratatoskr', 'assets/animations/anim_ratatoskr1.png', {
       frameWidth: 400, frameHeight: 400,
+    });
+    // sommarskuggan: 10 frames, 320×400
+    this.load.spritesheet('anim_sommarskuggan', 'assets/animations/anim_sommarskuggan.png', {
+      frameWidth: 320, frameHeight: 400,
     });
 
     // Blocker tile and special frame overlays

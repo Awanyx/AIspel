@@ -73,7 +73,7 @@ export class GameScene extends Phaser.Scene {
       bolibompa:    { fps: 12, frames: 8 },
       pippi:        { fps: 14, frames: 8 },
       ratatoskr:    { fps: 8, frames: 8 },
-      sommarskuggan:{ fps: 10, frames: 8 },
+      sommarskuggan:{ fps: 10, frames: 10 },
     };
     for (const [type, { fps, frames }] of Object.entries(cfg)) {
       const key = `anim_${type}`;
@@ -90,11 +90,11 @@ export class GameScene extends Phaser.Scene {
 
   _playSpecialAnimation(row, col, type) {
     if (type === 'ratatoskr') {
-      this._playRatatoskrBonusClip('4 i rad!');
+      this._playBonusClip('anim_ratatoskr', '4 i rad!');
       return;
     }
     if (type === 'pippi') {
-      this._playRatatoskrBonusClip('5 i rad!');
+      this._playBonusClip('anim_sommarskuggan', '5 i rad!');
       return;
     }
 
@@ -107,26 +107,23 @@ export class GameScene extends Phaser.Scene {
     spr.once('animationcomplete', () => spr.destroy());
   }
 
-  _playRatatoskrBonusClip(text = '4 i rad!') {
+  _playBonusClip(animKey, text) {
     if (this._bonusClipActive) return;
     this._bonusClipActive = true;
 
     const boardBottom = BOARD_ORIGIN_Y + ROWS * TILE_STEP;
     const panelH = 100;
-    const panelY = boardBottom + 14 + panelH / 2;   // 14 px gap below board
+    const panelY = boardBottom + 14 + panelH / 2;
 
-    // Semi-transparent backdrop
     const bg = this.add.graphics().setDepth(20).setAlpha(0);
     bg.fillStyle(0x000000, 0.75);
     bg.fillRoundedRect(8, boardBottom + 14, GAME_WIDTH - 16, panelH, 12);
 
-    // Sprite: use setScale so size is correct from the very first frame
     const sprX = 65;
-    const spr = this.add.sprite(sprX, panelY, 'anim_ratatoskr')
-      .setScale(90 / 400)   // 400 px native frame → 90 px display
+    const spr = this.add.sprite(sprX, panelY, animKey)
+      .setScale(90 / 400)
       .setDepth(21).setAlpha(0);
 
-    // Text on the right, above everything
     const label = this.add.text(GAME_WIDTH / 2 + 50, panelY, text, {
       fontSize: '38px', fontFamily: 'Arial Black, Arial, sans-serif',
       color: '#ffdd00', stroke: '#000000', strokeThickness: 6,
@@ -139,10 +136,9 @@ export class GameScene extends Phaser.Scene {
       });
     };
 
-    // Fade in, start looping animation, dismiss after ~2 s
     this.tweens.add({ targets: [bg, spr, label], alpha: 1, duration: 180, ease: 'Sine.easeOut',
       onComplete: () => {
-        spr.play({ key: 'anim_ratatoskr', repeat: -1 });
+        spr.play({ key: animKey, repeat: -1 });
         this.time.delayedCall(2000, dismiss);
       },
     });
