@@ -277,12 +277,16 @@ export class GameScene extends Phaser.Scene {
     }).setOrigin(0, 0.5).setInteractive({ useHandCursor: true })
       .on('pointerup', () => { if (!this._ended) { this._stopTimer(); this.scene.start('MapScene'); } });
 
-    // Hint button — bottom-left corner of board area
+    // Hint button — bottom-left corner, white circle background
     this._hintHighlights = [];
     this._hintTween = null;
-    const hintBtn = this.add.text(30, GAME_HEIGHT - 36, '💡', {
-      fontSize: '26px',
-    }).setOrigin(0, 0.5).setInteractive({ useHandCursor: true })
+    const hintX = 36, hintY = GAME_HEIGHT - 44;
+    const hintBg = this.add.graphics().setDepth(15);
+    hintBg.fillStyle(0xffffff, 0.9);
+    hintBg.fillCircle(hintX, hintY, 22);
+    this.add.text(hintX, hintY, '💡', {
+      fontSize: '28px',
+    }).setOrigin(0.5, 0.5).setDepth(16).setInteractive({ useHandCursor: true })
       .on('pointerup', () => this._showHint());
 
     // Mute toggle
@@ -441,6 +445,7 @@ export class GameScene extends Phaser.Scene {
     const d = { up:[-1,0], down:[1,0], left:[0,-1], right:[0,1] }[dir];
     const r2 = row + d[0], c2 = col + d[1];
     if (r2 < 0 || r2 >= ROWS || c2 < 0 || c2 >= COLS) return;
+    if (this.board.isBlocker(row, col) || this.board.isBlocker(r2, c2)) return;
 
     if (this.board.wouldMatch(row, col, r2, c2)) {
       this._doSwap(row, col, r2, c2);
