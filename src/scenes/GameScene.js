@@ -99,22 +99,26 @@ export class GameScene extends Phaser.Scene {
   }
 
   _playRatatoskrBonusClip() {
-    const cx   = GAME_WIDTH / 2;
-    const panelY = GAME_HEIGHT - 160;  // centre of the below-board panel
+    // Position panel just below the board, spanning most of the screen width
+    const boardBottom = BOARD_ORIGIN_Y + ROWS * TILE_STEP;
+    const panelH  = 120;
+    const panelY  = boardBottom + panelH / 2 + 10;
+    const panelX  = 10;
+    const panelW  = GAME_WIDTH - 20;
 
     // Semi-transparent backdrop
     const bg = this.add.graphics().setDepth(18).setAlpha(0);
-    bg.fillStyle(0x000000, 0.55);
-    bg.fillRoundedRect(cx - 160, panelY - 80, 320, 160, 16);
+    bg.fillStyle(0x000000, 0.72);
+    bg.fillRoundedRect(panelX, panelY - panelH / 2, panelW, panelH, 14);
 
-    // Animation sprite — repeat: -1 loops indefinitely
-    const spr = this.add.sprite(cx - 60, panelY, 'anim_ratatoskr')
-      .setDisplaySize(140, 140).setDepth(19).setAlpha(0);
+    // Animation on the left
+    const spr = this.add.sprite(panelX + 70, panelY, 'anim_ratatoskr')
+      .setDisplaySize(100, 100).setDepth(19).setAlpha(0);
 
-    // "4 i rad!" label
-    const label = this.add.text(cx + 40, panelY, '4 i rad!', {
-      fontSize: '32px', fontFamily: 'Arial Black, Arial, sans-serif',
-      color: '#ffdd00', stroke: '#000000', strokeThickness: 4,
+    // "4 i rad!" text on the right
+    const label = this.add.text(panelX + panelW * 0.62, panelY, '4 i rad!', {
+      fontSize: '36px', fontFamily: 'Arial Black, Arial, sans-serif',
+      color: '#ffdd00', stroke: '#000000', strokeThickness: 5,
     }).setOrigin(0.5).setDepth(19).setAlpha(0);
 
     const dismiss = () => {
