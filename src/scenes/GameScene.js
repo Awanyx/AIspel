@@ -521,8 +521,8 @@ export class GameScene extends Phaser.Scene {
     const validNewSpecials = newSpecials.filter(s => !clearKeys.has(`${s.row},${s.col}`) || matchCells.some(m => m.row === s.row && m.col === s.col));
 
     // ── 4. Score ────────────────────────────────────────────────────────────
-    const multiplier = Math.max(1, Math.floor(Math.pow(1.5, cascadeLevel)));
-    this.score += validClear.length * 50 * multiplier;
+    const multiplier = Math.max(1, cascadeLevel);   // +1× per cascade (was 1.5^n)
+    this.score += validClear.length * 20 * multiplier;
     this._updateHUD();
 
     // ── 5. Activate visual flash for special effects ────────────────────────
@@ -786,9 +786,9 @@ export class GameScene extends Phaser.Scene {
     if (won) {
       this._ended = true;
       this._stopTimer();
-      // +50 pts per remaining move for move-limited objectives
+      // +20 pts per remaining move for move-limited objectives
       if ((type === 'score' || type === 'blockers') && this.moves > 0) {
-        this.score += this.moves * 50;
+        this.score += this.moves * 20;
         this._updateHUD();
       }
       this.time.delayedCall(400, () => this.scene.start('WinScene', { levelId: this.levelId, score: this.score }));

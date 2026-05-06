@@ -9,12 +9,12 @@ export const LEVELS = [
   {
     id: 1,
     label: 'Nivå 1',
-    objective: { type: 'score', target: 3000, moves: 25 },
+    objective: { type: 'score', target: 2000, moves: 25 },
   },
   {
     id: 2,
     label: 'Nivå 2',
-    objective: { type: 'score', target: 6000, moves: 23 },
+    objective: { type: 'score', target: 3500, moves: 23 },
   },
   {
     id: 3,
@@ -28,12 +28,12 @@ export const LEVELS = [
   {
     id: 4,
     label: 'Nivå 4',
-    objective: { type: 'time', target: 5000, seconds: 60 },
+    objective: { type: 'time', target: 2500, seconds: 60 },
   },
   {
     id: 5,
     label: 'Nivå 5',
-    objective: { type: 'score', target: 10000, moves: 27 },
+    objective: { type: 'score', target: 5000, moves: 27 },
   },
   {
     id: 6,
@@ -49,12 +49,12 @@ export const LEVELS = [
   {
     id: 7,
     label: 'Nivå 7',
-    objective: { type: 'time', target: 10000, seconds: 45 },
+    objective: { type: 'time', target: 4500, seconds: 45 },
   },
   {
     id: 8,
     label: 'Nivå 8',
-    objective: { type: 'score', target: 16000, moves: 27 },
+    objective: { type: 'score', target: 8000, moves: 27 },
   },
 ];
 
