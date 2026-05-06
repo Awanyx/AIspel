@@ -43,20 +43,7 @@ export class MapScene extends Phaser.Scene {
     }
   }
 
-  _drawDecos(h) {
-    for (let i = 0; i < Math.floor(h / 90); i++) {
-      const img = this.add.image(
-        Phaser.Math.Between(10, GAME_WIDTH - 10),
-        Phaser.Math.Between(0, h),
-        `tile_${i % TILE_COLORS.length}`
-      ).setAlpha(0.07).setAngle(Phaser.Math.Between(-30, 30)).setScale(Phaser.Math.FloatBetween(0.8, 1.6));
-      this._container.add(img);
-    }
-    const title = this.add.text(GAME_WIDTH / 2, 30, 'VÄLJ NIVÅ', {
-      fontSize: '13px', fontFamily: 'Arial, sans-serif', color: '#aaaacc', letterSpacing: 4,
-    }).setOrigin(0.5);
-    this._container.add(title);
-  }
+  _drawDecos(_h) {}
 
   // ─── Path ─────────────────────────────────────────────────────────────────
 
@@ -100,50 +87,14 @@ export class MapScene extends Phaser.Scene {
   _drawNode(level, x, y, unlocked, completed) {
     const r = NODE_RADIUS;
 
-    if (!unlocked) {
-      // Render locked circle to a texture once, then apply preFX blur to the image
-      const texKey = `node_locked_${r}`;
-      if (!this.textures.exists(texKey)) {
-        const pad = 8; const sz = (r + pad) * 2; const ctr = sz / 2;
-        const rt = this.add.renderTexture(0, 0, sz, sz);
-        const tg = this.add.graphics();
-        tg.fillStyle(0x000000, 0.3); tg.fillCircle(ctr + 3, ctr + 4, r);
-        tg.fillStyle(0x2a2a44, 1);   tg.fillCircle(ctr, ctr, r);
-        tg.lineStyle(3, 0x333355, 0.8); tg.strokeCircle(ctr, ctr, r);
-        rt.draw(tg, 0, 0);
-        tg.destroy();
-        rt.saveTexture(texKey);
-        rt.destroy();
-      }
-      const img = this.add.image(x, y, texKey);
-      img.preFX.addBlur(0, 2, 2, 0.6);
-      this._container.add(img);
-    } else {
-      const g = this.add.graphics();
-
-      // Shadow
-      g.fillStyle(0x000000, 0.3); g.fillCircle(x + 3, y + 4, r);
-
-      // Fill
-      const fill = completed ? 0x27ae60 : 0x7c3aed;
-      g.fillStyle(fill, 1); g.fillCircle(x, y, r);
-
-      // Stroke
-      g.lineStyle(3, 0x9b59b6, 0.8); g.strokeCircle(x, y, r);
-
-      // Highlight arc
-      g.lineStyle(2, 0xffffff, 0.2);
-      g.beginPath(); g.arc(x, y, r - 6, Phaser.Math.DegToRad(200), Phaser.Math.DegToRad(340), false); g.strokePath();
-
-      this._container.add(g);
-    }
-
-    // Label or lock
+    // Label or lock — no background badge, just the icon/number
     const label = !unlocked ? '🔒' : completed ? '✓' : String(level.id);
     this._container.add(this.add.text(x, y, label, {
-      fontSize: unlocked ? '22px' : '18px',
+      fontSize: unlocked ? '26px' : '22px',
       fontFamily: 'Arial Black, Arial, sans-serif',
-      color: unlocked ? '#ffffff' : '#444466',
+      color: unlocked ? '#ffffff' : '#888899',
+      stroke: '#000000',
+      strokeThickness: unlocked ? 4 : 2,
     }).setOrigin(0.5));
 
     // Level name
@@ -238,10 +189,6 @@ export class MapScene extends Phaser.Scene {
     const fade = this.add.graphics().setDepth(5);
     fade.fillGradientStyle(0x0d0520, 0x0d0520, 0x0d0520, 0x0d0520, 1, 1, 0, 0);
     fade.fillRect(0, 0, GAME_WIDTH, 68);
-
-    this.add.text(GAME_WIDTH / 2, 22, 'Karaktärskaos', {
-      fontSize: '18px', fontFamily: 'Arial Black, Arial, sans-serif', color: '#ffffff',
-    }).setOrigin(0.5).setDepth(6);
 
     this.add.text(24, 22, '←', {
       fontSize: '22px', fontFamily: 'Arial, sans-serif', color: '#aaaacc',
