@@ -33,18 +33,16 @@ export class BootScene extends Phaser.Scene {
       }
     }
 
-    // Special activation sprite sheets. Per-character frame sizes:
-    //   ratatoskr: 6 frames, 698×752  (4188×752 sheet)
-    //   others: 8 frames, 400×400     (3200×400 sheet, loaded when available)
-    const sheetCfg = {
-      ratatoskr:    { frameWidth: 698, frameHeight: 752 },
-      bolibompa:    { frameWidth: 400, frameHeight: 400 },
-      pippi:        { frameWidth: 400, frameHeight: 400 },
-      sommarskuggan:{ frameWidth: 400, frameHeight: 400 },
-    };
-    for (const [type, cfg] of Object.entries(sheetCfg)) {
-      this.load.spritesheet(`anim_${type}`, `assets/animations/anim_${type}.png`, cfg);
+    // Special activation sprite sheets — 8 frames × 400×400px horizontal strip.
+    for (const type of ['bolibompa', 'pippi', 'sommarskuggan']) {
+      this.load.spritesheet(`anim_${type}`, `assets/animations/anim_${type}.png`, {
+        frameWidth: 400, frameHeight: 400,
+      });
     }
+    // ratatoskr uses the v1 sheet (3200×400, 8 frames)
+    this.load.spritesheet('anim_ratatoskr', 'assets/animations/anim_ratatoskr1.png', {
+      frameWidth: 400, frameHeight: 400,
+    });
 
     // Blocker tile and special frame overlays
     this.load.image('tile_blocker', 'assets/tiles/tile_blocker.png');
