@@ -4,7 +4,8 @@ import { COLS, ROWS, TILE_TYPES } from './constants.js';
 export const SPECIAL_TYPES = ['bolibompa', 'pippi', 'ratatoskr', 'sommarskuggan'];
 
 export class Board {
-  constructor() {
+  constructor(tileTypes = TILE_TYPES) {
+    this.tileTypes = tileTypes;
     this.grid     = [];
     this.specials = {};  // "row,col" → special type string
     this.blockers = [];  // [row][col] boolean
@@ -35,7 +36,7 @@ export class Board {
     }
   }
 
-  _randomType() { return Math.floor(Math.random() * TILE_TYPES); }
+  _randomType() { return Math.floor(Math.random() * this.tileTypes); }
 
   // ─── Accessors ─────────────────────────────────────────────────────────────
 
@@ -105,29 +106,28 @@ export class Board {
     if (!this.hasValidMove()) this._forceValidMove();
   }
 
-  /** Write X·Y·X into the first available run of 3 non-blocker cells so that
-   *  swapping positions 1↔2 produces a match (X·X·Y). */
+  /** Write A·A·B·A into 4 consecutive non-blocker cells.
+   *  Swapping the last two gives A·A·A·B — a guaranteed 3-match regardless
+   *  of surrounding tiles, so hasValidMove() will always return true after this. */
   _forceValidMove() {
+    const a = 0, b = 1 % this.tileTypes;
+    // Horizontal
     for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c + 2 < COLS; c++) {
-        if (this.isBlocker(r, c) || this.isBlocker(r, c + 1) || this.isBlocker(r, c + 2)) continue;
-        const x = this.grid[r][c] ?? 0;
-        const y = (x + 1) % TILE_TYPES;
-        this.grid[r][c] = x;
-        this.grid[r][c + 1] = y;
-        this.grid[r][c + 2] = x;
+      for (let c = 0; c + 3 < COLS; c++) {
+        if (this.isBlocker(r, c) || this.isBlocker(r, c + 1) ||
+            this.isBlocker(r, c + 2) || this.isBlocker(r, c + 3)) continue;
+        this.grid[r][c] = a; this.grid[r][c + 1] = a;
+        this.grid[r][c + 2] = b; this.grid[r][c + 3] = a;
         return;
       }
     }
-    // Also try vertically
+    // Vertical
     for (let c = 0; c < COLS; c++) {
-      for (let r = 0; r + 2 < ROWS; r++) {
-        if (this.isBlocker(r, c) || this.isBlocker(r + 1, c) || this.isBlocker(r + 2, c)) continue;
-        const x = this.grid[r][c] ?? 0;
-        const y = (x + 1) % TILE_TYPES;
-        this.grid[r][c] = x;
-        this.grid[r + 1][c] = y;
-        this.grid[r + 2][c] = x;
+      for (let r = 0; r + 3 < ROWS; r++) {
+        if (this.isBlocker(r, c) || this.isBlocker(r + 1, c) ||
+            this.isBlocker(r + 2, c) || this.isBlocker(r + 3, c)) continue;
+        this.grid[r][c] = a; this.grid[r + 1][c] = a;
+        this.grid[r + 2][c] = b; this.grid[r + 3][c] = a;
         return;
       }
     }

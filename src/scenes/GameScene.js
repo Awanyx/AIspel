@@ -5,7 +5,7 @@ import {
   BOARD_ORIGIN_X, BOARD_ORIGIN_Y,
   SWIPE_THRESHOLD, SWAP_DURATION, INVALID_SWAP_DURATION,
   FALL_DURATION_BASE, FALL_DURATION_PER_PX, POP_DURATION, CASCADE_PAUSE,
-  GAME_WIDTH, GAME_HEIGHT, TILE_COLORS,
+  GAME_WIDTH, GAME_HEIGHT, TILE_COLORS, TILE_TYPES,
 } from '../game/constants.js';
 import { getLevel } from '../game/levels.js';
 import { Snd } from '../game/Audio.js';
@@ -25,7 +25,7 @@ export class GameScene extends Phaser.Scene {
 
   create() {
     this.level   = getLevel(this.levelId);
-    this.board   = new Board();
+    this.board   = new Board(this.level.tileTypes ?? TILE_TYPES);
     this.board.initBlockers(this.level.blockerPositions ?? []);
     this.tileSprites     = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
     this.specialOverlays = {};   // "row,col" → Graphics (glow ring)
