@@ -68,15 +68,19 @@ export class GameScene extends Phaser.Scene {
   // ─── Special animations ───────────────────────────────────────────────────
 
   _setupAnimations() {
-    const fps = { bolibompa: 12, pippi: 14, ratatoskr: 16, sommarskuggan: 10 };
-    for (const [type, frameRate] of Object.entries(fps)) {
+    const cfg = {
+      bolibompa:    { fps: 12, frames: 8 },
+      pippi:        { fps: 14, frames: 8 },
+      ratatoskr:    { fps: 16, frames: 6 },
+      sommarskuggan:{ fps: 10, frames: 8 },
+    };
+    for (const [type, { fps, frames }] of Object.entries(cfg)) {
       const key = `anim_${type}`;
-      // frameTotal > 1 means the spritesheet loaded correctly (not a missing-texture placeholder)
       if (this.textures.get(key).frameTotal > 1 && !this.anims.exists(key)) {
         this.anims.create({
           key,
-          frames: this.anims.generateFrameNumbers(key, { start: 0, end: 7 }),
-          frameRate,
+          frames: this.anims.generateFrameNumbers(key, { start: 0, end: frames - 1 }),
+          frameRate: fps,
           repeat: 0,
         });
       }

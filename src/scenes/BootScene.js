@@ -33,12 +33,17 @@ export class BootScene extends Phaser.Scene {
       }
     }
 
-    // Special activation sprite sheets — 8 frames × 400×400px horizontal strip.
-    // Silently skipped if the file is not yet in public/assets/animations/.
-    for (const type of ['bolibompa', 'pippi', 'ratatoskr', 'sommarskuggan']) {
-      this.load.spritesheet(`anim_${type}`, `assets/animations/anim_${type}.png`, {
-        frameWidth: 400, frameHeight: 400,
-      });
+    // Special activation sprite sheets. Per-character frame sizes:
+    //   ratatoskr: 6 frames, 698×752  (4188×752 sheet)
+    //   others: 8 frames, 400×400     (3200×400 sheet, loaded when available)
+    const sheetCfg = {
+      ratatoskr:    { frameWidth: 698, frameHeight: 752 },
+      bolibompa:    { frameWidth: 400, frameHeight: 400 },
+      pippi:        { frameWidth: 400, frameHeight: 400 },
+      sommarskuggan:{ frameWidth: 400, frameHeight: 400 },
+    };
+    for (const [type, cfg] of Object.entries(sheetCfg)) {
+      this.load.spritesheet(`anim_${type}`, `assets/animations/anim_${type}.png`, cfg);
     }
 
     // Blocker tile and special frame overlays
@@ -113,14 +118,6 @@ export class BootScene extends Phaser.Scene {
   _createLoadingBar() {
     const cx = GAME_WIDTH / 2;
     const cy = GAME_HEIGHT / 2;
-
-    // Show the logo as soon as it finishes loading; nothing shown above the bar
-    // until then (avoids showing text that the logo will replace).
-    this.load.once('filecomplete-image-menu_logo', () => {
-      this.add.image(cx, cy - 80, 'menu_logo')
-        .setDisplaySize(300, 120)
-        .setOrigin(0.5);
-    });
 
     const barW = 260;
     const barH = 20;
