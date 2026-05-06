@@ -5,7 +5,11 @@ export const SPECIAL_TYPES = ['bolibompa', 'pippi', 'ratatoskr', 'sommarskuggan'
 
 export class Board {
   constructor(tileTypes = TILE_TYPES) {
-    this.tileTypes = tileTypes;
+    // tileTypes may be a count (number) or an explicit pool (array of indices)
+    this._tilePool = Array.isArray(tileTypes)
+      ? tileTypes
+      : Array.from({ length: tileTypes }, (_, i) => i);
+    this.tileTypes = this._tilePool.length;
     this.grid     = [];
     this.specials = {};  // "row,col" → special type string
     this.blockers = [];  // [row][col] boolean
@@ -36,7 +40,7 @@ export class Board {
     }
   }
 
-  _randomType() { return Math.floor(Math.random() * this.tileTypes); }
+  _randomType() { return this._tilePool[Math.floor(Math.random() * this._tilePool.length)]; }
 
   // ─── Accessors ─────────────────────────────────────────────────────────────
 
@@ -125,7 +129,7 @@ export class Board {
    *  Swapping the last two gives A·A·A·B — a guaranteed 3-match regardless
    *  of surrounding tiles, so hasValidMove() will always return true after this. */
   _forceValidMove() {
-    const a = 0, b = 1 % this.tileTypes;
+    const a = this._tilePool[0], b = this._tilePool[1] ?? this._tilePool[0];
     // Horizontal
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c + 3 < COLS; c++) {

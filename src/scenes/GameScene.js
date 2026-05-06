@@ -25,7 +25,7 @@ export class GameScene extends Phaser.Scene {
 
   create() {
     this.level   = getLevel(this.levelId);
-    this.board   = new Board(this.level.tileTypes ?? TILE_TYPES);
+    this.board   = new Board(this.level.tilePool ?? this.level.tileTypes ?? TILE_TYPES);
     this.board.initBlockers(this.level.blockerPositions ?? []);
     this.tileSprites     = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
     this.specialOverlays = {};   // "row,col" → Graphics (glow ring)
