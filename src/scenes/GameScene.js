@@ -328,6 +328,9 @@ export class GameScene extends Phaser.Scene {
     // Hint button — bottom-left corner, white circle background
     this._hintHighlights = [];
     this._hintTween = null;
+    const isMoveLevel = this.level.objective.type !== 'time';
+    this._hintsLeft = isMoveLevel ? 6 : Infinity;
+
     const hintX = 36, hintY = GAME_HEIGHT - 44;
     const hintBg = this.add.graphics().setDepth(15);
     hintBg.fillStyle(0xffffff, 0.9);
@@ -336,6 +339,15 @@ export class GameScene extends Phaser.Scene {
       fontSize: '28px',
     }).setOrigin(0.5, 0.5).setDepth(16).setInteractive({ useHandCursor: true })
       .on('pointerup', () => this._showHint());
+
+    if (isMoveLevel) {
+      this._hintLabel = this.add.text(hintX, hintY - 32, `${this._hintsLeft} ledtrådar kvar`, {
+        fontSize: '11px', fontFamily: 'Arial, sans-serif',
+        color: '#ffffff', stroke: '#000000', strokeThickness: 3,
+      }).setOrigin(0.5, 1).setDepth(16);
+    } else {
+      this._hintLabel = null;
+    }
 
     // Mute toggle
     this._muteBtn = this.add.text(GAME_WIDTH - 30, 28, Snd.muted ? '🔇' : '🔊', {
@@ -778,10 +790,18 @@ export class GameScene extends Phaser.Scene {
 
   _showHint() {
     if (this.busy || this._ended) return;
+    if (this._hintsLeft <= 0) return;
     this._clearHint();
 
     const hint = this.board.findHint();
     if (!hint) return;
+
+    this._hintsLeft--;
+    if (this._hintLabel) {
+      this._hintLabel.setText(
+        this._hintsLeft === 0 ? 'Inga ledtrådar kvar' : `${this._hintsLeft} ledtrådar kvar`
+      );
+    }
 
     const { r1, c1, r2, c2 } = hint;
     const positions = [{ row: r1, col: c1 }, { row: r2, col: c2 }];
