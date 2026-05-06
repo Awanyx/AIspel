@@ -36,7 +36,9 @@ export class Board {
     }
   }
 
-  _randomType() { return Math.floor(Math.random() * this.tileTypes); }
+  // Always pick from the top of the tile list so the highest-index tile
+  // (Chefen, index 10) is always included regardless of tileTypes count.
+  _randomType() { return TILE_TYPES - this.tileTypes + Math.floor(Math.random() * this.tileTypes); }
 
   // ─── Accessors ─────────────────────────────────────────────────────────────
 

@@ -9,19 +9,19 @@ export const LEVELS = [
   {
     id: 1,
     label: 'Nivå 1',
-    tileTypes: 6,
+    tileTypes: 5,
     objective: { type: 'score', target: 1500, moves: 28 },
   },
   {
     id: 2,
     label: 'Nivå 2',
-    tileTypes: 7,
+    tileTypes: 6,
     objective: { type: 'score', target: 2500, moves: 26 },
   },
   {
     id: 3,
     label: 'Nivå 3',
-    tileTypes: 7,
+    tileTypes: 6,
     objective: { type: 'blockers', moves: 28 },
     blockerPositions: [
       { row: 2, col: 2 }, { row: 2, col: 5 },
@@ -31,19 +31,19 @@ export const LEVELS = [
   {
     id: 4,
     label: 'Nivå 4',
-    tileTypes: 8,
+    tileTypes: 7,
     objective: { type: 'time', target: 2000, seconds: 75 },
   },
   {
     id: 5,
     label: 'Nivå 5',
-    tileTypes: 9,
+    tileTypes: 8,
     objective: { type: 'score', target: 4000, moves: 30 },
   },
   {
     id: 6,
     label: 'Nivå 6',
-    tileTypes: 9,
+    tileTypes: 8,
     objective: { type: 'blockers', moves: 30 },
     blockerPositions: [
       { row: 1, col: 1 }, { row: 1, col: 6 },
@@ -55,13 +55,13 @@ export const LEVELS = [
   {
     id: 7,
     label: 'Nivå 7',
-    tileTypes: 10,
+    tileTypes: 9,
     objective: { type: 'time', target: 2700, seconds: 55 },
   },
   {
     id: 8,
     label: 'Nivå 8',
-    tileTypes: 11,
+    tileTypes: 10,
     objective: { type: 'score', target: 5500, moves: 30 },
   },
 ];
