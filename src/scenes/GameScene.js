@@ -88,13 +88,17 @@ export class GameScene extends Phaser.Scene {
   }
 
   _playSpecialAnimation(row, col, type) {
-    const key = `anim_${type}`;
-    if (!this.anims.exists(key)) return;
-
     if (type === 'ratatoskr') {
-      this._playRatatoskrBonusClip();
+      this._playRatatoskrBonusClip('4 i rad!');
       return;
     }
+    if (type === 'pippi') {
+      this._playRatatoskrBonusClip('5 i rad!');
+      return;
+    }
+
+    const key = `anim_${type}`;
+    if (!this.anims.exists(key)) return;
 
     const { x, y } = this._tileXY(row, col);
     const spr = this.add.sprite(x, y, key).setDisplaySize(200, 200).setDepth(6);
@@ -102,7 +106,7 @@ export class GameScene extends Phaser.Scene {
     spr.once('animationcomplete', () => spr.destroy());
   }
 
-  _playRatatoskrBonusClip() {
+  _playRatatoskrBonusClip(text = '4 i rad!') {
     const boardBottom = BOARD_ORIGIN_Y + ROWS * TILE_STEP;
     const panelH = 100;
     const panelY = boardBottom + 14 + panelH / 2;   // 14 px gap below board
@@ -119,7 +123,7 @@ export class GameScene extends Phaser.Scene {
       .setDepth(21).setAlpha(0);
 
     // Text on the right, above everything
-    const label = this.add.text(GAME_WIDTH / 2 + 50, panelY, '4 i rad!', {
+    const label = this.add.text(GAME_WIDTH / 2 + 50, panelY, text, {
       fontSize: '38px', fontFamily: 'Arial Black, Arial, sans-serif',
       color: '#ffdd00', stroke: '#000000', strokeThickness: 6,
     }).setOrigin(0.5).setDepth(22).setAlpha(0);
