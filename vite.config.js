@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: '/aispel/',
+  base: '/AIspel/',
   build: {
     outDir: 'dist',
     assetsInlineLimit: 0,
