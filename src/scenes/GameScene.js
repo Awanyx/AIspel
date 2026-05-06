@@ -759,6 +759,7 @@ export class GameScene extends Phaser.Scene {
 
   _shuffleBoard() {
     this.busy = true;
+    this._clearHint();
 
     const cx = GAME_WIDTH / 2;
     const toast = this.add.text(cx, GAME_HEIGHT / 2, 'BLANDAR…', {
@@ -842,6 +843,8 @@ export class GameScene extends Phaser.Scene {
     if (won) {
       this._ended = true;
       this._stopTimer();
+      Snd.setUrgency(false);
+      this._clearHint();
       // +20 pts per remaining move for move-limited objectives
       if ((type === 'score' || type === 'blockers') && this.moves > 0) {
         this.score += this.moves * 30;
@@ -851,6 +854,8 @@ export class GameScene extends Phaser.Scene {
     } else if (lost) {
       this._ended = true;
       this._stopTimer();
+      Snd.setUrgency(false);
+      this._clearHint();
       this.time.delayedCall(400, () => this.scene.start('FailScene', { levelId: this.levelId, score: this.score, reason }));
     }
   }
