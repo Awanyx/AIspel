@@ -45,7 +45,7 @@ export class MapScene extends Phaser.Scene {
 
   _drawDecos(h) {
     const title = this.add.text(GAME_WIDTH / 2, 30, 'VÄLJ NIVÅ', {
-      fontSize: '13px', fontFamily: 'Arial, sans-serif', color: '#aaaacc', letterSpacing: 4,
+      fontSize: '13px', fontFamily: 'Arial, sans-serif', color: '#ffffff', letterSpacing: 4,
     }).setOrigin(0.5);
     this._container.add(title);
   }
