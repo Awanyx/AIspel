@@ -114,11 +114,13 @@ export class BootScene extends Phaser.Scene {
     const cx = GAME_WIDTH / 2;
     const cy = GAME_HEIGHT / 2;
 
-    this.add.text(cx, cy - 60, 'Karaktärskaos', {
-      fontSize: '36px',
-      fontFamily: 'Arial Black, Arial, sans-serif',
-      color: '#ffffff',
-    }).setOrigin(0.5);
+    // Show the logo as soon as it finishes loading; nothing shown above the bar
+    // until then (avoids showing text that the logo will replace).
+    this.load.once('filecomplete-image-menu_logo', () => {
+      this.add.image(cx, cy - 80, 'menu_logo')
+        .setDisplaySize(300, 120)
+        .setOrigin(0.5);
+    });
 
     const barW = 260;
     const barH = 20;
