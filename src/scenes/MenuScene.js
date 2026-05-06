@@ -47,15 +47,6 @@ export class MenuScene extends Phaser.Scene {
     bg.fillGradientStyle(0x1a0a2e, 0x1a0a2e, 0x2d1b5e, 0x2d1b5e, 1);
     bg.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
-    this.add.text(CX, 260, 'Karaktärskaos', {
-      fontSize: '52px', fontFamily: 'Arial Black, Arial, sans-serif',
-      color: '#ffffff', stroke: '#9b59b6', strokeThickness: 6,
-    }).setOrigin(0.5);
-
-    this.add.text(CX, 320, 'Matcha-Tre Pussel', {
-      fontSize: '18px', fontFamily: 'Arial, sans-serif', color: '#aaaacc',
-    }).setOrigin(0.5);
-
     const btnY = 560;
     const btn = this.add.image(CX, btnY, 'menu_play_btn').setInteractive({ useHandCursor: true });
     if (btn.width > MAX_PLAY_W) btn.setDisplaySize(MAX_PLAY_W, btn.height * (MAX_PLAY_W / btn.width));
