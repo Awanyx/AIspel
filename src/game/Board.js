@@ -326,11 +326,17 @@ export class Board {
     const keepKeys  = new Set(keepAsSpecials.map(s => `${s.row},${s.col}`));
     const clearKeys = new Set(clearCells.map(c => `${c.row},${c.col}`));
 
-    // Remove cleared cells (not kept as specials)
+    // Remove cleared cells (not kept as specials).
+    // If the cleared cell is itself a blocker (hit by a special effect), destroy it too.
+    const destroyedBlockers = [];
     for (const { row, col } of clearCells) {
       if (!keepKeys.has(`${row},${col}`)) {
         this.grid[row][col] = null;
         delete this.specials[`${row},${col}`];
+        if (this.blockers[row][col]) {
+          this.blockers[row][col] = false;
+          destroyedBlockers.push({ row, col });
+        }
       }
     }
 
@@ -340,7 +346,6 @@ export class Board {
     }
 
     // Check adjacent blockers
-    const destroyedBlockers = [];
     for (const { row, col } of clearCells) {
       for (const [dr, dc] of [[-1,0],[1,0],[0,-1],[0,1]]) {
         const r = row + dr, c = col + dc;
@@ -359,6 +364,12 @@ export class Board {
     for (let c = 0; c < COLS; c++) {
       let write = ROWS - 1;
       for (let r = ROWS - 1; r >= 0; r--) {
+        if (this.isBlocker(r, c)) {
+          // Blocker is a fixed wall — tiles can't fall through it.
+          // Reset write to just above the blocker so tiles above stay above.
+          write = r - 1;
+          continue;
+        }
         if (this.grid[r][c] !== null) {
           if (r !== write) {
             falls.push({ col: c, toRow: write, fromRow: r, type: this.grid[r][c] });
@@ -380,7 +391,7 @@ export class Board {
     const spawns = [];
     for (let r = 0; r < ROWS; r++)
       for (let c = 0; c < COLS; c++)
-        if (this.grid[r][c] === null) {
+        if (this.grid[r][c] === null && !this.isBlocker(r, c)) {
           const type = this._randomType();
           this.grid[r][c] = type;
           spawns.push({ col: c, row: r, type });
