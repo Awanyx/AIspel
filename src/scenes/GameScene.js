@@ -52,6 +52,7 @@ export class GameScene extends Phaser.Scene {
     this._movesWarnActive = false;
     this._hintHighlights = [];
     this._hintTween      = null;
+    this._bonusClipActive = false;
 
     this._drawBackground();
     this._drawBoardBackground();
@@ -107,6 +108,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   _playRatatoskrBonusClip(text = '4 i rad!') {
+    if (this._bonusClipActive) return;
+    this._bonusClipActive = true;
+
     const boardBottom = BOARD_ORIGIN_Y + ROWS * TILE_STEP;
     const panelH = 100;
     const panelY = boardBottom + 14 + panelH / 2;   // 14 px gap below board
@@ -131,7 +135,7 @@ export class GameScene extends Phaser.Scene {
     const dismiss = () => {
       this.tweens.add({
         targets: [bg, spr, label], alpha: 0, duration: 300, ease: 'Sine.easeIn',
-        onComplete: () => { bg.destroy(); spr.destroy(); label.destroy(); },
+        onComplete: () => { bg.destroy(); spr.destroy(); label.destroy(); this._bonusClipActive = false; },
       });
     };
 
