@@ -107,7 +107,7 @@ export class GameScene extends Phaser.Scene {
     bg.fillStyle(0x000000, 0.55);
     bg.fillRoundedRect(cx - 160, panelY - 80, 320, 160, 16);
 
-    // Animation sprite
+    // Animation sprite — repeat: -1 loops indefinitely
     const spr = this.add.sprite(cx - 60, panelY, 'anim_ratatoskr')
       .setDisplaySize(140, 140).setDepth(19).setAlpha(0);
 
@@ -117,18 +117,18 @@ export class GameScene extends Phaser.Scene {
       color: '#ffdd00', stroke: '#000000', strokeThickness: 4,
     }).setOrigin(0.5).setDepth(19).setAlpha(0);
 
-    // Fade everything in
+    const dismiss = () => {
+      this.tweens.add({
+        targets: [bg, spr, label], alpha: 0, duration: 300, ease: 'Sine.easeIn',
+        onComplete: () => { bg.destroy(); spr.destroy(); label.destroy(); },
+      });
+    };
+
+    // Fade in, start looping animation, dismiss after ~2 s
     this.tweens.add({ targets: [bg, spr, label], alpha: 1, duration: 180, ease: 'Sine.easeOut',
       onComplete: () => {
-        spr.play('anim_ratatoskr');
-        spr.once('animationcomplete', () => {
-          // Hold briefly then fade out
-          this.tweens.add({
-            targets: [bg, spr, label], alpha: 0, duration: 300,
-            delay: 300, ease: 'Sine.easeIn',
-            onComplete: () => { bg.destroy(); spr.destroy(); label.destroy(); },
-          });
-        });
+        spr.play({ key: 'anim_ratatoskr', repeat: -1 });
+        this.time.delayedCall(2000, dismiss);
       },
     });
   }
