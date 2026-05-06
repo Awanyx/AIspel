@@ -19,7 +19,7 @@ export class Board {
       this.grid = Array.from({ length: ROWS }, () =>
         Array.from({ length: COLS }, () => this._randomType())
       );
-    } while (this.findMatches().length > 0);
+    } while (this.findMatches().length > 0 || !this.hasValidMove());
   }
 
   initBlockers(positions = []) {
@@ -99,6 +99,38 @@ export class Board {
       this.shuffle();
       attempts++;
     } while ((this.findMatches().length > 0 || !this.hasValidMove()) && attempts < 100);
+
+    // Fallback: if still no valid move, force one by writing a guaranteed matchable
+    // pattern into the first three consecutive non-blocker cells found.
+    if (!this.hasValidMove()) this._forceValidMove();
+  }
+
+  /** Write X·Y·X into the first available run of 3 non-blocker cells so that
+   *  swapping positions 1↔2 produces a match (X·X·Y). */
+  _forceValidMove() {
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c + 2 < COLS; c++) {
+        if (this.isBlocker(r, c) || this.isBlocker(r, c + 1) || this.isBlocker(r, c + 2)) continue;
+        const x = this.grid[r][c] ?? 0;
+        const y = (x + 1) % TILE_TYPES;
+        this.grid[r][c] = x;
+        this.grid[r][c + 1] = y;
+        this.grid[r][c + 2] = x;
+        return;
+      }
+    }
+    // Also try vertically
+    for (let c = 0; c < COLS; c++) {
+      for (let r = 0; r + 2 < ROWS; r++) {
+        if (this.isBlocker(r, c) || this.isBlocker(r + 1, c) || this.isBlocker(r + 2, c)) continue;
+        const x = this.grid[r][c] ?? 0;
+        const y = (x + 1) % TILE_TYPES;
+        this.grid[r][c] = x;
+        this.grid[r + 1][c] = y;
+        this.grid[r + 2][c] = x;
+        return;
+      }
+    }
   }
 
   // ─── Match detection ───────────────────────────────────────────────────────
