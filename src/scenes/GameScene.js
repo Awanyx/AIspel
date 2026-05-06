@@ -71,7 +71,7 @@ export class GameScene extends Phaser.Scene {
     const cfg = {
       bolibompa:    { fps: 12, frames: 8 },
       pippi:        { fps: 14, frames: 8 },
-      ratatoskr:    { fps: 16, frames: 8 },
+      ratatoskr:    { fps: 8, frames: 8 },
       sommarskuggan:{ fps: 10, frames: 8 },
     };
     for (const [type, { fps, frames }] of Object.entries(cfg)) {
