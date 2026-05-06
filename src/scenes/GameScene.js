@@ -53,6 +53,8 @@ export class GameScene extends Phaser.Scene {
     this._hintHighlights = [];
     this._hintTween      = null;
     this._bonusClipActive = false;
+    this._bonusClipPriority = 0;
+    this._bonusClipDismiss = null;
 
     this._drawBackground();
     this._drawBoardBackground();
@@ -94,7 +96,7 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     if (type === 'pippi') {
-      this._playBonusClip('anim_sommarskuggan', '5 i rad!');
+      this._playBonusClip('anim_sommarskuggan', '5 i rad!', 2);
       return;
     }
 
@@ -107,9 +109,14 @@ export class GameScene extends Phaser.Scene {
     spr.once('animationcomplete', () => spr.destroy());
   }
 
-  _playBonusClip(animKey, text) {
-    if (this._bonusClipActive) return;
+  _playBonusClip(animKey, text, priority = 1) {
+    if (this._bonusClipActive) {
+      if (priority <= this._bonusClipPriority) return;
+      // Higher-priority clip: dismiss the current one immediately, then start fresh
+      if (this._bonusClipDismiss) this._bonusClipDismiss();
+    }
     this._bonusClipActive = true;
+    this._bonusClipPriority = priority;
 
     const boardBottom = BOARD_ORIGIN_Y + ROWS * TILE_STEP;
     const panelH = 100;
@@ -129,16 +136,26 @@ export class GameScene extends Phaser.Scene {
       color: '#ffdd00', stroke: '#000000', strokeThickness: 6,
     }).setOrigin(0.5).setDepth(22).setAlpha(0);
 
+    const cleanup = () => {
+      this._bonusClipActive = false;
+      this._bonusClipPriority = 0;
+      this._bonusClipDismiss = null;
+      bg.destroy(); spr.destroy(); label.destroy();
+    };
+
     const dismiss = () => {
+      this._bonusClipDismiss = null;
       this.tweens.add({
         targets: [bg, spr, label], alpha: 0, duration: 300, ease: 'Sine.easeIn',
-        onComplete: () => { bg.destroy(); spr.destroy(); label.destroy(); this._bonusClipActive = false; },
+        onComplete: cleanup,
       });
     };
 
+    this._bonusClipDismiss = () => { this.tweens.killTweensOf([bg, spr, label]); cleanup(); };
+
     this.tweens.add({ targets: [bg, spr, label], alpha: 1, duration: 180, ease: 'Sine.easeOut',
       onComplete: () => {
-        spr.play({ key: animKey, repeat: -1 });
+        if (this.anims.exists(animKey)) spr.play({ key: animKey, repeat: -1 });
         this.time.delayedCall(2000, dismiss);
       },
     });
