@@ -64,7 +64,6 @@ export const LEVELS = [
     tileTypes: 11,
     // Exclude ratatoskr (2), pippi (3), sommarskuggan (1), snigel (6)
     tilePool: [0, 4, 5, 7, 8, 9, 10],
-    bannedSpecials: ['pippi'],
     objective: { type: 'score', target: 5500, moves: 30 },
   },
 ];
