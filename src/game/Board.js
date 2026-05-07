@@ -4,12 +4,13 @@ import { COLS, ROWS, TILE_TYPES } from './constants.js';
 export const SPECIAL_TYPES = ['bolibompa', 'pippi', 'ratatoskr', 'sommarskuggan'];
 
 export class Board {
-  constructor(tileTypes = TILE_TYPES) {
+  constructor(tileTypes = TILE_TYPES, { bannedSpecials = [] } = {}) {
     // tileTypes may be a count (number) or an explicit pool (array of indices)
     this._tilePool = Array.isArray(tileTypes)
       ? tileTypes
       : Array.from({ length: tileTypes }, (_, i) => i);
     this.tileTypes = this._tilePool.length;
+    this._bannedSpecials = new Set(bannedSpecials);
     this.grid     = [];
     this.specials = {};  // "row,col" → special type string
     this.blockers = [];  // [row][col] boolean
@@ -253,20 +254,22 @@ export class Board {
     const minC = Math.min(...cols), maxC = Math.max(...cols);
     const pivot = cells[Math.floor(cells.length / 2)];
 
+    const allow = (type) => !this._bannedSpecials.has(type);
+
     // Priority 1 — Bolibompa: 5+ cells forming an L or T (spans both axes)
-    if (cells.length >= 5 && minR !== maxR && minC !== maxC) {
+    if (cells.length >= 5 && minR !== maxR && minC !== maxC && allow('bolibompa')) {
       return { type: 'bolibompa', row: pivot.row, col: pivot.col };
     }
     // Priority 2 — Pippi: 5+ cells in a straight row
-    if (cells.length >= 5 && minR === maxR) {
+    if (cells.length >= 5 && minR === maxR && allow('pippi')) {
       return { type: 'pippi', row: pivot.row, col: pivot.col };
     }
     // Priority 3 — Ratatoskr: 4+ cells in a straight line (row or column)
-    if (cells.length >= 4 && (minC === maxC || minR === maxR)) {
+    if (cells.length >= 4 && (minC === maxC || minR === maxR) && allow('ratatoskr')) {
       return { type: 'ratatoskr', row: pivot.row, col: pivot.col };
     }
     // Priority 4 — Sommarskuggan: any 2×2 square within the group
-    if (cells.length >= 4) {
+    if (cells.length >= 4 && allow('sommarskuggan')) {
       const cellSet = new Set(cells.map(c => `${c.row},${c.col}`));
       for (const { row, col } of cells) {
         if (cellSet.has(`${row},${col+1}`) &&
