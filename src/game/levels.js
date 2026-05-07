@@ -62,7 +62,7 @@ export const LEVELS = [
     id: 8,
     label: 'Nivå 8',
     tileTypes: 11,
-    // Exclude ratatoskr (index 2)
+    // Exclude ratatoskr (index 2) and pippi (index 3)
     tilePool: [0, 1, 4, 5, 6, 7, 8, 9, 10],
     bannedSpecials: ['pippi'],
     objective: { type: 'score', target: 5500, moves: 30 },
