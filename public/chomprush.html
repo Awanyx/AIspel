@@ -201,10 +201,10 @@ const MAZE_POOL = [
 "1111111111111111111",  // r0
 "1222222222222222221",  // r1  top corridor
 "1211112112111121121",  // r2
-"1311111111111111111",  // r3  power pellets top-left/right
-"1211112111111121121",  // r4
-"1222222111111222221",  // r5
-"1121111111111111211",  // r6
+"1311111110111111111",  // r3  power pellets top-left/right
+"1211112110111121121",  // r4
+"1222222110111222221",  // r5
+"1121111110111111211",  // r6
 "1101111444441211011",  // r7  ghost house top
 "1222115555511222221",  // r8  ghost house mid
 "6002115544511200006",  // r9  tunnel row (6=warp)
@@ -693,6 +693,7 @@ class Ghost{
     this.wobble=Math.random()*Math.PI*2;
     this.eyeRow=0; this.eyeCol=0;
     this.bodyAnim=0;
+    this._exitedDoor=false;
   }
   update(dt,pacman,ghosts,maze,levelCfg,t){
     this.bodyAnim+=dt;
@@ -703,10 +704,19 @@ class Ghost{
       return;
     }
     if(this.state==='exiting'){
-      // move toward exit row/col
-      const targetR=7, targetC=9;
-      if(this._moveToward(targetR,targetC,dt,maze,this.speed*0.8)){
-        this.row=targetR; this.col=targetC; this.px=0; this.py=0;
+      // Phase 1: float straight up out of ghost house (through the door)
+      if(!this._exitedDoor){
+        if(this._moveToward(6,9,dt,maze,this.speed*0.8)){
+          this.row=6; this.col=9; this.px=0; this.py=0;
+          this._exitedDoor=true;
+        }
+        return;
+      }
+      // Phase 2: slide sideways to the nearest side corridor (col 2 or col 16)
+      const sideC=this.col<=9?2:16;
+      if(this._moveToward(6,sideC,dt,maze,this.speed*0.8)){
+        this.row=6; this.col=sideC; this.px=0; this.py=0;
+        this._exitedDoor=false;
         this.state='chase';
       }
       return;
