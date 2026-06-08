@@ -1112,13 +1112,14 @@ class InputManager {
 // ================================================================
 function getLevelConfig(level){
   const l=level;
+  const ease=l===1?0.7:1; // level 1: slower ghosts, longer frightened time
   return {
     ghostCount:Math.min(4,l),
-    ghostSpeed:Math.min(6,3.0+l*0.25),
+    ghostSpeed:Math.min(6,(3.0+l*0.25)*ease),
     pacSpeed:Math.min(6,4.0+l*0.1),
-    frightenedDuration:Math.max(2,8-l*0.4),
+    frightenedDuration:Math.max(2,(8-l*0.4)/ease),
     frightenFlash:2,
-    fruitAt:0.4+Math.random()*0.2, // fraction of dots eaten when fruit appears
+    fruitAt:0.3+Math.random()*0.1, // fruit spawns earlier on level 1
     sirenSpeed:Math.min(1,l*0.08),
   };
 }
