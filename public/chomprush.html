@@ -567,67 +567,58 @@ class Maze {
 
   draw(ctx,tileW,tileH,t){
     this.tileW=tileW; this.tileH=tileH;
-    const [c1,c2]=this.wallColor;
+    const ps=Math.max(1,Math.floor(tileW/11)); // pixel size
+    const [c1]=this.wallColor;
     for(let r=0;r<ROWS;r++){
       for(let c=0;c<COLS;c++){
         const v=this.grid[r][c];
-        const x=c*tileW, y=r*tileH, w=tileW, h=tileH;
+        const x=Math.round(c*tileW), y=Math.round(r*tileH);
+        const w=Math.round(tileW), h=Math.round(tileH);
         if(v===1){
-          // wall - check neighbors for smooth look
-          ctx.fillStyle='#111';
+          ctx.fillStyle='#0a0a2e';
           ctx.fillRect(x,y,w,h);
-          // draw neon outline
-          this._drawWallCell(ctx,r,c,x,y,w,h,c1,c2,t);
+          // pixel-art border on exposed edges
+          ctx.fillStyle=c1;
+          const top=this.isWall(r-1,c), bot=this.isWall(r+1,c);
+          const lft=this.isWall(r,c-1), rgt=this.isWall(r,c+1);
+          if(!top){for(let i=0;i<w;i+=ps)ctx.fillRect(x+i,y,ps,ps);}
+          if(!bot){for(let i=0;i<w;i+=ps)ctx.fillRect(x+i,y+h-ps,ps,ps);}
+          if(!lft){for(let i=0;i<h;i+=ps)ctx.fillRect(x,y+i,ps,ps);}
+          if(!rgt){for(let i=0;i<h;i+=ps)ctx.fillRect(x+w-ps,y+i,ps,ps);}
+          // inner highlight pixel on corners
+          ctx.fillStyle='rgba(0,220,255,0.25)';
+          if(!top&&!lft)ctx.fillRect(x+ps,y+ps,ps,ps);
+          if(!top&&!rgt)ctx.fillRect(x+w-ps*2,y+ps,ps,ps);
+          if(!bot&&!lft)ctx.fillRect(x+ps,y+h-ps*2,ps,ps);
+          if(!bot&&!rgt)ctx.fillRect(x+w-ps*2,y+h-ps*2,ps,ps);
         } else if(v===2){
-          // dot
-          ctx.fillStyle='rgba(255,255,255,0.85)';
-          ctx.beginPath();
-          ctx.arc(x+w/2,y+h/2,Math.max(2,w*0.12),0,Math.PI*2);
-          ctx.fill();
+          // dot — 2×2 white pixel
+          const cx=x+Math.floor(w/2)-ps, cy=y+Math.floor(h/2)-ps;
+          ctx.fillStyle='#e8e8c8';
+          ctx.fillRect(cx,cy,ps*2,ps*2);
         } else if(v===3){
-          // power pellet - pulsing
-          const pulse=0.8+0.2*Math.sin(t*4);
-          const grad=ctx.createRadialGradient(x+w/2,y+h/2,0,x+w/2,y+h/2,w*0.35*pulse);
-          grad.addColorStop(0,'#fff');
-          grad.addColorStop(0.5,'#00e5ff');
-          grad.addColorStop(1,'rgba(0,229,255,0)');
-          ctx.fillStyle=grad;
-          ctx.beginPath();
-          ctx.arc(x+w/2,y+h/2,w*0.35*pulse,0,Math.PI*2);
-          ctx.fill();
+          // power pellet — blinking chunky pixel square
+          const on=Math.floor(t*3)%2===0;
+          if(on){
+            const sz=ps*4;
+            const cx=x+Math.floor((w-sz)/2), cy=y+Math.floor((h-sz)/2);
+            ctx.fillStyle='#00ffff';
+            ctx.fillRect(cx,cy,sz,sz);
+            ctx.fillStyle='#ffffff';
+            ctx.fillRect(cx+ps,cy+ps,ps*2,ps*2);
+          }
         } else if(v===4){
-          // ghost door
-          ctx.fillStyle='rgba(255,150,255,0.5)';
-          ctx.fillRect(x+w*0.1,y+h*0.4,w*0.8,h*0.25);
+          // ghost door — horizontal pixel bar
+          ctx.fillStyle='#ff88ff';
+          ctx.fillRect(x+ps,y+Math.floor(h*0.42),w-ps*2,ps*2);
         } else if(v===5||v===6){
-          // interior/tunnel - dark floor
-          ctx.fillStyle='rgba(0,0,0,0.3)';
+          ctx.fillStyle='#050514';
           ctx.fillRect(x,y,w,h);
         }
       }
     }
   }
-  _drawWallCell(ctx,r,c,x,y,w,h,c1,c2,t){
-    const glow=ctx.createLinearGradient(x,y,x+w,y+h);
-    const a=0.7+0.3*Math.sin(t+r*0.2+c*0.3);
-    glow.addColorStop(0,c1);
-    glow.addColorStop(1,c2);
-    ctx.strokeStyle=glow;
-    ctx.lineWidth=Math.max(1.5,w*0.08);
-    // only draw edges facing non-wall cells
-    const top=this.isWall(r-1,c), bot=this.isWall(r+1,c);
-    const lft=this.isWall(r,c-1), rgt=this.isWall(r,c+1);
-    ctx.beginPath();
-    if(!top){ctx.moveTo(x,y);ctx.lineTo(x+w,y)}
-    if(!bot){ctx.moveTo(x,y+h);ctx.lineTo(x+w,y+h)}
-    if(!lft){ctx.moveTo(x,y);ctx.lineTo(x,y+h)}
-    if(!rgt){ctx.moveTo(x+w,y);ctx.lineTo(x+w,y+h)}
-    ctx.stroke();
-    // inner glow
-    ctx.strokeStyle=`rgba(255,255,255,${0.08*a})`;
-    ctx.lineWidth=1;
-    ctx.stroke();
-  }
+  _drawWallCell(){} // unused — pixel borders drawn inline above
 }
 
 // ================================================================
@@ -717,37 +708,33 @@ class PacMan {
   }
   draw(ctx,tileW,tileH,t){
     const{x,y}=this.getPixel(tileW,tileH);
-    const r=tileW*0.42;
+    const ps=Math.max(1,Math.floor(tileW/12));
+    const half=5; // pixel radius
     if(this.deathPlaying){
-      const a=Math.min(this.deathAnim/1,1);
-      // death spin
-      ctx.save(); ctx.translate(x,y); ctx.rotate(a*Math.PI);
-      ctx.globalAlpha=1-a;
+      const a=Math.min(this.deathAnim,1);
       ctx.fillStyle='#FFE135';
-      ctx.beginPath(); ctx.arc(0,0,r*(1-a*0.5),0,Math.PI*2); ctx.fill();
-      ctx.restore(); return;
+      ctx.globalAlpha=Math.max(0,1-a);
+      const sz=Math.round((half*2+1)*ps*(1-a*0.5));
+      ctx.fillRect(Math.round(x)-Math.floor(sz/2),Math.round(y)-Math.floor(sz/2),sz,sz);
+      ctx.globalAlpha=1;
+      return;
     }
-    // direction angle
-    const angles={right:0,down:Math.PI/2,left:Math.PI,up:-Math.PI/2};
-    const angle=angles[this.dir]||0;
-    const mouth=this.chomp*Math.PI;
-    ctx.save(); ctx.translate(x,y); ctx.rotate(angle);
-    // glow
-    const grd=ctx.createRadialGradient(0,0,0,0,0,r*1.3);
-    grd.addColorStop(0,'rgba(255,225,53,0.4)');
-    grd.addColorStop(1,'rgba(255,225,53,0)');
-    ctx.fillStyle=grd; ctx.beginPath(); ctx.arc(0,0,r*1.3,0,Math.PI*2); ctx.fill();
-    // body
+    const ang={right:0,down:Math.PI/2,left:Math.PI,up:-Math.PI/2}[this.dir]||0;
+    const mAngle=this.chomp*Math.PI;
+    ctx.save();
+    ctx.translate(Math.round(x),Math.round(y));
+    ctx.rotate(ang);
     ctx.fillStyle='#FFE135';
-    ctx.beginPath();
-    ctx.moveTo(0,0);
-    ctx.arc(0,0,r,mouth,Math.PI*2-mouth);
-    ctx.closePath(); ctx.fill();
+    for(let py=-half;py<=half;py++){
+      for(let px=-half;px<=half;px++){
+        if(px*px+py*py>half*half)continue;
+        if(px>=0&&Math.abs(Math.atan2(py,px))<mAngle)continue;
+        ctx.fillRect(px*ps,py*ps,ps,ps);
+      }
+    }
     // eye
-    const ex=r*0.2*Math.cos(Math.PI/4-angle)+r*0.1;
-    const ey=-r*0.45;
-    ctx.fillStyle='#222';
-    ctx.beginPath(); ctx.arc(ex+r*0.05,ey,r*0.12,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#222222';
+    ctx.fillRect(Math.round(half*ps*0.25),Math.round(-half*ps*0.58),ps*2,ps*2);
     ctx.restore();
   }
 }
@@ -932,71 +919,57 @@ class Ghost{
   }
   draw(ctx,tileW,tileH,t){
     const{x,y}=this.getPixel(tileW,tileH);
-    const r=tileW*0.44;
+    const ps=Math.max(1,Math.floor(tileW/12));
+    const W=10, H=11;
+    const ox=Math.round(x)-Math.floor(W*ps/2);
+    const oy=Math.round(y)-Math.floor(H*ps/2);
     if(this.state==='eaten'){
-      // just eyes
-      this._drawEyes(ctx,x,y,r,true);
+      this._drawPixelEyes(ctx,ox,oy,ps,false,true);
       return;
     }
     const flashing=this.state==='frightened'&&this.frightenedTimer<2;
-    const frightColor=flashing?(Math.floor(t*6)%2===0?'#fff':'#1565c0'):'#1565c0';
-    const color=this.state==='frightened'?frightColor:this.color;
-    // wobble body
-    const w2=Math.sin(this.bodyAnim*6)*r*0.07;
-    // ghost body shape
-    ctx.fillStyle=color;
-    ctx.beginPath();
-    ctx.arc(x,y-r*0.1,r,Math.PI,0);
-    // wavy bottom
-    const bots=5;
-    for(let i=0;i<=bots;i++){
-      const bx=x+r-(i*2*r/bots);
-      const by=y+r*0.9+Math.sin(this.wobble+i*1.2)*r*0.18+w2;
-      i===0?ctx.lineTo(bx,by):ctx.lineTo(bx,by);
-    }
-    ctx.closePath(); ctx.fill();
-    // shade
-    ctx.fillStyle='rgba(0,0,0,0.1)';
-    ctx.beginPath();
-    ctx.ellipse(x,y+r*0.7,r*0.7,r*0.18,0,0,Math.PI*2);
-    ctx.fill();
-    this._drawEyes(ctx,x,y,r,false);
-  }
-  _drawEyes(ctx,x,y,r,onlyEyes){
     const frightened=this.state==='frightened';
-    if(frightened){
-      // worried face
-      ctx.fillStyle='#fff';
-      ctx.beginPath();ctx.arc(x-r*0.28,y-r*0.1,r*0.18,0,Math.PI*2);ctx.fill();
-      ctx.beginPath();ctx.arc(x+r*0.28,y-r*0.1,r*0.18,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#aaa';
-      ctx.beginPath();ctx.arc(x-r*0.28,y-r*0.08,r*0.1,0,Math.PI*2);ctx.fill();
-      ctx.beginPath();ctx.arc(x+r*0.28,y-r*0.08,r*0.1,0,Math.PI*2);ctx.fill();
-      // squiggle mouth
-      ctx.strokeStyle='#fff'; ctx.lineWidth=r*0.1;
-      ctx.beginPath();
-      for(let i=0;i<5;i++){
-        const mx=x-r*0.4+i*r*0.2;
-        const my=y+r*0.3+(i%2===0?-r*0.1:r*0.1);
-        i===0?ctx.moveTo(mx,my):ctx.lineTo(mx,my);
+    const col=frightened?(flashing&&Math.floor(t*6)%2?'#ffffff':'#1565c0'):this.color;
+    ctx.fillStyle=col;
+    const waveOff=Math.floor(this.wobble*1.5)%2;
+    for(let row=0;row<H;row++){
+      for(let col2=0;col2<W;col2++){
+        if(row<5){
+          const dx=col2-4.5,dy=row-4.5;
+          if(dx*dx+dy*dy>25)continue;
+        }
+        if(row>=9){
+          const skip=(col2%2===waveOff)?row===10:row===9;
+          if(skip)continue;
+        }
+        ctx.fillRect(ox+col2*ps,oy+row*ps,ps,ps);
       }
-      ctx.stroke();
+    }
+    this._drawPixelEyes(ctx,ox,oy,ps,frightened,false);
+  }
+  _drawPixelEyes(ctx,ox,oy,ps,frightened,eaten){
+    if(frightened){
+      ctx.fillStyle='#ffffff';
+      ctx.fillRect(ox+2*ps,oy+3*ps,ps*2,ps*2);
+      ctx.fillRect(ox+6*ps,oy+3*ps,ps*2,ps*2);
+      ctx.fillStyle='#aaaaff';
+      ctx.fillRect(ox+3*ps,oy+4*ps,ps,ps);
+      ctx.fillRect(ox+7*ps,oy+4*ps,ps,ps);
+      // zigzag mouth
+      ctx.fillStyle='#ffffff';
+      for(let i=0;i<8;i++)ctx.fillRect(ox+(i+1)*ps,oy+(7+(i%2))*ps,ps,ps);
       return;
     }
     const d=DIR[this.dir]||{x:0,y:0};
-    const ex1=x-r*0.28+d.x*r*0.1;
-    const ey1=y-r*0.12+d.y*r*0.1;
-    const ex2=x+r*0.28+d.x*r*0.1;
-    const ey2=y-r*0.12+d.y*r*0.1;
-    // white
-    ctx.fillStyle='#fff';
-    ctx.beginPath();ctx.ellipse(ex1,ey1,r*0.2,r*0.24,0,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.ellipse(ex2,ey2,r*0.2,r*0.24,0,0,Math.PI*2);ctx.fill();
-    // pupil
-    ctx.fillStyle='#00f';
-    ctx.beginPath();ctx.arc(ex1+d.x*r*0.08,ey1+d.y*r*0.08,r*0.13,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.arc(ex2+d.x*r*0.08,ey2+d.y*r*0.08,r*0.13,0,Math.PI*2);ctx.fill();
+    const po={x:Math.round(d.x*ps),y:Math.round(d.y*ps)};
+    ctx.fillStyle='#ffffff';
+    ctx.fillRect(ox+1*ps,oy+3*ps,ps*3,ps*3);
+    ctx.fillRect(ox+6*ps,oy+3*ps,ps*3,ps*3);
+    ctx.fillStyle='#0000cc';
+    ctx.fillRect(ox+2*ps+po.x,oy+4*ps+po.y,ps*2,ps*2);
+    ctx.fillRect(ox+7*ps+po.x,oy+4*ps+po.y,ps*2,ps*2);
   }
+  _drawEyes(){} // legacy stub
 }
 
 // ================================================================
@@ -1026,14 +999,24 @@ class Fruit {
   }
   draw(ctx,tileW,tileH,t){
     if(!this.alive)return;
-    const x=this.col*tileW+tileW/2;
-    const y=this.row*tileH+tileH/2+Math.sin(this.bounce)*3;
-    const r=tileW*0.4;
-    ctx.save();
-    ctx.font=`${r*2}px serif`;
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(this.symbol,x,y);
-    ctx.restore();
+    const ps=Math.max(1,Math.floor(tileW/12));
+    const cx=Math.round(this.col*tileW+tileW/2);
+    const cy=Math.round(this.row*tileH+tileH/2+Math.sin(this.bounce)*3);
+    const r=5; // pixel radius
+    // body
+    ctx.fillStyle=this.color;
+    for(let py=-r;py<=r;py++){
+      for(let px=-r;px<=r;px++){
+        if(px*px+py*py>r*r)continue;
+        ctx.fillRect(cx+px*ps,cy+py*ps,ps,ps);
+      }
+    }
+    // highlight (top-left bright pixel)
+    ctx.fillStyle='rgba(255,255,255,0.7)';
+    ctx.fillRect(cx-2*ps,cy-3*ps,ps*2,ps*2);
+    // stem (green pixels at top)
+    ctx.fillStyle='#33aa33';
+    ctx.fillRect(cx,cy-(r+1)*ps,ps,ps*3);
   }
 }
 
@@ -1166,6 +1149,7 @@ class Game {
     canvas.style.width=cw+'px'; canvas.style.height=ch+'px';
     canvas.style.marginTop=hudH+'px';
     ctx.scale(dpr,dpr);
+    ctx.imageSmoothingEnabled=false;
     this.tileW=cw/COLS; this.tileH=ch/ROWS;
     if(this.maze){this.maze.tileW=this.tileW;this.maze.tileH=this.tileH}
     this._canvasW=cw; this._canvasH=ch;
@@ -1174,6 +1158,7 @@ class Game {
     const mc=document.getElementById('menuPacman');
     if(!mc)return;
     const mc2=mc.getContext('2d');
+    mc2.imageSmoothingEnabled=false;
     let mt=0, lastT=0;
     const loop=(ts)=>{
       if(this.state!=='start'&&this.state!=='tutorial')return;
@@ -1182,14 +1167,22 @@ class Game {
       mc2.clearRect(0,0,120,60);
       const r=20, x=30+Math.sin(mt*1.5)*15;
       const mouth=(0.2+0.2*Math.sin(mt*10))*Math.PI;
+      const ps2=3, half2=5;
       mc2.fillStyle='#FFE135';
-      mc2.beginPath(); mc2.moveTo(x,30);
-      mc2.arc(x,30,r,mouth,Math.PI*2-mouth);
-      mc2.closePath(); mc2.fill();
-      // dots ahead
+      for(let py=-half2;py<=half2;py++){
+        for(let px=-half2;px<=half2;px++){
+          if(px*px+py*py>half2*half2)continue;
+          if(px>=0&&Math.abs(Math.atan2(py,px))<mouth)continue;
+          mc2.fillRect(x+px*ps2,30+py*ps2,ps2,ps2);
+        }
+      }
+      mc2.fillStyle='#222';
+      mc2.fillRect(x+ps2,30-half2*ps2*0.55,ps2*2,ps2*2);
+      // pixel dots ahead
       for(let i=0;i<3;i++){
-        mc2.fillStyle=`rgba(255,255,255,${0.5+0.5*Math.sin(mt*3+i)})`;
-        mc2.beginPath(); mc2.arc(x+40+i*18,30,3,0,Math.PI*2); mc2.fill();
+        const alpha=0.5+0.5*Math.sin(mt*3+i);
+        mc2.fillStyle=`rgba(232,232,200,${alpha})`;
+        mc2.fillRect(x+42+i*16,28,6,6);
       }
     };
     requestAnimationFrame(loop);
