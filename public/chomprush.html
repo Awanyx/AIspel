@@ -625,7 +625,7 @@ class PacMan {
     // Eye tracking
     if(d.x!==0||d.y!==0){this.eyeX=d.x;this.eyeY=d.y;}
     // Chomp animation
-    this.chomp+=dt*12*this.chompDir;
+    this.chomp+=dt*1.5*this.chompDir;
     if(this.chomp>this.chompMax){this.chompDir=-1;this.chomp=this.chompMax;}
     if(this.chomp<0)           {this.chompDir=1; this.chomp=0;}
   }
