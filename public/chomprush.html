@@ -1150,9 +1150,18 @@ class Game {
     canvas.style.marginTop=hudH+'px';
     ctx.scale(dpr,dpr);
     ctx.imageSmoothingEnabled=false;
-    this.tileW=cw/COLS; this.tileH=ch/ROWS;
-    if(this.maze){this.maze.tileW=this.tileW;this.maze.tileH=this.tileH}
     this._canvasW=cw; this._canvasH=ch;
+    this.baseTileW=cw/COLS; this.baseTileH=ch/ROWS;
+    this._applyLevelScale();
+  }
+  _applyLevelScale(){
+    // maze grows each level: level 1 = 50% of canvas, +17% per level, capped at 100%
+    const s=Math.min(1.0,0.50+(((this.level||1)-1)*0.17));
+    this.tileW=(this.baseTileW||this._canvasW/COLS||22)*s;
+    this.tileH=(this.baseTileH||this._canvasH/ROWS||22)*s;
+    this.mazeOffX=((this._canvasW||0)-this.tileW*COLS)/2;
+    this.mazeOffY=((this._canvasH||0)-this.tileH*ROWS)/2;
+    if(this.maze){this.maze.tileW=this.tileW;this.maze.tileH=this.tileH;}
   }
   _animateMenu(){
     const mc=document.getElementById('menuPacman');
@@ -1188,6 +1197,7 @@ class Game {
     requestAnimationFrame(loop);
   }
   _initLevel(){
+    this._applyLevelScale();
     this.maze=new Maze(this.level);
     this.maze.tileW=this.tileW; this.maze.tileH=this.tileH;
     const cfg=getLevelConfig(this.level);
@@ -1439,7 +1449,17 @@ class Game {
     ctx.fillStyle='#000'; ctx.fillRect(0,0,cw,ch);
     if(!this.maze)return;
     ctx.save();
-    ctx.translate(this._shakeX||0,this._shakeY||0);
+    ctx.translate((this.mazeOffX||0)+(this._shakeX||0),(this.mazeOffY||0)+(this._shakeY||0));
+    // maze border glow (visible when maze is smaller than canvas)
+    if((this.mazeOffX||0)>2||(this.mazeOffY||0)>2){
+      const mw=this.tileW*COLS, mh=this.tileH*ROWS;
+      const ps=Math.max(1,Math.floor(this.tileW/11));
+      ctx.fillStyle='#00ffff';
+      // top/bottom border line (pixel dots)
+      for(let x=0;x<mw;x+=ps*3){ctx.fillRect(x,-ps*2,ps,ps);ctx.fillRect(x,mh+ps,ps,ps);}
+      // left/right border line
+      for(let y=0;y<mh;y+=ps*3){ctx.fillRect(-ps*2,y,ps,ps);ctx.fillRect(mw+ps,y,ps,ps);}
+    }
     // maze
     this.maze.draw(ctx,this.tileW,this.tileH,this.t);
     // fruit
