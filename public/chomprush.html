@@ -196,96 +196,97 @@ const ctx = canvas.getContext('2d');
 //   - Ghost house block rows 7-10 cols 6-12 is always identical
 
 const MAZE_POOL = [
-// ── MAZE 0 ── Level 1-2  (open, beginner-friendly)
+// ── MAZE 0 ── Level 1  (wide open, easy — no inner walls)
+// Rows 1,5,6,12,13,15,17 are full corridors guaranteeing full connectivity.
 (()=>{const M=[
 "1111111111111111111",  // r0
-"1222222222222222221",  // r1  top corridor
-"1211112112111121121",  // r2
-"1311111110111111111",  // r3  power pellets top-left/right
-"1211112110111121121",  // r4
-"1222222110111222221",  // r5
-"1121111110111111211",  // r6
+"1222222222222222221",  // r1  full top corridor
+"1202222222222222021",  // r2  open sides, lots of dots
+"1312222222222221311",  // r3  power pellets
+"1202222222222222021",  // r4
+"1222222222222222221",  // r5  full mid corridor
+"1122222222222222211",  // r6  col2=2, col16=2 → ghost-house connection
 "1101111444441211011",  // r7  ghost house top
-"1222115555511222221",  // r8  ghost house mid
-"6002115544511200006",  // r9  tunnel row (6=warp)
-"1222115555511222221",  // r10 ghost house mid
+"1222115555511222221",  // r8
+"6002115544511200006",  // r9  tunnels
+"1222115555511222221",  // r10
 "1101111444441211011",  // r11 ghost house bottom
-"1121111111111111211",  // r12
-"1222222112111222221",  // r13 open cross above start
-"1200000000000002221",  // r14 ← PAC-MAN START (row 14) — fully open corridor
-"1222222112111222221",  // r15 open cross below start
-"1211112112111121211",  // r16
-"1322222222222222231",  // r17 power pellets bottom
+"1122222222222222211",  // r12 col2=2, col16=2
+"1222222222222222221",  // r13
+"1200000000000002221",  // r14 ← PAC-MAN START
+"1222222222222222221",  // r15
+"1202222222222222021",  // r16
+"1322222222222222231",  // r17 power pellets
 "1111111111111111111",  // r18
 ];return M.map(r=>r.split('').map(Number))})(),
 
-// ── MAZE 1 ── Level 3-4
+// ── MAZE 1 ── Level 2  (centre block obstacles)
 (()=>{const M=[
-"1111111111111111111",  // r0
-"1222211111111111111",  // r1
-"1211211111111111111",  // r2
-"1311111111111111311",  // r3
-"1211111111111111211",  // r4
-"1222111111111111221",  // r5
-"1121111111111111211",  // r6
-"1101111444441211011",  // r7
-"1222115555511221221",  // r8
-"6002115544511200006",  // r9
-"1222115555511221221",  // r10
-"1101111444441211011",  // r11
-"1121111111111111211",  // r12
-"1222121222221211221",  // r13
-"1200000000000002221",  // r14 ← PAC-MAN START — open corridor
-"1222121222221211221",  // r15
-"1211121111111211211",  // r16
-"1322212222222212231",  // r17
-"1111111111111111111",  // r18
+"1111111111111111111",
+"1222222222222222221",  // r1  full
+"1222222111112222221",  // r2  centre wall
+"1312221111112221311",  // r3  power pellets + centre wall
+"1222222111112222221",  // r4  centre wall
+"1222222222222222221",  // r5  full
+"1122222222222222211",  // r6  col2=2, col16=2
+"1101111444441211011",
+"1222115555511222221",
+"6002115544511200006",
+"1222115555511222221",
+"1101111444441211011",
+"1122222222222222211",  // r12 col2=2, col16=2
+"1222222111112222221",  // r13
+"1200000000000002221",  // r14 ← PAC-MAN START
+"1222222222222222221",  // r15 full
+"1222222111112222221",  // r16
+"1322222222222222231",  // r17
+"1111111111111111111",
 ];return M.map(r=>r.split('').map(Number))})(),
 
-// ── MAZE 2 ── Level 5-6 (more internal walls, still fair)
+// ── MAZE 2 ── Level 3-4  (cross-shaped inner walls)
 (()=>{const M=[
-"1111111111111111111",  // r0
-"1222222211122222221",  // r1
-"1211121211121121211",  // r2
-"1311111111111111311",  // r3
-"1211111111111111211",  // r4
-"1222111111111111221",  // r5
-"1121111111111111211",  // r6
-"1101111444441211011",  // r7
-"1221115555511221221",  // r8
-"6002115544511200006",  // r9
-"1221115555511221221",  // r10
-"1101111444441211011",  // r11
-"1121111111111111211",  // r12
+"1111111111111111111",
+"1222222222222222221",  // r1  full
+"1222121111111121221",  // r2  side pillars
+"1312121111111121311",  // r3  power pellets + pillars
+"1222122222222121221",  // r4  inner corridor
+"1222222222222222221",  // r5  full
+"1122222222222222211",  // r6  col2=2, col16=2
+"1101111444441211011",
+"1222115555511222221",
+"6002115544511200006",
+"1222115555511222221",
+"1101111444441211011",
+"1122222222222222211",  // r12
+"1222222222222222221",  // r13 full
+"1200000000000002221",  // r14 ← PAC-MAN START
+"1222222222222222221",  // r15 full
+"1222121111111121221",  // r16
+"1322222222222222231",  // r17
+"1111111111111111111",
+];return M.map(r=>r.split('').map(Number))})(),
+
+// ── MAZE 3 ── Level 5+  (dense grid, most complex)
+(()=>{const M=[
+"1111111111111111111",
+"1222222222222222221",  // r1  full
+"1211121211121121211",  // r2  grid pillars
+"1311121211121121311",  // r3  power pellets + grid
+"1222122222222121221",  // r4  inner passage
+"1211122211122111211",  // r5  narrow corridors
+"1122222222222222211",  // r6  col2=2, col16=2
+"1101111444441211011",
+"1222115555511222221",
+"6002115544511200006",
+"1222115555511222221",
+"1101111444441211011",
+"1122222222222222211",  // r12
 "1222122212221221221",  // r13
-"1200000000000002221",  // r14 ← PAC-MAN START — open corridor
-"1222122212221221221",  // r15
+"1200000000000002221",  // r14 ← PAC-MAN START
+"1222222222222222221",  // r15 full
 "1211121211121121211",  // r16
-"1322222211122222231",  // r17
-"1111111111111111111",  // r18
-];return M.map(r=>r.split('').map(Number))})(),
-
-// ── MAZE 3 ── Level 7+  (tightest layout, still no dead-ends near start)
-(()=>{const M=[
-"1111111111111111111",  // r0
-"1222111111111111111",  // r1
-"1211111111111111111",  // r2
-"1311111111111111311",  // r3
-"1211111111111111211",  // r4
-"1221111111111111221",  // r5
-"1121111111111111211",  // r6
-"1101111444441211011",  // r7
-"1221115555511221221",  // r8
-"6002115544511200006",  // r9
-"1221115555511221221",  // r10
-"1101111444441211011",  // r11
-"1121111111111111211",  // r12
-"1221121212121211221",  // r13
-"1200000000000002221",  // r14 ← PAC-MAN START — open corridor
-"1221121212121211221",  // r15
-"1211121211121111211",  // r16
-"1322122222222212231",  // r17
-"1111111111111111111",  // r18
+"1322222222222222231",  // r17
+"1111111111111111111",
 ];return M.map(r=>r.split('').map(Number))})(),
 ];
 
@@ -524,7 +525,7 @@ class ParticleSystem{
 class Maze {
   constructor(level){
     this.level=level;
-    const idx=Math.min(Math.floor((level-1)/2),MAZE_POOL.length-1);
+    const idx=(level-1)%MAZE_POOL.length;
     this.grid=MAZE_POOL[idx].map(row=>[...row]);
     this.totalDots=0;
     this.dotsEaten=0;
@@ -1112,15 +1113,15 @@ class InputManager {
 // ================================================================
 function getLevelConfig(level){
   const l=level;
-  const ease=l===1?0.7:1; // level 1: slower ghosts, longer frightened time
+  // level 1: 1 ghost, slow speed, long frightened; each level ramps up
   return {
     ghostCount:Math.min(4,l),
-    ghostSpeed:Math.min(6,(3.0+l*0.25)*ease),
-    pacSpeed:Math.min(6,4.0+l*0.1),
-    frightenedDuration:Math.max(2,(8-l*0.4)/ease),
+    ghostSpeed:Math.min(6,2.2+l*0.3),
+    pacSpeed:Math.min(6,4.0+l*0.08),
+    frightenedDuration:Math.max(2,10-l*0.6),
     frightenFlash:2,
-    fruitAt:0.3+Math.random()*0.1, // fruit spawns earlier on level 1
-    sirenSpeed:Math.min(1,l*0.08),
+    fruitAt:0.3+Math.random()*0.15,
+    sirenSpeed:Math.min(1,l*0.1),
   };
 }
 
@@ -1277,6 +1278,7 @@ class Game {
   toggleDebug(){this.debug=!this.debug}
   _nextLevel(){
     this.audio.levelComplete();
+    this.audio.frightenedLoop(false);
     this.audio.stopSiren();
     this.state='levelComplete';
     const cx=this._canvasW/2, cy=this._canvasH/2;
