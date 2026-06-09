@@ -579,7 +579,8 @@ class Maze {
   isWall(r,c){
     if(r<0||r>=ROWS)return true;
     const cc=((c%COLS)+COLS)%COLS;
-    return this.grid[r][cc]===1;
+    const v=this.grid[r][cc];
+    return v===1||v===4||v===5; // wall, ghost door, ghost interior all block Pac-Man
   }
   isGhostHouse(r,c){const v=this.grid[r]?.[c]; return v===5||v===4}
   isGhostDoor(r,c){return this.grid[r]?.[c]===4}
