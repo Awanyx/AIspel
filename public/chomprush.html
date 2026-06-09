@@ -785,10 +785,8 @@ class Maze {
           // ghost door — horizontal pixel bar
           ctx.fillStyle='#ff88ff';
           ctx.fillRect(x+ps,y+Math.floor(h*0.42),w-ps*2,ps*2);
-        } else if(v===5||v===6){
-          // Ghost house interior — semi-transparent for level 1 bg visibility
-          ctx.fillStyle='#050514';
-          ctx.fillRect(x,y,w,h);
+        } else if(v===5){
+          // Ghost house interior — transparent so board_bg shows through
         }
       }
     }
