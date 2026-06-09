@@ -618,20 +618,42 @@ class Maze {
           if(!bot&&!lft)ctx.fillRect(x+ps,y+h-ps*2,ps,ps);
           if(!bot&&!rgt)ctx.fillRect(x+w-ps*2,y+h-ps*2,ps,ps);
         } else if(v===2){
-          // dot — 2×2 white pixel
-          const cx=x+Math.floor(w/2)-ps, cy=y+Math.floor(h/2)-ps;
-          ctx.fillStyle='#e8e8c8';
-          ctx.fillRect(cx,cy,ps*2,ps*2);
+          // gingerbread man — pixel figure (body + head)
+          const mx=x+Math.floor(w/2), my=y+Math.floor(h/2);
+          ctx.fillStyle='#c8691a'; // gingerbread brown
+          // head
+          ctx.fillRect(mx-ps,my-ps*3,ps*2,ps*2);
+          // body
+          ctx.fillRect(mx-ps,my-ps,ps*2,ps*3);
+          // arms
+          ctx.fillRect(mx-ps*2,my-ps,ps,ps);
+          ctx.fillRect(mx+ps,my-ps,ps,ps);
+          // icing buttons (white dots)
+          ctx.fillStyle='#fff';
+          ctx.fillRect(mx,my-ps,ps,ps);
+          ctx.fillRect(mx,my,ps,ps);
         } else if(v===3){
-          // power pellet — blinking chunky pixel square
+          // decorated gingerbread (power pellet) — blinks, bigger, iced
           const on=Math.floor(t*3)%2===0;
           if(on){
-            const sz=ps*4;
-            const cx=x+Math.floor((w-sz)/2), cy=y+Math.floor((h-sz)/2);
-            ctx.fillStyle='#00ffff';
-            ctx.fillRect(cx,cy,sz,sz);
-            ctx.fillStyle='#ffffff';
-            ctx.fillRect(cx+ps,cy+ps,ps*2,ps*2);
+            const mx=x+Math.floor(w/2), my=y+Math.floor(h/2);
+            ctx.fillStyle='#c8691a';
+            // head
+            ctx.fillRect(mx-ps*2,my-ps*5,ps*4,ps*3);
+            // body
+            ctx.fillRect(mx-ps*2,my-ps*2,ps*4,ps*4);
+            // arms
+            ctx.fillRect(mx-ps*4,my-ps*2,ps*2,ps*2);
+            ctx.fillRect(mx+ps*2,my-ps*2,ps*2,ps*2);
+            // legs
+            ctx.fillRect(mx-ps*2,my+ps*2,ps*2,ps*2);
+            ctx.fillRect(mx,my+ps*2,ps*2,ps*2);
+            // icing (red & white decoration)
+            ctx.fillStyle='#ff3a3a';
+            ctx.fillRect(mx-ps,my-ps*4,ps*2,ps);
+            ctx.fillRect(mx-ps,my-ps,ps*2,ps);
+            ctx.fillStyle='#fff';
+            ctx.fillRect(mx-ps,my,ps*2,ps);
           }
         } else if(v===4){
           // ghost door — horizontal pixel bar
@@ -790,6 +812,7 @@ class Ghost{
     this.eyeRow=0; this.eyeCol=0;
     this.bodyAnim=0;
     this._exitedDoor=false;
+    this._pendingFrightened=0;
   }
   update(dt,pacman,ghosts,maze,levelCfg,t){
     this.bodyAnim+=dt;
@@ -813,7 +836,12 @@ class Ghost{
       if(this._moveToward(6,sideC,dt,maze,this.speed*0.8)){
         this.row=6; this.col=sideC; this.px=0; this.py=0;
         this._exitedDoor=false;
-        this.state='chase';
+        if(this._pendingFrightened>0){
+          this.state='frightened'; this.frightenedTimer=this._pendingFrightened;
+          this._pendingFrightened=0;
+        } else {
+          this.state='chase';
+        }
       }
       return;
     }
@@ -934,7 +962,11 @@ class Ghost{
     }
   }
   frighten(duration){
-    if(this.state==='eaten'||this.state==='house'||this.state==='exiting')return;
+    if(this.state==='eaten')return;
+    if(this.state==='house'||this.state==='exiting'){
+      // ghost hasn't left yet — remember to frighten it on exit
+      this._pendingFrightened=duration; return;
+    }
     this.state='frightened'; this.frightenedTimer=duration;
   }
   eat(){
@@ -955,7 +987,7 @@ class Ghost{
     }
     const flashing=this.state==='frightened'&&this.frightenedTimer<2;
     const frightened=this.state==='frightened';
-    const col=frightened?(flashing&&Math.floor(t*6)%2?'#ffffff':'#1565c0'):this.color;
+    const col=frightened?(flashing&&Math.floor(t*6)%2?'#ffffff':'#1a0080'):this.color;
     ctx.fillStyle=col;
     const waveOff=Math.floor(this.wobble*1.5)%2;
     for(let row=0;row<H;row++){
@@ -1001,22 +1033,24 @@ class Ghost{
 // ================================================================
 //  FRUIT
 // ================================================================
+// Christmas candy scores
 const FRUITS=[
-  {name:'Cherry',color:'#e53935',score:100,symbol:'🍒'},
-  {name:'Strawberry',color:'#e91e63',score:300,symbol:'🍓'},
-  {name:'Orange',color:'#fb8c00',score:500,symbol:'🍊'},
-  {name:'Apple',color:'#43a047',score:700,symbol:'🍎'},
-  {name:'Melon',color:'#66bb6a',score:1000,symbol:'🍈'},
-  {name:'Bell',color:'#ffd600',score:3000,symbol:'🔔'},
+  {name:'Candy Cane',  color:'#ff3a3a',score:100, symbol:'🍬'},
+  {name:'Snow Globe',  color:'#80d8ff',score:300, symbol:'🌨'},
+  {name:'Christmas Bell',color:'#ffd600',score:500,symbol:'🔔'},
+  {name:'Star',        color:'#ffe135',score:700, symbol:'⭐'},
+  {name:'Gift Box',    color:'#e53935',score:1000,symbol:'🎁'},
+  {name:'Christmas Tree',color:'#2e7d32',score:3000,symbol:'🎄'},
 ];
 class Fruit {
   constructor(level,tileW,tileH,fruitRow){
     const f=FRUITS[Math.min(level-1,FRUITS.length-1)];
     this.score=f.score; this.symbol=f.symbol; this.color=f.color;
-    this.row=fruitRow||15; this.col=9; // row and col inside visible playfield
+    this.type=(level-1)%FRUITS.length;
+    this.row=fruitRow||15; this.col=9;
     this.tileW=tileW; this.tileH=tileH;
     this.alive=true;
-    this.timer=8+Math.random()*4; // disappears after
+    this.timer=8+Math.random()*4;
     this.bounce=Math.random()*Math.PI*2;
   }
   update(dt){
@@ -1028,21 +1062,31 @@ class Fruit {
     const ps=Math.max(1,Math.floor(tileW/12));
     const cx=Math.round(this.col*tileW+tileW/2);
     const cy=Math.round(this.row*tileH+tileH/2+Math.sin(this.bounce)*3);
-    const r=5; // pixel radius
-    // body
-    ctx.fillStyle=this.color;
-    for(let py=-r;py<=r;py++){
-      for(let px=-r;px<=r;px++){
-        if(px*px+py*py>r*r)continue;
-        ctx.fillRect(cx+px*ps,cy+py*ps,ps,ps);
-      }
+    this._drawCandy(ctx,cx,cy,ps,t);
+  }
+  _drawCandy(ctx,cx,cy,ps,t){
+    // Candy cane — red/white striped J-shape
+    const s=ps*2;
+    // curved top (hook)
+    ctx.fillStyle='#ffffff';
+    ctx.fillRect(cx-s*2,cy-s*3,s*4,s);
+    ctx.fillStyle='#ff3a3a';
+    ctx.fillRect(cx-s*2+s,cy-s*3,s,s);
+    ctx.fillRect(cx-s*2+s*3,cy-s*3,s,s);
+    // stem alternating red/white
+    const stripePhase=Math.floor(t*4)%2;
+    for(let i=0;i<4;i++){
+      ctx.fillStyle=(i+stripePhase)%2===0?'#ff3a3a':'#ffffff';
+      ctx.fillRect(cx+s,cy-s*2+i*s,s,s);
     }
-    // highlight (top-left bright pixel)
-    ctx.fillStyle='rgba(255,255,255,0.7)';
-    ctx.fillRect(cx-2*ps,cy-3*ps,ps*2,ps*2);
-    // stem (green pixels at top)
-    ctx.fillStyle='#33aa33';
-    ctx.fillRect(cx,cy-(r+1)*ps,ps,ps*3);
+    // hook left side
+    ctx.fillStyle='#ff3a3a';
+    ctx.fillRect(cx-s,cy-s*3,s,s*2);
+    ctx.fillStyle='#ffffff';
+    ctx.fillRect(cx-s,cy-s*3+s,s,s);
+    // sheen
+    ctx.fillStyle='rgba(255,255,255,0.5)';
+    ctx.fillRect(cx+s,cy-s*3,ps,s);
   }
 }
 
