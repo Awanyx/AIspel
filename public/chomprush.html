@@ -197,21 +197,20 @@ const ctx = canvas.getContext('2d');
 
 const MAZE_POOL = [
 // ── MAZE 0 ── Level 1  (wide open, easy — no inner walls)
-// Rows 1,5,6,12,13,15,17 are full corridors guaranteeing full connectivity.
 (()=>{const M=[
 "1111111111111111111",  // r0
 "1222222222222222221",  // r1  full top corridor
-"1202222222222222021",  // r2  open sides, lots of dots
-"1312222222222221311",  // r3  power pellets
+"1202222222222222021",  // r2  open sides
+"1302222222222222031",  // r3  power pellets at col1/17 edge
 "1202222222222222021",  // r4
 "1222222222222222221",  // r5  full mid corridor
-"1122222222222222211",  // r6  col2=2, col16=2 → ghost-house connection
-"1101111444441211011",  // r7  ghost house top
+"1122222222222222211",  // r6
+"1100111444441210011",  // r7  ghost house top — col3&15 open for b=2 compat
 "1222115555511222221",  // r8
 "6002115544511200006",  // r9  tunnels
 "1222115555511222221",  // r10
-"1101111444441211011",  // r11 ghost house bottom
-"1122222222222222211",  // r12 col2=2, col16=2
+"1100111444441210011",  // r11 ghost house bottom
+"1122222222222222211",  // r12
 "1222222222222222221",  // r13
 "1200000000000002221",  // r14 ← PAC-MAN START
 "1222222222222222221",  // r15
@@ -225,16 +224,16 @@ const MAZE_POOL = [
 "1111111111111111111",
 "1222222222222222221",  // r1  full
 "1222222111112222221",  // r2  centre wall
-"1312221111112221311",  // r3  power pellets + centre wall
+"1302221111112221031",  // r3  power pellets moved to col2/16
 "1222222111112222221",  // r4  centre wall
 "1222222222222222221",  // r5  full
-"1122222222222222211",  // r6  col2=2, col16=2
-"1101111444441211011",
-"1222115555511222221",
-"6002115544511200006",
-"1222115555511222221",
-"1101111444441211011",
-"1122222222222222211",  // r12 col2=2, col16=2
+"1122222222222222211",  // r6
+"1100111444441210011",  // r7  col3&15 open
+"1222115555511222221",  // r8
+"6002115544511200006",  // r9
+"1222115555511222221",  // r10
+"1100111444441210011",  // r11
+"1122222222222222211",  // r12
 "1222222111112222221",  // r13
 "1200000000000002221",  // r14 ← PAC-MAN START
 "1222222222222222221",  // r15 full
@@ -251,12 +250,12 @@ const MAZE_POOL = [
 "1312121111111121311",  // r3  power pellets + pillars
 "1222122222222121221",  // r4  inner corridor
 "1222222222222222221",  // r5  full
-"1122222222222222211",  // r6  col2=2, col16=2
-"1101111444441211011",
-"1222115555511222221",
-"6002115544511200006",
-"1222115555511222221",
-"1101111444441211011",
+"1122222222222222211",  // r6
+"1100111444441210011",  // r7  col3&15 open
+"1222115555511222221",  // r8
+"6002115544511200006",  // r9
+"1222115555511222221",  // r10
+"1100111444441210011",  // r11
 "1122222222222222211",  // r12
 "1222222222222222221",  // r13 full
 "1200000000000002221",  // r14 ← PAC-MAN START
@@ -274,12 +273,12 @@ const MAZE_POOL = [
 "1311121211121121311",  // r3  power pellets + grid
 "1222122222222121221",  // r4  inner passage
 "1211122211122111211",  // r5  narrow corridors
-"1122222222222222211",  // r6  col2=2, col16=2
-"1101111444441211011",
-"1222115555511222221",
-"6002115544511200006",
-"1222115555511222221",
-"1101111444441211011",
+"1122222222222222211",  // r6
+"1100111444441210011",  // r7  col3&15 open
+"1222115555511222221",  // r8
+"6002115544511200006",  // r9
+"1222115555511222221",  // r10
+"1100111444441210011",  // r11
 "1122222222222222211",  // r12
 "1222122212221221221",  // r13
 "1200000000000002221",  // r14 ← PAC-MAN START
@@ -542,6 +541,13 @@ class Maze {
     }
     this.exitColL=b>=1?b+1:2;
     this.exitColR=b>=1?COLS-2-b:16;
+    this.fruitRow=Math.min(14,ROWS-3-b); // keep fruit inside visible playfield
+    // Guarantee 4 power pellets at inner corners of visible playfield
+    if(b>0){
+      [[b+1,b+1],[b+1,COLS-2-b],[ROWS-2-b,b+1],[ROWS-2-b,COLS-2-b]].forEach(([r,c])=>{
+        if(this.grid[r]&&(this.grid[r][c]===2||this.grid[r][c]===0))this.grid[r][c]=3;
+      });
+    }
     this.totalDots=0;
     this.dotsEaten=0;
     this.countDots();
@@ -1004,10 +1010,10 @@ const FRUITS=[
   {name:'Bell',color:'#ffd600',score:3000,symbol:'🔔'},
 ];
 class Fruit {
-  constructor(level,tileW,tileH){
+  constructor(level,tileW,tileH,fruitRow){
     const f=FRUITS[Math.min(level-1,FRUITS.length-1)];
     this.score=f.score; this.symbol=f.symbol; this.color=f.color;
-    this.row=15; this.col=9; // row 15 col 9 is passable in all mazes
+    this.row=fruitRow||15; this.col=9; // row and col inside visible playfield
     this.tileW=tileW; this.tileH=tileH;
     this.alive=true;
     this.timer=8+Math.random()*4; // disappears after
@@ -1372,7 +1378,7 @@ class Game {
     if(this.fruit)this.fruit.update(dt);
     // spawn fruit?
     if(!this.fruitSpawned&&this.maze.dotsEaten/this.maze.totalDots>=this._levelCfg.fruitAt){
-      this.fruit=new Fruit(this.level,this.tileW,this.tileH);
+      this.fruit=new Fruit(this.level,this.tileW,this.tileH,this.maze.fruitRow);
       this.fruitSpawned=true;
     }
     // screen shake
