@@ -874,6 +874,15 @@ class Ghost{
       return;
     }
     if(this.state==='eaten'){
+      this._eatenTimer=(this._eatenTimer||0)+dt;
+      // Hard cap: warp to house if not back within 4.5s (leaves 0.5s house wait = 5s total)
+      if(this._eatenTimer>=4.5){
+        this.row=9; this.col=9; this.px=0; this.py=0;
+        this._exitedDoor=false;
+        this._pendingFrightened=0;
+        this.state='house'; this.exitTimer=0.5;
+        return;
+      }
       // Phase 1: tile-by-tile to door entry (row 6, col 9)
       if(this.row!==6||this.col!==9){
         this.targetRow=6; this.targetCol=9;
@@ -884,9 +893,9 @@ class Ghost{
       this.px=0;
       if(this._moveToward(9,9,dt,maze,this.speed*1.8)){
         this.row=9; this.col=9; this.px=0; this.py=0;
-        this._exitedDoor=false; // must reset so next exit runs phase 1 correctly
+        this._exitedDoor=false;
         this._pendingFrightened=0;
-        this.state='house'; this.exitTimer=1.5;
+        this.state='house'; this.exitTimer=0.5;
       }
       return;
     }
@@ -1013,6 +1022,7 @@ class Ghost{
   }
   eat(){
     this.state='eaten'; this.px=0; this.py=0;
+    this._eatenTimer=0;
   }
   getPixel(tileW,tileH){
     return{x:this.col*tileW+tileW/2+this.px, y:this.row*tileH+tileH/2+this.py}
