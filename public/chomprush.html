@@ -1771,12 +1771,6 @@ class Game {
     // debug
     if(this.debug)this._drawDebug(cw,ch);
     ctx.restore();
-    // Vignette — drawn in screen space after everything else
-    const vg=ctx.createRadialGradient(cw/2,ch/2,Math.min(cw,ch)*0.3,cw/2,ch/2,Math.max(cw,ch)*0.78);
-    vg.addColorStop(0,'rgba(0,0,0,0)');
-    vg.addColorStop(1,'rgba(0,0,0,0.72)');
-    ctx.fillStyle=vg;
-    ctx.fillRect(0,0,cw,ch);
   }
   _drawDebug(cw,ch){
     ctx.fillStyle='rgba(0,255,0,0.7)';
