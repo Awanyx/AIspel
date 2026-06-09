@@ -656,16 +656,20 @@ class Maze {
         if(r<b||r>=ROWS-b||c<b||c>=COLS-b){ continue; }
         if(v===1){
           // Draw from tile sheet: 3 cols × 4 rows = 12 tiles
-          // Pick deterministically by wall position so pattern is consistent
           if(this._tileSheet&&this._tileSheet.complete&&this._tileSheet.naturalWidth>0){
             const sheet=this._tileSheet;
             const cols=3, rows=4;
             const sw=sheet.naturalWidth/cols, sh=sheet.naturalHeight/rows;
             const idx=(r*7+c*13)%12;
             const sx=(idx%cols)*sw, sy=Math.floor(idx/cols)*sh;
-            ctx.drawImage(sheet,sx,sy,sw,sh,x,y,w,h);
+            // Square-crop source (centre) so tiles never stretch
+            const srcSq=Math.min(sw,sh);
+            const srcOx=(sw-srcSq)/2, srcOy=(sh-srcSq)/2;
+            // Render as square centred in the destination cell
+            const dSq=Math.min(w,h);
+            const dOx=(w-dSq)/2, dOy=(h-dSq)/2;
+            ctx.drawImage(sheet,sx+srcOx,sy+srcOy,srcSq,srcSq,x+dOx,y+dOy,dSq,dSq);
           } else {
-            // Fallback while sheet loads
             ctx.fillStyle='#7a3c12'; ctx.fillRect(x,y,w,h);
           }
         } else if(v===2){
