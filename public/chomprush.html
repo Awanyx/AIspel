@@ -589,7 +589,8 @@ class Maze {
 
   draw(ctx,tileW,tileH,t){
     this.tileW=tileW; this.tileH=tileH;
-    const ps=Math.max(1,Math.floor(tileW/11)); // pixel size
+    const ps=Math.max(1,Math.floor(tileW/9));  // wall border pixel size
+    const sp=Math.max(1,Math.floor(tileW/10)); // sprite pixel size (fills tile)
     const [c1]=this.wallColor;
     const b=this.borderSize||0;
     for(let r=0;r<ROWS;r++){
@@ -623,16 +624,16 @@ class Maze {
           const mx=x+Math.floor(w/2), my=y+Math.floor(h/2);
           ctx.fillStyle='#c8691a'; // gingerbread brown
           // head
-          ctx.fillRect(mx-ps,my-ps*3,ps*2,ps*2);
+          ctx.fillRect(mx-sp,my-sp*3,sp*2,sp*2);
           // body
-          ctx.fillRect(mx-ps,my-ps,ps*2,ps*3);
+          ctx.fillRect(mx-sp,my-sp,sp*2,sp*3);
           // arms
-          ctx.fillRect(mx-ps*2,my-ps,ps,ps);
-          ctx.fillRect(mx+ps,my-ps,ps,ps);
+          ctx.fillRect(mx-sp*2,my-sp,sp,sp);
+          ctx.fillRect(mx+sp,my-sp,sp,sp);
           // icing buttons (white dots)
           ctx.fillStyle='#fff';
-          ctx.fillRect(mx,my-ps,ps,ps);
-          ctx.fillRect(mx,my,ps,ps);
+          ctx.fillRect(mx,my-sp,sp,sp);
+          ctx.fillRect(mx,my,sp,sp);
         } else if(v===3){
           // decorated gingerbread (power pellet) — blinks, bigger, iced
           const on=Math.floor(t*3)%2===0;
@@ -640,21 +641,21 @@ class Maze {
             const mx=x+Math.floor(w/2), my=y+Math.floor(h/2);
             ctx.fillStyle='#c8691a';
             // head
-            ctx.fillRect(mx-ps*2,my-ps*5,ps*4,ps*3);
+            ctx.fillRect(mx-sp*2,my-sp*5,sp*4,sp*3);
             // body
-            ctx.fillRect(mx-ps*2,my-ps*2,ps*4,ps*4);
+            ctx.fillRect(mx-sp*2,my-sp*2,sp*4,sp*4);
             // arms
-            ctx.fillRect(mx-ps*4,my-ps*2,ps*2,ps*2);
-            ctx.fillRect(mx+ps*2,my-ps*2,ps*2,ps*2);
+            ctx.fillRect(mx-sp*4,my-sp*2,sp*2,sp*2);
+            ctx.fillRect(mx+sp*2,my-sp*2,sp*2,sp*2);
             // legs
-            ctx.fillRect(mx-ps*2,my+ps*2,ps*2,ps*2);
-            ctx.fillRect(mx,my+ps*2,ps*2,ps*2);
+            ctx.fillRect(mx-sp*2,my+sp*2,sp*2,sp*2);
+            ctx.fillRect(mx,my+sp*2,sp*2,sp*2);
             // icing (red & white decoration)
             ctx.fillStyle='#ff3a3a';
-            ctx.fillRect(mx-ps,my-ps*4,ps*2,ps);
-            ctx.fillRect(mx-ps,my-ps,ps*2,ps);
+            ctx.fillRect(mx-sp,my-sp*4,sp*2,sp);
+            ctx.fillRect(mx-sp,my-sp,sp*2,sp);
             ctx.fillStyle='#fff';
-            ctx.fillRect(mx-ps,my,ps*2,ps);
+            ctx.fillRect(mx-sp,my,sp*2,sp);
           }
         } else if(v===4){
           // ghost door — horizontal pixel bar
@@ -757,7 +758,7 @@ class PacMan {
   }
   draw(ctx,tileW,tileH,t){
     const{x,y}=this.getPixel(tileW,tileH);
-    const ps=Math.max(1,Math.floor(tileW/12));
+    const ps=Math.max(1,Math.floor(tileW/10));
     const half=5; // pixel radius
     if(this.deathPlaying){
       const a=Math.min(this.deathAnim,1);
@@ -979,7 +980,7 @@ class Ghost{
   }
   draw(ctx,tileW,tileH,t){
     const{x,y}=this.getPixel(tileW,tileH);
-    const ps=Math.max(1,Math.floor(tileW/12));
+    const ps=Math.max(1,Math.floor(tileW/10));
     const W=10, H=11;
     const ox=Math.round(x)-Math.floor(W*ps/2);
     const oy=Math.round(y)-Math.floor(H*ps/2);
@@ -1063,7 +1064,7 @@ class Fruit {
   }
   draw(ctx,tileW,tileH,t){
     if(!this.alive)return;
-    const ps=Math.max(1,Math.floor(tileW/12));
+    const ps=Math.max(1,Math.floor(tileW/10));
     const cx=Math.round(this.col*tileW+tileW/2);
     const cy=Math.round(this.row*tileH+tileH/2+Math.sin(this.bounce)*3);
     this._drawCandy(ctx,cx,cy,ps,t);
