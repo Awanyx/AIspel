@@ -42,8 +42,8 @@ DEBUG MODE: Press ` (backtick) to toggle debug overlay (FPS, AI targets, god mod
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>CHOMP RUSH 👾</title>
 <style>
-  @font-face{font-family:'ChristmasCookies';src:url('63c1889a-ChristmasCookiesBold.ttf') format('truetype');font-weight:normal;font-style:normal}
-  @font-face{font-family:'SuperWarming';src:url('7d62e2fe-Super_Warming.ttf') format('truetype');font-weight:normal;font-style:normal}
+  @font-face{font-family:'ChristmasCookies';src:url('/ChristmasCookies.ttf') format('truetype');font-weight:normal;font-style:normal;font-display:block}
+  @font-face{font-family:'SuperWarming';src:url('/SuperWarming.ttf') format('truetype');font-weight:normal;font-style:normal;font-display:block}
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'SuperWarming',Arial,sans-serif;touch-action:none}
   #gameContainer{position:relative;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000}
@@ -931,8 +931,7 @@ class Ghost{
   }
   _moveTowardTarget(dt,maze,spd,allowDoor=false){
     const tw=maze.tileW||22, th=maze.tileH||22;
-    // update direction when near tile centre (generous threshold handles typical overshoot)
-    if(Math.abs(this.px)<tw*0.25&&Math.abs(this.py)<th*0.25){
+    if(Math.abs(this.px)<2&&Math.abs(this.py)<2){
       const best=this._bestDir(maze,allowDoor);
       if(best)this.dir=best;
     }
@@ -980,7 +979,7 @@ class Ghost{
   }
   _moveRandom(dt,maze,spd){
     const tw=maze.tileW||22, th=maze.tileH||22;
-    if(Math.abs(this.px)<tw*0.25&&Math.abs(this.py)<th*0.25){
+    if(Math.abs(this.px)<2&&Math.abs(this.py)<2){
       const opp=dirOpp(this.dir);
       const valid=DIRS.filter(d=>{
         if(d===opp)return false;
@@ -1107,28 +1106,40 @@ class Fruit {
     this._drawCandy(ctx,cx,cy,ps,t);
   }
   _drawCandy(ctx,cx,cy,ps,t){
-    // Candy cane — red/white striped J-shape
-    const s=ps*2;
-    // curved top (hook)
-    ctx.fillStyle='#ffffff';
-    ctx.fillRect(cx-s*2,cy-s*3,s*4,s);
-    ctx.fillStyle='#ff3a3a';
-    ctx.fillRect(cx-s*2+s,cy-s*3,s,s);
-    ctx.fillRect(cx-s*2+s*3,cy-s*3,s,s);
-    // stem alternating red/white
-    const stripePhase=Math.floor(t*4)%2;
-    for(let i=0;i<4;i++){
-      ctx.fillStyle=(i+stripePhase)%2===0?'#ff3a3a':'#ffffff';
-      ctx.fillRect(cx+s,cy-s*2+i*s,s,s);
+    // Candy cane — detailed pixel art J-shape, 10×14 at ps units
+    const p=ps;
+    const ox=cx-5*p, oy=cy-7*p;
+    const stripe=Math.floor(t*4)%2;
+    // pixel grid for candy cane (1=white,2=red,0=empty)
+    // columns 0-9, rows 0-13
+    const grid=[
+      [0,0,0,1,2,2,1,0,0,0],
+      [0,0,1,2,1,1,2,1,0,0],
+      [0,1,2,1,0,0,1,2,1,0],
+      [0,1,2,1,0,0,1,2,1,0],
+      [0,0,1,2,2,2,2,1,0,0],
+      [0,0,0,0,1,2,1,0,0,0],
+      [0,0,0,0,2,1,2,0,0,0],
+      [0,0,0,0,1,2,1,0,0,0],
+      [0,0,0,0,2,1,2,0,0,0],
+      [0,0,0,0,1,2,1,0,0,0],
+      [0,0,0,0,2,1,2,0,0,0],
+      [0,0,0,0,1,2,1,0,0,0],
+      [0,0,0,1,2,1,2,1,0,0],
+      [0,0,1,2,1,0,1,2,1,0],
+    ];
+    for(let r=0;r<grid.length;r++){
+      for(let c=0;c<grid[r].length;c++){
+        const v=grid[r][c]; if(!v)continue;
+        // animate stripe by swapping red/white
+        const isRed=(v===2)!==(stripe&&r>=4&&r<=11&&(r+c)%2===0);
+        ctx.fillStyle=isRed?'#ff3a3a':'#ffffff';
+        ctx.fillRect(ox+c*p,oy+r*p,p,p);
+      }
     }
-    // hook left side
-    ctx.fillStyle='#ff3a3a';
-    ctx.fillRect(cx-s,cy-s*3,s,s*2);
-    ctx.fillStyle='#ffffff';
-    ctx.fillRect(cx-s,cy-s*3+s,s,s);
-    // sheen
-    ctx.fillStyle='rgba(255,255,255,0.5)';
-    ctx.fillRect(cx+s,cy-s*3,ps,s);
+    // outline/sheen
+    ctx.fillStyle='rgba(255,255,255,0.45)';
+    ctx.fillRect(ox+4*p,oy+p,p,2*p);
   }
 }
 
