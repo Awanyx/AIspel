@@ -590,7 +590,7 @@ class Maze {
   draw(ctx,tileW,tileH,t){
     this.tileW=tileW; this.tileH=tileH;
     const ps=Math.max(1,Math.floor(tileW/9));  // wall border pixel size
-    const sp=Math.max(1,Math.floor(tileW/10)); // sprite pixel size (fills tile)
+    const sp=Math.max(1,Math.floor(Math.min(tileW,tileH)/14)); // sprite pixel size — matches Pac-Man ratio
     const [c1]=this.wallColor;
     const b=this.borderSize||0;
     for(let r=0;r<ROWS;r++){
@@ -620,42 +620,43 @@ class Maze {
           if(!bot&&!lft)ctx.fillRect(x+ps,y+h-ps*2,ps,ps);
           if(!bot&&!rgt)ctx.fillRect(x+w-ps*2,y+h-ps*2,ps,ps);
         } else if(v===2){
-          // gingerbread man — pixel figure (body + head)
+          // gingerbread man dot — proportional to tile like Pac-Man
+          const half2=Math.floor(Math.min(w,h)/(2*sp));
           const mx=x+Math.floor(w/2), my=y+Math.floor(h/2);
-          ctx.fillStyle='#c8691a'; // gingerbread brown
-          // head
-          ctx.fillRect(mx-sp,my-sp*3,sp*2,sp*2);
-          // body
-          ctx.fillRect(mx-sp,my-sp,sp*2,sp*3);
-          // arms
-          ctx.fillRect(mx-sp*2,my-sp,sp,sp);
-          ctx.fillRect(mx+sp,my-sp,sp,sp);
-          // icing buttons (white dots)
+          ctx.fillStyle='#c8691a';
+          ctx.fillRect(mx-sp,my-half2*sp+sp*0,sp*2,sp*2);       // head
+          ctx.fillRect(mx-sp,my-half2*sp+sp*2,sp*2,sp*3);       // body
+          ctx.fillRect(mx-sp*2,my-half2*sp+sp*2,sp,sp);         // left arm
+          ctx.fillRect(mx+sp,my-half2*sp+sp*2,sp,sp);           // right arm
+          ctx.fillRect(mx-sp,my-half2*sp+sp*5,sp,sp*2);         // left leg
+          ctx.fillRect(mx,my-half2*sp+sp*5,sp,sp*2);            // right leg
           ctx.fillStyle='#fff';
-          ctx.fillRect(mx,my-sp,sp,sp);
-          ctx.fillRect(mx,my,sp,sp);
+          ctx.fillRect(mx-sp/2|0,my-half2*sp+sp*3,sp,sp);       // button 1
+          ctx.fillRect(mx-sp/2|0,my-half2*sp+sp*4,sp,sp);       // button 2
+          ctx.fillStyle='#333';
+          ctx.fillRect(mx-sp,my-half2*sp+sp,sp,sp);             // left eye
+          ctx.fillRect(mx,my-half2*sp+sp,sp,sp);                // right eye
         } else if(v===3){
-          // decorated gingerbread (power pellet) — blinks, bigger, iced
+          // decorated gingerbread power pellet — bigger, blinks
           const on=Math.floor(t*3)%2===0;
           if(on){
+            const half2=Math.floor(Math.min(w,h)/(2*sp));
             const mx=x+Math.floor(w/2), my=y+Math.floor(h/2);
             ctx.fillStyle='#c8691a';
-            // head
-            ctx.fillRect(mx-sp*2,my-sp*5,sp*4,sp*3);
-            // body
-            ctx.fillRect(mx-sp*2,my-sp*2,sp*4,sp*4);
-            // arms
-            ctx.fillRect(mx-sp*4,my-sp*2,sp*2,sp*2);
-            ctx.fillRect(mx+sp*2,my-sp*2,sp*2,sp*2);
-            // legs
-            ctx.fillRect(mx-sp*2,my+sp*2,sp*2,sp*2);
-            ctx.fillRect(mx,my+sp*2,sp*2,sp*2);
-            // icing (red & white decoration)
+            ctx.fillRect(mx-sp*2,my-half2*sp,sp*4,sp*3);          // head
+            ctx.fillRect(mx-sp*2,my-half2*sp+sp*3,sp*4,sp*4);     // body
+            ctx.fillRect(mx-sp*4,my-half2*sp+sp*3,sp*2,sp*2);     // left arm
+            ctx.fillRect(mx+sp*2,my-half2*sp+sp*3,sp*2,sp*2);     // right arm
+            ctx.fillRect(mx-sp*2,my-half2*sp+sp*7,sp*2,sp*2);     // left leg
+            ctx.fillRect(mx,my-half2*sp+sp*7,sp*2,sp*2);          // right leg
             ctx.fillStyle='#ff3a3a';
-            ctx.fillRect(mx-sp,my-sp*4,sp*2,sp);
-            ctx.fillRect(mx-sp,my-sp,sp*2,sp);
+            ctx.fillRect(mx-sp,my-half2*sp+sp,sp*2,sp);           // icing top
+            ctx.fillRect(mx-sp,my-half2*sp+sp*4,sp*2,sp);         // icing mid
             ctx.fillStyle='#fff';
-            ctx.fillRect(mx-sp,my,sp*2,sp);
+            ctx.fillRect(mx-sp,my-half2*sp+sp*5,sp*2,sp);         // white icing
+            ctx.fillStyle='#333';
+            ctx.fillRect(mx-sp,my-half2*sp+sp,sp,sp);             // left eye
+            ctx.fillRect(mx,my-half2*sp+sp,sp,sp);                // right eye
           }
         } else if(v===4){
           // ghost door — horizontal pixel bar
@@ -782,10 +783,10 @@ class PacMan {
         ctx.fillRect(px*ps,py*ps,ps,ps);
       }
     }
-    // eye
-    ctx.fillStyle='#222222';
-    ctx.fillRect(Math.round(half*ps*0.25),Math.round(-half*ps*0.58),ps*2,ps*2);
     ctx.restore();
+    // eye always in top half — never rotates with body
+    ctx.fillStyle='#222222';
+    ctx.fillRect(Math.round(x)+Math.round(half*ps*0.2),Math.round(y)-Math.round(half*ps*0.55),ps*2,ps*2);
   }
 }
 
