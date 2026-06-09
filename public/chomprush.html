@@ -1480,16 +1480,16 @@ class Game {
     const outerBgs=['winter_bg','winter_bg1','winter_bg2','winter_bg3'];
     const bg=outerBgs[(this.level-1)%outerBgs.length];
     document.body.classList.add('bg-level');
-    document.body.style.backgroundImage=`url('/${bg}.png')`;
+    document.body.style.backgroundImage=`url('./${bg}.png')`;
     // Load board interior background image
     if(!this._boardBg){
       this._boardBg=new Image();
-      this._boardBg.src='/board_bg.png';
+      this._boardBg.src='./board_bg.png';
     }
     // Load gingerbread tile sheet (once, reused across levels)
     if(!this._tileSheet){
       this._tileSheet=new Image();
-      this._tileSheet.src='/tile_sheet.png';
+      this._tileSheet.src='./tile_sheet.png';
     }
     this.maze=new Maze(this.level);
     this.maze._tileSheet=this._tileSheet;
