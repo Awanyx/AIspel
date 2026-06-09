@@ -527,6 +527,21 @@ class Maze {
     this.level=level;
     const idx=(level-1)%MAZE_POOL.length;
     this.grid=MAZE_POOL[idx].map(row=>[...row]);
+    // borderSize: outer black margin cells per side (shrinks playable area visually)
+    const BORDER_SIZES=[3,2,1,0];
+    this.borderSize=BORDER_SIZES[Math.min((level-1)%4,3)];
+    const b=this.borderSize;
+    // Force border region to wall value (rendered as pure black)
+    for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
+      if(r<b||r>=ROWS-b||c<b||c>=COLS-b) this.grid[r][c]=1;
+    }
+    // Force visible boundary ring to solid walls (clean frame around playfield)
+    if(b>0){
+      for(let r=b;r<=ROWS-1-b;r++){this.grid[r][b]=1;this.grid[r][COLS-1-b]=1;}
+      for(let c=b;c<=COLS-1-b;c++){this.grid[b][c]=1;this.grid[ROWS-1-b][c]=1;}
+    }
+    this.exitColL=b>=1?b+1:2;
+    this.exitColR=b>=1?COLS-2-b:16;
     this.totalDots=0;
     this.dotsEaten=0;
     this.countDots();
@@ -569,11 +584,16 @@ class Maze {
     this.tileW=tileW; this.tileH=tileH;
     const ps=Math.max(1,Math.floor(tileW/11)); // pixel size
     const [c1]=this.wallColor;
+    const b=this.borderSize||0;
     for(let r=0;r<ROWS;r++){
       for(let c=0;c<COLS;c++){
         const v=this.grid[r][c];
         const x=Math.round(c*tileW), y=Math.round(r*tileH);
         const w=Math.round(tileW), h=Math.round(tileH);
+        // Border region: pure black, no detail
+        if(r<b||r>=ROWS-b||c<b||c>=COLS-b){
+          ctx.fillStyle='#000'; ctx.fillRect(x,y,w,h); continue;
+        }
         if(v===1){
           ctx.fillStyle='#0a0a2e';
           ctx.fillRect(x,y,w,h);
@@ -782,8 +802,8 @@ class Ghost{
         }
         return;
       }
-      // Phase 2: slide sideways to the nearest side corridor (col 2 or col 16)
-      const sideC=this.col<=9?2:16;
+      // Phase 2: slide sideways to the nearest side corridor
+      const sideC=this.col<=9?(maze.exitColL||2):(maze.exitColR||16);
       if(this._moveToward(6,sideC,dt,maze,this.speed*0.8)){
         this.row=6; this.col=sideC; this.px=0; this.py=0;
         this._exitedDoor=false;
@@ -1135,32 +1155,22 @@ class Game {
     requestAnimationFrame(ts=>this._loop(ts));
   }
   _resize(){
-    const cont=document.getElementById('gameContainer');
     const hudH=document.getElementById('hud').getBoundingClientRect().height||44;
-    const avW=window.innerWidth;
-    const avH=window.innerHeight-hudH;
-    const aspect=COLS/ROWS;
-    let cw,ch;
-    if(avW/avH>aspect){ch=avH;cw=ch*aspect}
-    else{cw=avW;ch=cw/aspect}
-    cw=Math.floor(cw); ch=Math.floor(ch);
+    const dpadEl=document.getElementById('dpad');
+    // D-pad: 3 rows × 52px + 2 gaps × 4px = 164px body, 14px from bottom
+    const dpadH=dpadEl&&!dpadEl.classList.contains('hidden')?178:14;
+    const cw=Math.floor(window.innerWidth);
+    const ch=Math.max(100,Math.floor(window.innerHeight-hudH-dpadH));
     const dpr=Math.min(window.devicePixelRatio||1,2);
     canvas.width=cw*dpr; canvas.height=ch*dpr;
     canvas.style.width=cw+'px'; canvas.style.height=ch+'px';
-    canvas.style.marginTop=hudH+'px';
+    canvas.style.position='absolute';
+    canvas.style.top=hudH+'px';
+    canvas.style.left='0';
     ctx.scale(dpr,dpr);
     ctx.imageSmoothingEnabled=false;
     this._canvasW=cw; this._canvasH=ch;
-    this.baseTileW=cw/COLS; this.baseTileH=ch/ROWS;
-    this._applyLevelScale();
-  }
-  _applyLevelScale(){
-    // maze grows each level: level 1 = 50% of canvas, +17% per level, capped at 100%
-    const s=Math.min(1.0,0.50+(((this.level||1)-1)*0.17));
-    this.tileW=(this.baseTileW||this._canvasW/COLS||22)*s;
-    this.tileH=(this.baseTileH||this._canvasH/ROWS||22)*s;
-    this.mazeOffX=((this._canvasW||0)-this.tileW*COLS)/2;
-    this.mazeOffY=((this._canvasH||0)-this.tileH*ROWS)/2;
+    this.tileW=cw/COLS; this.tileH=ch/ROWS;
     if(this.maze){this.maze.tileW=this.tileW;this.maze.tileH=this.tileH;}
   }
   _animateMenu(){
@@ -1197,7 +1207,6 @@ class Game {
     requestAnimationFrame(loop);
   }
   _initLevel(){
-    this._applyLevelScale();
     this.maze=new Maze(this.level);
     this.maze.tileW=this.tileW; this.maze.tileH=this.tileH;
     const cfg=getLevelConfig(this.level);
@@ -1449,17 +1458,7 @@ class Game {
     ctx.fillStyle='#000'; ctx.fillRect(0,0,cw,ch);
     if(!this.maze)return;
     ctx.save();
-    ctx.translate((this.mazeOffX||0)+(this._shakeX||0),(this.mazeOffY||0)+(this._shakeY||0));
-    // maze border glow (visible when maze is smaller than canvas)
-    if((this.mazeOffX||0)>2||(this.mazeOffY||0)>2){
-      const mw=this.tileW*COLS, mh=this.tileH*ROWS;
-      const ps=Math.max(1,Math.floor(this.tileW/11));
-      ctx.fillStyle='#00ffff';
-      // top/bottom border line (pixel dots)
-      for(let x=0;x<mw;x+=ps*3){ctx.fillRect(x,-ps*2,ps,ps);ctx.fillRect(x,mh+ps,ps,ps);}
-      // left/right border line
-      for(let y=0;y<mh;y+=ps*3){ctx.fillRect(-ps*2,y,ps,ps);ctx.fillRect(mw+ps,y,ps,ps);}
-    }
+    ctx.translate(this._shakeX||0,this._shakeY||0);
     // maze
     this.maze.draw(ctx,this.tileW,this.tileH,this.t);
     // fruit
