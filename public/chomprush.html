@@ -42,11 +42,13 @@ DEBUG MODE: Press ` (backtick) to toggle debug overlay (FPS, AI targets, god mod
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>CHOMP RUSH 👾</title>
 <style>
+  @font-face{font-family:'ChristmasCookies';src:url('63c1889a-ChristmasCookiesBold.ttf') format('truetype');font-weight:normal;font-style:normal}
+  @font-face{font-family:'SuperWarming';src:url('7d62e2fe-Super_Warming.ttf') format('truetype');font-weight:normal;font-style:normal}
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Arial Rounded MT Bold',Arial,sans-serif;touch-action:none}
+  html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'SuperWarming',Arial,sans-serif;touch-action:none}
   #gameContainer{position:relative;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000}
   #hud{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(0,0,0,0.85);border-bottom:2px solid #333}
-  #hudScore{font-size:clamp(16px,4vw,24px);color:#FFE135;font-weight:900;letter-spacing:1px;text-shadow:0 0 8px #FFE135}
+  #hudScore{font-size:clamp(16px,4vw,24px);color:#FFE135;font-weight:900;letter-spacing:1px;text-shadow:0 0 8px #FFE135;font-family:'ChristmasCookies',serif}
   #hudLevel{font-size:clamp(12px,3vw,18px);color:#fff;background:linear-gradient(135deg,#ff6b6b,#ff8e53);padding:2px 10px;border-radius:20px;font-weight:700}
   #hudStrikes{display:flex;gap:4px;align-items:center}
   .strikeHeart{font-size:clamp(14px,3.5vw,20px);transition:transform 0.3s,opacity 0.3s}
@@ -56,7 +58,7 @@ DEBUG MODE: Press ` (backtick) to toggle debug overlay (FPS, AI targets, god mod
   /* Overlays */
   .overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20;background:rgba(0,0,0,0.88);color:#fff}
   .overlay.hidden{display:none}
-  .bigTitle{font-size:clamp(32px,10vw,72px);font-weight:900;letter-spacing:2px;text-align:center;line-height:1}
+  .bigTitle{font-size:clamp(32px,10vw,72px);font-weight:900;letter-spacing:2px;text-align:center;line-height:1;font-family:'ChristmasCookies',serif}
   .subtitle{font-size:clamp(14px,3.5vw,22px);color:#aaa;margin:8px 0 20px}
   .btn{display:inline-block;padding:14px 36px;border-radius:50px;font-size:clamp(16px,4vw,22px);font-weight:900;cursor:pointer;border:none;transition:transform 0.15s,box-shadow 0.15s;letter-spacing:1px;margin:6px}
   .btn:active{transform:scale(0.93)}
@@ -64,7 +66,7 @@ DEBUG MODE: Press ` (backtick) to toggle debug overlay (FPS, AI targets, god mod
   .btn-secondary{background:rgba(255,255,255,0.12);color:#fff;border:2px solid rgba(255,255,255,0.25)}
   #levelBanner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);z-index:15;text-align:center;pointer-events:none;transition:transform 0.3s cubic-bezier(.34,1.56,.64,1)}
   #levelBanner.show{transform:translate(-50%,-50%) scale(1)}
-  #levelBannerTitle{font-size:clamp(28px,8vw,56px);font-weight:900;color:#FFE135;text-shadow:0 0 20px #FFE135,0 0 40px #ff8c00;white-space:nowrap}
+  #levelBannerTitle{font-size:clamp(28px,8vw,56px);font-weight:900;color:#FFE135;text-shadow:0 0 20px #FFE135,0 0 40px #ff8c00;white-space:nowrap;font-family:'ChristmasCookies',serif}
   #levelBannerSub{font-size:clamp(14px,3.5vw,22px);color:#fff;margin-top:4px}
   /* D-pad */
   #dpad{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(3,52px);gap:4px;z-index:12;opacity:0.85;transition:opacity 0.3s}
@@ -78,7 +80,7 @@ DEBUG MODE: Press ` (backtick) to toggle debug overlay (FPS, AI targets, god mod
   #scorePopups{position:absolute;inset:0;pointer-events:none;z-index:13;overflow:hidden}
   /* Close call */
   #closeCall{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:16;pointer-events:none;opacity:0}
-  #closeCallText{font-size:clamp(32px,10vw,64px);font-weight:900;color:#ff4444;text-shadow:0 0 20px #ff0000;transform:scale(0.5)}
+  #closeCallText{font-size:clamp(32px,10vw,64px);font-weight:900;color:#ff4444;text-shadow:0 0 20px #ff0000;transform:scale(0.5);font-family:'ChristmasCookies',serif}
 </style>
 </head>
 <body>
@@ -133,7 +135,7 @@ DEBUG MODE: Press ` (backtick) to toggle debug overlay (FPS, AI targets, god mod
 
   <!-- TUTORIAL SCREEN -->
   <div class="overlay hidden" id="tutorialScreen">
-    <div style="font-size:clamp(20px,6vw,36px);font-weight:900;color:#FFE135;margin-bottom:16px">HOW TO PLAY</div>
+    <div style="font-size:clamp(20px,6vw,36px);font-weight:900;color:#FFE135;margin-bottom:16px;font-family:'ChristmasCookies',serif">HOW TO PLAY</div>
     <div style="max-width:320px;text-align:left;font-size:clamp(13px,3.2vw,18px);line-height:1.7;color:#ddd">
       <div style="margin-bottom:10px">👆 <b style="color:#FFE135">Swipe</b> or use the <b style="color:#FFE135">D-pad</b> to move</div>
       <div style="margin-bottom:10px">⚪ Eat all <b style="color:#fff">dots</b> to clear the level</div>
@@ -160,7 +162,7 @@ DEBUG MODE: Press ` (backtick) to toggle debug overlay (FPS, AI targets, god mod
     <div id="goEmoji" style="font-size:clamp(48px,15vw,90px)">👻</div>
     <div id="goTitle" class="bigTitle" style="font-size:clamp(24px,7vw,48px);color:#ff4444;margin:6px 0">GAME OVER</div>
     <div id="goMsg" style="font-size:clamp(14px,3.5vw,20px);color:#aaa;margin-bottom:16px;text-align:center;padding:0 20px"></div>
-    <div id="goScore" style="font-size:clamp(28px,8vw,52px);color:#FFE135;font-weight:900;text-shadow:0 0 12px rgba(255,225,53,0.5)">0</div>
+    <div id="goScore" style="font-size:clamp(28px,8vw,52px);color:#FFE135;font-weight:900;text-shadow:0 0 12px rgba(255,225,53,0.5);font-family:'ChristmasCookies',serif">0</div>
     <div id="goStats" style="font-size:clamp(12px,3vw,16px);color:#888;margin:6px 0 18px;text-align:center;line-height:1.8"></div>
     <button class="btn btn-primary" onclick="G.restart()">🔄 PLAY AGAIN</button>
   </div>
@@ -482,7 +484,7 @@ class Particle{
     ctx.save(); ctx.globalAlpha=a;
     if(this.text){
       ctx.fillStyle=this.color;
-      ctx.font=`bold ${this.r}px Arial`;
+      ctx.font=`bold ${this.r}px SuperWarming, Arial`;
       ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.fillText(this.text,this.x,this.y);
     } else {
