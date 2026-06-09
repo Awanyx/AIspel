@@ -64,6 +64,13 @@ DEBUG MODE: Press ` (backtick) to toggle debug overlay (FPS, AI targets, god mod
   .btn:active{transform:scale(0.93)}
   .btn-primary{background:linear-gradient(135deg,#FFE135,#FF9800);color:#1a0a00;box-shadow:0 4px 20px rgba(255,193,7,0.5)}
   .btn-secondary{background:rgba(255,255,255,0.12);color:#fff;border:2px solid rgba(255,255,255,0.25)}
+  .hs-row{display:flex;align-items:center;padding:6px 10px;border-radius:8px;margin-bottom:4px;gap:8px}
+  .hs-row.hs-me{background:rgba(255,225,53,0.15);border:1px solid rgba(255,225,53,0.35)}
+  .hs-row:not(.hs-me){background:rgba(255,255,255,0.05)}
+  .hs-rank{width:28px;text-align:center;font-weight:900;flex-shrink:0}
+  .hs-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hs-score{font-weight:900;color:#FFE135;flex-shrink:0}
+  .hs-medal{font-size:1.1em}
   #levelBanner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);z-index:15;text-align:center;pointer-events:none;transition:transform 0.3s cubic-bezier(.34,1.56,.64,1)}
   #levelBanner.show{transform:translate(-50%,-50%) scale(1)}
   #levelBannerTitle{font-size:clamp(28px,8vw,56px);font-weight:900;color:#FFE135;text-shadow:0 0 20px #FFE135,0 0 40px #ff8c00;white-space:nowrap;font-family:'ChristmasCookies',serif}
@@ -158,13 +165,18 @@ DEBUG MODE: Press ` (backtick) to toggle debug overlay (FPS, AI targets, god mod
   </div>
 
   <!-- GAME OVER SCREEN -->
-  <div class="overlay hidden" id="gameOverScreen">
-    <div id="goEmoji" style="font-size:clamp(48px,15vw,90px)">👻</div>
-    <div id="goTitle" class="bigTitle" style="font-size:clamp(24px,7vw,48px);color:#ff4444;margin:6px 0">SPELET SLUT</div>
-    <div id="goMsg" style="font-size:clamp(14px,3.5vw,20px);color:#aaa;margin-bottom:16px;text-align:center;padding:0 20px"></div>
-    <div id="goScore" style="font-size:clamp(28px,8vw,52px);color:#FFE135;font-weight:900;text-shadow:0 0 12px rgba(255,225,53,0.5);font-family:'ChristmasCookies',serif">0</div>
-    <div id="goStats" style="font-size:clamp(12px,3vw,16px);color:#888;margin:6px 0 18px;text-align:center;line-height:1.8"></div>
-    <button class="btn btn-primary" onclick="G.restart()">🔄 SPELA IGEN</button>
+  <div class="overlay hidden" id="gameOverScreen" style="overflow-y:auto;justify-content:flex-start;padding:20px 16px 24px">
+    <div id="goEmoji" style="font-size:clamp(40px,12vw,72px);margin-top:8px">👻</div>
+    <div id="goTitle" class="bigTitle" style="font-size:clamp(22px,6vw,40px);color:#ff4444;margin:4px 0">SPELET SLUT</div>
+    <div id="goMsg" style="font-size:clamp(13px,3.2vw,18px);color:#aaa;margin-bottom:8px;text-align:center;padding:0 20px"></div>
+    <div id="goScore" style="font-size:clamp(26px,7vw,46px);color:#FFE135;font-weight:900;text-shadow:0 0 12px rgba(255,225,53,0.5);font-family:'ChristmasCookies',serif">0</div>
+    <div id="goStats" style="font-size:clamp(11px,2.8vw,15px);color:#888;margin:4px 0 14px;text-align:center;line-height:1.8"></div>
+    <button class="btn btn-primary" onclick="G.restart()" style="margin-bottom:20px">🔄 SPELA IGEN</button>
+    <!-- HIGH SCORE LIST -->
+    <div style="width:100%;max-width:340px">
+      <div style="font-family:'ChristmasCookies',serif;font-size:clamp(16px,4.5vw,24px);color:#FFE135;text-align:center;margin-bottom:10px;letter-spacing:1px">🏆 TOPPLISTA</div>
+      <div id="highScoreList" style="width:100%;border-collapse:collapse;font-size:clamp(12px,3vw,15px)"></div>
+    </div>
   </div>
 </div>
 
@@ -1249,6 +1261,31 @@ function getLevelConfig(level){
 }
 
 // ================================================================
+//  HIGH SCORE — stub, replace body with real API call later
+// ================================================================
+async function getHighScores(myScore){
+  // TODO: fetch from backend and merge the current player's score in.
+  // Expected return shape: [{name:string, score:number, isMe?:boolean}, ...]
+  // For now returns placeholder data so the UI is visible during development.
+  const placeholder=[
+    {name:'Tomte',      score:48200},
+    {name:'Snödroppe',  score:35100},
+    {name:'Pepparkaka', score:29400},
+    {name:'Rudolph',    score:21800},
+    {name:'Stjärnan',   score:17500},
+    {name:'Glögg',      score:13200},
+    {name:'Klapp',      score:9800},
+    {name:'Lucía',      score:7400},
+    {name:'Nissesson',  score:5100},
+    {name:'Julmusen',   score:3200},
+  ];
+  // Insert current player's score and mark it
+  const list=[...placeholder,{name:'Du',score:myScore,isMe:true}];
+  list.sort((a,b)=>b.score-a.score);
+  return list.slice(0,10);
+}
+
+// ================================================================
 //  GAME MANAGER
 // ================================================================
 class Game {
@@ -1470,6 +1507,7 @@ class Game {
     document.getElementById('goStats').innerHTML=
       `🟡 Pepparkakor ätna: ${this.totalDots}<br>👻 Spöken ätna: ${this.totalGhosts}`;
     this._show('gameOverScreen');
+    this._renderHighScores(this.score);
   }
   _loop(ts){
     requestAnimationFrame(ts2=>this._loop(ts2));
@@ -1610,6 +1648,23 @@ class Game {
         ctx.stroke();
       }
     });
+  }
+  async _renderHighScores(myScore){
+    const el=document.getElementById('highScoreList');
+    el.innerHTML='<div style="color:#555;text-align:center;padding:12px">Laddar topplista…</div>';
+    // TODO: replace with real API call, e.g.:
+    // const scores = await fetchHighScores();
+    const scores=await getHighScores(myScore);
+    const medals=['🥇','🥈','🥉'];
+    el.innerHTML=scores.map((e,i)=>{
+      const me=e.isMe;
+      const medal=i<3?`<span class="hs-medal">${medals[i]}</span>`:`<span class="hs-rank" style="color:#666">${i+1}</span>`;
+      return `<div class="hs-row${me?' hs-me':''}">
+        ${medal}
+        <span class="hs-name" style="color:${me?'#FFE135':'#ccc'}">${e.name}</span>
+        <span class="hs-score">${e.score.toLocaleString()}</span>
+      </div>`;
+    }).join('');
   }
   _show(id){document.getElementById(id).classList.remove('hidden')}
   _hide(id){document.getElementById(id).classList.add('hidden')}
