@@ -1116,41 +1116,43 @@ class Fruit {
     this._drawCandy(ctx,cx,cy,ps,t);
   }
   _drawCandy(ctx,cx,cy,ps,t){
-    // Candy cane — 12×20 pixel art, J-shape with hook top-left
-    // 0=empty 1=darkmaroon(#6a0000) 2=red(#dd1111) 3=white(#f5f5f5) 4=pink(#ffaaaa)
+    // Candy cane — 13×22 pixel art matching reference image
+    // D=dark outline #7a0000, R=red #cc0000, W=white #f0f0f0,
+    // P=pink highlight #ffaaaa, S=shadow #aa0000 (3D right-edge depth)
     const p=ps;
-    const D=1,R=2,W=3,P=4,_=0;
-    const cl=['','#6a0000','#dd1111','#f5f5f5','#ffaaaa'];
-    const s=Math.floor(t*3)%2; // stripe anim
-    // Grid is 12 cols × 20 rows; candy cane body is 4px wide
+    const D=1,R=2,W=3,P=4,S=5,_=0;
+    const cl=['','#7a0000','#cc0000','#f0f0f0','#ffaaaa','#aa0000'];
+    const s=Math.floor(t*3)%2;
     const g=[
-      [_,_,D,D,D,D,D,_,_,_,_,_], // 0
-      [_,D,R,W,R,W,R,D,D,_,_,_], // 1
-      [D,R,W,R,W,R,W,R,W,D,_,_], // 2
-      [D,P,R,W,R,W,R,W,R,D,_,_], // 3  pink inner-curve highlight
-      [D,R,W,R,W,R,W,R,D,_,_,_], // 4
-      [D,R,R,W,R,W,D,R,W,D,_,_], // 5  hook lower arc, right side joins stem
-      [_,D,R,W,D,_,D,W,R,D,_,_], // 6
-      [_,_,D,D,_,_,D,R,W,D,_,_], // 7  hook closed; stem col 6-9
-      [_,_,_,_,_,_,D,W,R,D,_,_], // 8
-      [_,_,_,_,_,_,D,R,W,D,_,_], // 9
-      [_,_,_,_,_,_,D,W,R,D,_,_], // 10
-      [_,_,_,_,_,_,D,R,W,D,_,_], // 11
-      [_,_,_,_,_,_,D,W,R,D,_,_], // 12
-      [_,_,_,_,_,_,D,R,W,D,_,_], // 13
-      [_,_,_,_,_,_,D,W,R,D,_,_], // 14
-      [_,_,_,_,_,_,D,R,W,D,_,_], // 15
-      [_,_,_,_,_,_,D,W,R,D,_,_], // 16
-      [_,_,_,_,_,_,D,R,W,D,_,_], // 17
-      [_,_,_,_,_,_,D,W,R,D,_,_], // 18
-      [_,_,_,_,_,_,_,D,D,_,_,_], // 19
+      [_,_,_,D,D,D,D,D,D,_,_,_,_], // 0  top cap of hook
+      [_,_,D,R,W,R,W,R,W,D,_,_,_], // 1
+      [_,D,R,W,R,W,R,W,R,W,D,_,_], // 2  wide hook body
+      [D,R,P,W,R,W,R,W,R,W,D,_,_], // 3  pink inner-curve highlight
+      [D,R,W,R,W,R,W,R,R,D,_,_,_], // 4  hook narrows toward right
+      [D,R,R,W,R,W,D,D,R,W,S,D,_], // 5  hook closes left; stem top right
+      [_,D,R,W,D,_,_,D,W,R,S,D,_], // 6  gap; stem continues
+      [_,_,D,D,_,_,_,D,R,W,S,D,_], // 7  hook fully closed; stem
+      [_,_,_,_,_,_,_,D,W,R,S,D,_], // 8
+      [_,_,_,_,_,_,_,D,R,W,S,D,_], // 9
+      [_,_,_,_,_,_,_,D,W,R,S,D,_], // 10
+      [_,_,_,_,_,_,_,D,R,W,S,D,_], // 11
+      [_,_,_,_,_,_,_,D,W,R,S,D,_], // 12
+      [_,_,_,_,_,_,_,D,R,W,S,D,_], // 13
+      [_,_,_,_,_,_,_,D,W,R,S,D,_], // 14
+      [_,_,_,_,_,_,_,D,R,W,S,D,_], // 15
+      [_,_,_,_,_,_,_,D,W,R,S,D,_], // 16
+      [_,_,_,_,_,_,_,D,R,W,S,D,_], // 17
+      [_,_,_,_,_,_,_,D,W,R,S,D,_], // 18
+      [_,_,_,_,_,_,_,D,R,W,S,D,_], // 19
+      [_,_,_,_,_,_,_,D,W,R,S,D,_], // 20
+      [_,_,_,_,_,_,_,_,D,D,D,_,_], // 21 bottom cap
     ];
-    const ox=cx-6*p, oy=cy-10*p;
+    const ox=cx-6*p, oy=cy-11*p;
     for(let r=0;r<g.length;r++){
       for(let c=0;c<g[r].length;c++){
         let v=g[r][c]; if(!v)continue;
-        // animate stripes in the stem (rows 8+) by swapping R↔W each tick
-        if(s&&v!==D&&v!==P&&r>=8)v=(v===R?W:R);
+        // animate diagonal stripes by swapping R↔W
+        if(s&&(v===R||v===W))v=(v===R?W:R);
         ctx.fillStyle=cl[v];
         ctx.fillRect(ox+c*p,oy+r*p,p,p);
       }
