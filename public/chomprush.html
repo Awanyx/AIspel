@@ -828,6 +828,12 @@ class Ghost{
         if(this._moveToward(6,9,dt,maze,this.speed*0.8)){
           this.row=6; this.col=9; this.px=0; this.py=0;
           this._exitedDoor=true;
+          // Apply pending fright immediately on clearing the door
+          if(this._pendingFrightened>0){
+            this.state='frightened'; this.frightenedTimer=this._pendingFrightened;
+            this._pendingFrightened=0;
+            return;
+          }
         }
         return;
       }
@@ -836,12 +842,7 @@ class Ghost{
       if(this._moveToward(6,sideC,dt,maze,this.speed*0.8)){
         this.row=6; this.col=sideC; this.px=0; this.py=0;
         this._exitedDoor=false;
-        if(this._pendingFrightened>0){
-          this.state='frightened'; this.frightenedTimer=this._pendingFrightened;
-          this._pendingFrightened=0;
-        } else {
-          this.state='chase';
-        }
+        this.state='chase';
       }
       return;
     }
@@ -985,8 +986,10 @@ class Ghost{
       this._drawPixelEyes(ctx,ox,oy,ps,false,true);
       return;
     }
-    const flashing=this.state==='frightened'&&this.frightenedTimer<2;
-    const frightened=this.state==='frightened';
+    // show frightened appearance for exiting ghosts with pending fright too
+    const effectivelyFrightened=this.state==='frightened'||(this._pendingFrightened>0&&this.state==='exiting');
+    const flashing=effectivelyFrightened&&this.state==='frightened'&&this.frightenedTimer<2;
+    const frightened=effectivelyFrightened;
     const col=frightened?(flashing&&Math.floor(t*6)%2?'#ffffff':'#1a0080'):this.color;
     ctx.fillStyle=col;
     const waveOff=Math.floor(this.wobble*1.5)%2;
