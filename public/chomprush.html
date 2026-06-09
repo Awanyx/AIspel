@@ -101,6 +101,7 @@ DEBUG MODE: Press ` (backtick) to toggle debug overlay (FPS, AI targets, god mod
       <span class="strikeHeart" id="h1">❤️</span>
       <span class="strikeHeart" id="h2">❤️</span>
     </div>
+    <button id="hudPause" onclick="G.togglePause()" style="background:none;border:none;cursor:pointer;font-size:clamp(16px,4vw,22px);color:#ccc;padding:4px">⏸</button>
     <button id="hudMute" onclick="G.audio.toggleMute()">🔊</button>
   </div>
   <canvas id="canvas"></canvas>
@@ -1219,7 +1220,7 @@ class InputManager {
       this._swipeStart=null;
       const threshold=20;
       if(Math.abs(dx)<threshold&&Math.abs(dy)<threshold){
-        G.togglePause(); return;
+        return; // small tap — ignore (pause via HUD button)
       }
       if(Math.abs(dx)>Math.abs(dy)) this.dir=dx>0?'right':'left';
       else                           this.dir=dy>0?'down':'up';
@@ -1437,12 +1438,14 @@ class Game {
     this.state='paused';
     this._show('pauseScreen');
     this.audio.stopSiren();
+    document.getElementById('hudPause').textContent='▶';
   }
   resume(){
     this._hide('pauseScreen');
     this._hide('tutorialScreen');
     this.state='playing';
     this.audio.startSiren(this._levelCfg?.sirenSpeed||0.3);
+    document.getElementById('hudPause').textContent='⏸';
   }
   restart(){
     this._hideAll();
