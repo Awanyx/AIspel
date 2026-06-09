@@ -657,79 +657,70 @@ class Maze {
         }
         if(v===1){
           // ── Gingerbread house wall ──────────────────────────────────
-          // Inspired by pixel gingerbread house art:
-          // warm golden base + darker square tile patches + icing + depth shading + candy dots
-
           const top=this.isWall(r-1,c), bot=this.isWall(r+1,c);
           const lft=this.isWall(r,c-1), rgt=this.isWall(r,c+1);
+          // p2 = pixel unit sized to tile, at least 2px so detail shows at any scale
+          const p2=Math.max(2,Math.floor(Math.min(w,h)/8));
 
-          // 1. Outer dark border (depth shadow around each block)
-          ctx.fillStyle='#4a1e08'; ctx.fillRect(x,y,w,h);
+          // 1. Dark mortar outline
+          ctx.fillStyle='#2e0f02'; ctx.fillRect(x,y,w,h);
 
-          // 2. Warm golden biscuit base
-          ctx.fillStyle='#c8762a'; ctx.fillRect(x+ps,y+ps,w-ps*2,h-ps*2);
+          // 2. Warm golden biscuit fill
+          ctx.fillStyle='#c8762a'; ctx.fillRect(x+p2,y+p2,w-p2*2,h-p2*2);
 
-          // 3. Checkerboard darker patches — 2×2 tile grid of alternating squares
-          //    Uses global r,c parity so adjacent tiles interlock seamlessly
-          const patchSize=Math.max(ps*2, Math.floor(w/3));
-          for(let py2=0; py2<h; py2+=patchSize){
-            for(let px2=0; px2<w; px2+=patchSize){
-              const tileEven=(Math.floor(py2/patchSize)+Math.floor(px2/patchSize)+r+c)%2===0;
-              if(tileEven){
-                ctx.fillStyle='#a05a1e';
-                const rx=x+Math.max(ps,px2), ry=y+Math.max(ps,py2);
-                const rw=Math.min(patchSize, x+w-ps-rx);
-                const rh=Math.min(patchSize, y+h-ps-ry);
-                if(rw>0&&rh>0) ctx.fillRect(rx,ry,rw,rh);
+          // 3. Interlocking darker checker patches (half-tile size, r+c parity)
+          //    Each wall tile is split into 2×2 sub-cells; even/odd by world coords
+          const half=Math.floor((w-p2*2)/2);
+          const halfh=Math.floor((h-p2*2)/2);
+          for(let gi=0;gi<2;gi++){
+            for(let gj=0;gj<2;gj++){
+              if((gi+gj+r+c)%2===0){
+                ctx.fillStyle='#8c4a14';
+                ctx.fillRect(x+p2+gi*half, y+p2+gj*halfh, half, halfh);
               }
             }
           }
 
-          // 4. Top-left face highlight (light source from top-left)
-          ctx.fillStyle='rgba(255,210,140,0.18)';
-          ctx.fillRect(x+ps,y+ps,w-ps*2,ps*2); // top band
-          ctx.fillRect(x+ps,y+ps,ps*2,h-ps*2); // left band
+          // 4. Top-left inner highlight (light source)
+          ctx.fillStyle='#e8923a';
+          ctx.fillRect(x+p2, y+p2, w-p2*2, p2);   // top highlight row
+          ctx.fillRect(x+p2, y+p2, p2, h-p2*2);   // left highlight col
 
-          // 5. Bottom-right shadow (adds depth/thickness)
-          ctx.fillStyle='rgba(0,0,0,0.28)';
-          ctx.fillRect(x+ps,y+h-ps*3,w-ps*2,ps*2); // bottom band
-          ctx.fillRect(x+w-ps*3,y+ps,ps*2,h-ps*2); // right band
+          // 5. Bottom-right inner shadow (thickness/depth)
+          ctx.fillStyle='#5a2408';
+          ctx.fillRect(x+p2, y+h-p2*2, w-p2*2, p2);  // bottom shadow row
+          ctx.fillRect(x+w-p2*2, y+p2, p2, h-p2*2);  // right shadow col
 
-          // 6. Icing on exposed edges — 3 layers: shadow → cream → white highlight
-          //    Shadow undercoat
-          ctx.fillStyle='#c8a46e';
-          if(!top){ctx.fillRect(x,y,w,ps*3);}
-          if(!bot){ctx.fillRect(x,y+h-ps*3,w,ps*3);}
-          if(!lft){ctx.fillRect(x,y,ps*3,h);}
-          if(!rgt){ctx.fillRect(x+w-ps*3,y,ps*3,h);}
-          //    Main cream icing
-          ctx.fillStyle='#fff0d4';
-          if(!top){ctx.fillRect(x,y,w,ps*2);}
-          if(!bot){ctx.fillRect(x,y+h-ps*2,w,ps*2);}
-          if(!lft){ctx.fillRect(x,y,ps*2,h);}
-          if(!rgt){ctx.fillRect(x+w-ps*2,y,ps*2,h);}
-          //    Pure white highlight pixel
-          ctx.fillStyle='#ffffff';
-          if(!top){ctx.fillRect(x,y,w,ps);}
-          if(!lft){ctx.fillRect(x,y,ps,h);}
+          // 6. White icing on maze-facing (non-wall) edges — thick pipe look
+          const ip=Math.max(2, p2);
+          ctx.fillStyle='#b89060'; // icing shadow
+          if(!top){ctx.fillRect(x,y,w,ip*2);}
+          if(!bot){ctx.fillRect(x,y+h-ip*2,w,ip*2);}
+          if(!lft){ctx.fillRect(x,y,ip*2,h);}
+          if(!rgt){ctx.fillRect(x+w-ip*2,y,ip*2,h);}
+          ctx.fillStyle='#fff4e0'; // icing body
+          if(!top){ctx.fillRect(x,y,w,ip+ip/2|0);}
+          if(!bot){ctx.fillRect(x,y+h-(ip+ip/2|0),w,ip+ip/2|0);}
+          if(!lft){ctx.fillRect(x,y,ip+ip/2|0,h);}
+          if(!rgt){ctx.fillRect(x+w-(ip+ip/2|0),y,ip+ip/2|0,h);}
+          ctx.fillStyle='#ffffff'; // icing highlight
+          if(!top){ctx.fillRect(x,y,w,ip);}
+          if(!lft){ctx.fillRect(x,y,ip,h);}
 
-          // 7. Icing corner blobs (rounded feel at exposed outer corners)
-          ctx.fillStyle='#fff0d4';
-          if(!top&&!lft){ctx.fillRect(x,y,ps*4,ps*3);ctx.fillRect(x,y,ps*3,ps*4);}
-          if(!top&&!rgt){ctx.fillRect(x+w-ps*4,y,ps*4,ps*3);ctx.fillRect(x+w-ps*3,y,ps*3,ps*4);}
-          if(!bot&&!lft){ctx.fillRect(x,y+h-ps*3,ps*4,ps*3);ctx.fillRect(x,y+h-ps*4,ps*3,ps*4);}
-          if(!bot&&!rgt){ctx.fillRect(x+w-ps*4,y+h-ps*3,ps*4,ps*3);ctx.fillRect(x+w-ps*3,y+h-ps*4,ps*3,ps*4);}
+          // 7. Corner icing blobs
+          ctx.fillStyle='#fff4e0';
+          if(!top&&!lft){ctx.fillRect(x,y,ip*3,ip*2);ctx.fillRect(x,y,ip*2,ip*3);}
+          if(!top&&!rgt){ctx.fillRect(x+w-ip*3,y,ip*3,ip*2);ctx.fillRect(x+w-ip*2,y,ip*2,ip*3);}
+          if(!bot&&!lft){ctx.fillRect(x,y+h-ip*2,ip*3,ip*2);ctx.fillRect(x,y+h-ip*3,ip*2,ip*3);}
+          if(!bot&&!rgt){ctx.fillRect(x+w-ip*3,y+h-ip*2,ip*3,ip*2);ctx.fillRect(x+w-ip*2,y+h-ip*3,ip*2,ip*3);}
 
-          // 8. Candy dot sprinkles (2×2 px squares, bright colours, deterministic)
-          const candyCols=['#e81010','#22cc44','#f5c800','#3399ff','#ff44aa','#ff8800'];
+          // 8. Candy dot sprinkles — 1 bright square per tile, deterministic
+          const candyCols=['#ee1111','#11cc44','#f5c800','#2288ff','#ff33aa'];
           const cseed=r*31+c*17;
-          for(let si=0;si<2;si++){
-            const cc2=candyCols[(cseed+si*13)%6];
-            const cdx=ps*3+((cseed*3+si*23)%(Math.max(1,w-ps*6)));
-            const cdy=ps*3+((cseed*7+si*19)%(Math.max(1,h-ps*6)));
-            ctx.fillStyle=cc2;
-            ctx.fillRect(x+cdx,y+cdy,ps*2,ps*2);
-          }
+          const cdx=p2*2+((cseed*3)%(Math.max(1,w-p2*4)));
+          const cdy=p2*2+((cseed*7)%(Math.max(1,h-p2*4)));
+          ctx.fillStyle=candyCols[cseed%5];
+          ctx.fillRect(x+cdx,y+cdy,p2,p2);
         } else if(v===2){
           // gingerbread heart
           const mx=x+Math.floor(w/2), my=y+Math.floor(h/2);
