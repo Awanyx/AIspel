@@ -892,7 +892,6 @@ class Ghost{
       if(this._eatenTimer>=4.5){
         this.row=9; this.col=9; this.px=0; this.py=0;
         this._exitedDoor=false;
-        this._pendingFrightened=0;
         this.state='house'; this.exitTimer=0.5;
         return;
       }
@@ -907,7 +906,6 @@ class Ghost{
       if(this._moveToward(9,9,dt,maze,this.speed*1.8)){
         this.row=9; this.col=9; this.px=0; this.py=0;
         this._exitedDoor=false;
-        this._pendingFrightened=0;
         this.state='house'; this.exitTimer=0.5;
       }
       return;
@@ -1026,9 +1024,8 @@ class Ghost{
     }
   }
   frighten(duration){
-    if(this.state==='eaten')return;
-    if(this.state==='house'||this.state==='exiting'){
-      // ghost hasn't left yet — remember to frighten it on exit
+    if(this.state==='eaten'||this.state==='house'||this.state==='exiting'){
+      // Queue fright so it's applied the moment the ghost re-enters the maze
       this._pendingFrightened=duration; return;
     }
     this.state='frightened'; this.frightenedTimer=duration;
