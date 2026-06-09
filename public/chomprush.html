@@ -519,6 +519,30 @@ class ParticleSystem{
       this._get().init(x,y,Math.cos(a)*s,Math.sin(a)*s-40,0.5+Math.random()*0.3,2+Math.random()*3,color);
     }
   }
+  sugarBurst(x,y){
+    // small warm sugar-crystal burst for dot eating
+    const cols=['#fff8ee','#ffe4a0','#ffd27a','#ffffff'];
+    for(let i=0;i<10;i++){
+      const a=Math.random()*Math.PI*2, s=30+Math.random()*55;
+      const c=cols[Math.floor(Math.random()*cols.length)];
+      this._get().init(x,y,Math.cos(a)*s,Math.sin(a)*s-25,0.35+Math.random()*0.25,1.5+Math.random()*2,c);
+    }
+  }
+  cookieCrumble(x,y){
+    // large cookie-crumble explosion for eating a frightened ghost
+    const cols=['#8B4513','#c8691a','#d4872a','#fff8ee','#e8c97a'];
+    for(let i=0;i<28;i++){
+      const a=Math.random()*Math.PI*2, s=70+Math.random()*160;
+      const c=cols[Math.floor(Math.random()*cols.length)];
+      const r=2+Math.random()*5;
+      this._get().init(x,y,Math.cos(a)*s,Math.sin(a)*s-90,0.7+Math.random()*0.5,r,c);
+    }
+    // icing sugar sprinkle (tiny white bits)
+    for(let i=0;i<14;i++){
+      const a=Math.random()*Math.PI*2, s=50+Math.random()*100;
+      this._get().init(x,y,Math.cos(a)*s,Math.sin(a)*s-60,0.5+Math.random()*0.4,1,'#fff8ee');
+    }
+  }
   scorePopup(x,y,text,color='#FFE135'){
     this._get().init(x,y,0,-60,1.2,18,color,text);
   }
@@ -618,22 +642,25 @@ class Maze {
           ctx.fillStyle='#000'; ctx.fillRect(x,y,w,h); continue;
         }
         if(v===1){
-          ctx.fillStyle='#0a0a2e';
+          // Gingerbread wall: warm brown fill + white icing piped on exposed edges
+          ctx.fillStyle='#5c2a0a';
           ctx.fillRect(x,y,w,h);
-          // pixel-art border on exposed edges
-          ctx.fillStyle=c1;
+          ctx.fillStyle='#6e3410'; // slightly lighter inner panel
+          ctx.fillRect(x+ps,y+ps,w-ps*2,h-ps*2);
           const top=this.isWall(r-1,c), bot=this.isWall(r+1,c);
           const lft=this.isWall(r,c-1), rgt=this.isWall(r,c+1);
-          if(!top){for(let i=0;i<w;i+=ps)ctx.fillRect(x+i,y,ps,ps);}
-          if(!bot){for(let i=0;i<w;i+=ps)ctx.fillRect(x+i,y+h-ps,ps,ps);}
-          if(!lft){for(let i=0;i<h;i+=ps)ctx.fillRect(x,y+i,ps,ps);}
-          if(!rgt){for(let i=0;i<h;i+=ps)ctx.fillRect(x+w-ps,y+i,ps,ps);}
-          // inner highlight pixel on corners
-          ctx.fillStyle='rgba(0,220,255,0.25)';
-          if(!top&&!lft)ctx.fillRect(x+ps,y+ps,ps,ps);
-          if(!top&&!rgt)ctx.fillRect(x+w-ps*2,y+ps,ps,ps);
-          if(!bot&&!lft)ctx.fillRect(x+ps,y+h-ps*2,ps,ps);
-          if(!bot&&!rgt)ctx.fillRect(x+w-ps*2,y+h-ps*2,ps,ps);
+          // white icing piped on exposed edges (2px thick, rounded feel)
+          ctx.fillStyle='#fff8ee';
+          if(!top){ctx.fillRect(x,y,w,ps*2);}
+          if(!bot){ctx.fillRect(x,y+h-ps*2,w,ps*2);}
+          if(!lft){ctx.fillRect(x,y,ps*2,h);}
+          if(!rgt){ctx.fillRect(x+w-ps*2,y,ps*2,h);}
+          // warm cream glow at icing corners
+          ctx.fillStyle='rgba(255,240,200,0.4)';
+          if(!top&&!lft)ctx.fillRect(x+ps*2,y+ps*2,ps*2,ps*2);
+          if(!top&&!rgt)ctx.fillRect(x+w-ps*4,y+ps*2,ps*2,ps*2);
+          if(!bot&&!lft)ctx.fillRect(x+ps*2,y+h-ps*4,ps*2,ps*2);
+          if(!bot&&!rgt)ctx.fillRect(x+w-ps*4,y+h-ps*4,ps*2,ps*2);
         } else if(v===2){
           // gingerbread heart
           const mx=x+Math.floor(w/2), my=y+Math.floor(h/2);
@@ -1264,6 +1291,50 @@ function getLevelConfig(level){
 }
 
 // ================================================================
+//  SNOW SYSTEM — drifting snowflakes drawn behind sprites
+// ================================================================
+class SnowSystem{
+  constructor(n=60){
+    this.flakes=Array.from({length:n},()=>this._make(true));
+  }
+  _make(randomY=false){
+    const cw=window.innerWidth, ch=window.innerHeight;
+    return{
+      x:Math.random()*cw,
+      y:randomY?Math.random()*ch:-8,
+      r:1+Math.random()*2.5,
+      vx:(Math.random()-0.5)*18,
+      vy:18+Math.random()*28,
+      wobble:Math.random()*Math.PI*2,
+      wobbleSpeed:0.6+Math.random()*1.2,
+      alpha:0.3+Math.random()*0.5,
+    };
+  }
+  update(dt){
+    const ch=window.innerHeight;
+    this.flakes.forEach(f=>{
+      f.wobble+=f.wobbleSpeed*dt;
+      f.x+=f.vx*dt+Math.sin(f.wobble)*22*dt;
+      f.y+=f.vy*dt;
+      if(f.y>ch+10)Object.assign(f,this._make(false));
+    });
+  }
+  draw(ctx,offsetX=0,offsetY=0){
+    ctx.save();
+    ctx.translate(-offsetX,-offsetY); // draw in screen space
+    this.flakes.forEach(f=>{
+      ctx.globalAlpha=f.alpha;
+      ctx.fillStyle='#e8f4ff';
+      ctx.beginPath();
+      ctx.arc(f.x,f.y,f.r,0,Math.PI*2);
+      ctx.fill();
+    });
+    ctx.globalAlpha=1;
+    ctx.restore();
+  }
+}
+
+// ================================================================
 //  HIGH SCORE — stub, replace body with real API call later
 // ================================================================
 async function getHighScores(myScore){
@@ -1298,7 +1369,8 @@ class Game {
     this.totalDots=0; this.totalGhosts=0;
     this.maze=null; this.pacman=null; this.ghosts=[];
     this.fruit=null; this.fruitSpawned=false;
-    this.particles=new ParticleSystem(300);
+    this.particles=new ParticleSystem(500);
+    this.snow=new SnowSystem(55);
     this.audio=new AudioManager();
     this.input=new InputManager();
     this.tileW=22; this.tileH=22;
@@ -1549,6 +1621,7 @@ class Game {
       this._shakeY=(Math.random()-0.5)*8*this.screenShake;
     } else {this._shakeX=0;this._shakeY=0;}
     this.particles.update(dt);
+    this.snow.update(dt);
     if(this.state!=='playing')return;
     // check dot eating
     const pr=this.pacman.row, pc=this.pacman.col;
@@ -1559,7 +1632,7 @@ class Game {
       this.score+=10; this.totalDots++;
       this.audio.waka();
       const{x,y}=this.pacman.getPixel(this.tileW,this.tileH);
-      this.particles.spark(x,y,'rgba(255,255,255,0.7)',4);
+      this.particles.sugarBurst(x,y);
       this._updateHUD();
     } else if(eaten===3){
       this.score+=50; this.totalDots++;
@@ -1571,7 +1644,8 @@ class Game {
       this._powerMax=cfg.frightenedDuration;
       this.ghosts.forEach(g=>g.frighten(cfg.frightenedDuration));
       const{x,y}=this.pacman.getPixel(this.tileW,this.tileH);
-      this.particles.spark(x,y,'#00e5ff',12);
+      this.particles.spark(x,y,'#00e5ff',18);
+      this.particles.spark(x,y,'#ffffff',10);
       this._updateHUD();
     }
     // update power bar
@@ -1608,7 +1682,7 @@ class Game {
         this.score+=pts;
         this.audio.ghostEaten(this.powerCombo-1);
         this.particles.scorePopup(pacPx.x,pacPx.y-20,'+'+pts,'#00e5ff');
-        this.particles.spark(pacPx.x,pacPx.y,'#00e5ff',10);
+        this.particles.cookieCrumble(pacPx.x,pacPx.y);
         this._updateHUD();
       } else if(g.state==='chase'||g.state==='scatter'){
         this._getStruck(); // guard inside _getStruck prevents double-strike
@@ -1630,6 +1704,9 @@ class Game {
     ctx.translate(-b*this.tileW+(this._shakeX||0),-b*this.tileH+(this._shakeY||0));
     // maze
     this.maze.draw(ctx,this.tileW,this.tileH,this.t);
+    // snow — drawn in screen space so it drifts over corridors
+    const bOx=b*this.tileW, bOy=b*this.tileH;
+    this.snow.draw(ctx,-(this._shakeX||0)+bOx,-(this._shakeY||0)+bOy);
     // fruit
     if(this.fruit&&this.fruit.alive)this.fruit.draw(ctx,this.tileW,this.tileH,this.t);
     // ghosts
