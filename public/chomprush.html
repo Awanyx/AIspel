@@ -787,7 +787,8 @@ class Maze {
           ctx.fillStyle='#ff88ff';
           ctx.fillRect(x+ps,y+Math.floor(h*0.42),w-ps*2,ps*2);
         } else if(v===5||v===6){
-          ctx.fillStyle='#050514';
+          // Ghost house interior — semi-transparent for level 1 bg visibility
+          ctx.fillStyle=this.level===1?'rgba(5,5,20,0.5)':'#050514';
           ctx.fillRect(x,y,w,h);
         }
       }
@@ -1454,6 +1455,9 @@ class Game {
     this.particles=new ParticleSystem(500);
     this.snow=new SnowSystem(55);
     this.audio=new AudioManager();
+    // Level 1 background image
+    this._bgLevel1=new Image();
+    this._bgLevel1.src='/winter_bg.png';
     this.input=new InputManager();
     this.tileW=22; this.tileH=22;
     this.t=0; this.dt=0; this._last=0;
@@ -1778,7 +1782,18 @@ class Game {
   _draw(){
     const cw=this._canvasW||canvas.width, ch=this._canvasH||canvas.height;
     ctx.clearRect(0,0,cw,ch);
-    ctx.fillStyle='#000'; ctx.fillRect(0,0,cw,ch);
+    // Background: winter scene for level 1, black otherwise
+    if(this.level===1 && this._bgLevel1.complete && this._bgLevel1.naturalWidth>0){
+      // Draw image scaled to fill canvas, centred
+      const img=this._bgLevel1;
+      const scale=Math.max(cw/img.naturalWidth, ch/img.naturalHeight);
+      const dw=img.naturalWidth*scale, dh=img.naturalHeight*scale;
+      ctx.drawImage(img,(cw-dw)/2,(ch-dh)/2,dw,dh);
+      // Soft dark overlay so maze / sprites remain readable
+      ctx.fillStyle='rgba(0,0,0,0.45)'; ctx.fillRect(0,0,cw,ch);
+    } else {
+      ctx.fillStyle='#000'; ctx.fillRect(0,0,cw,ch);
+    }
     if(!this.maze)return;
     ctx.save();
     // Shift so border columns/rows render off-screen — active maze fills the canvas
