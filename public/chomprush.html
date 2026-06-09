@@ -758,7 +758,7 @@ class PacMan {
   }
   draw(ctx,tileW,tileH,t){
     const{x,y}=this.getPixel(tileW,tileH);
-    const ps=Math.max(1,Math.floor(Math.min(tileW,tileH)/8));
+    const ps=Math.max(1,Math.floor(Math.min(tileW,tileH)/14));
     const half=Math.floor(Math.min(tileW,tileH)/(2*ps)); // fills tile
     if(this.deathPlaying){
       const a=Math.min(this.deathAnim,1);
@@ -849,14 +849,18 @@ class Ghost{
       return;
     }
     if(this.state==='eaten'){
-      // navigate tile-by-tile back to house (no diagonal through walls)
-      this.targetRow=9; this.targetCol=9;
-      if(this.row===9&&this.col===9&&Math.abs(this.px)<2&&Math.abs(this.py)<2){
-        this.px=0; this.py=0;
-        this.state='house'; this.exitTimer=1.5;
+      // Phase 1: tile-by-tile to door entry (row 6, col 9)
+      if(this.row!==6||this.col!==9){
+        this.targetRow=6; this.targetCol=9;
+        this._moveTowardTarget(dt,maze,this.speed*1.8,false);
         return;
       }
-      this._moveTowardTarget(dt,maze,this.speed*1.8,true);
+      // Phase 2: snap horizontal drift, drop straight down through door into house
+      this.px=0;
+      if(this._moveToward(9,9,dt,maze,this.speed*1.8)){
+        this.row=9; this.col=9; this.px=0; this.py=0;
+        this.state='house'; this.exitTimer=1.5;
+      }
       return;
     }
     if(this.state==='frightened'){
@@ -984,32 +988,30 @@ class Ghost{
   }
   draw(ctx,tileW,tileH,t){
     const{x,y}=this.getPixel(tileW,tileH);
-    const ps=Math.max(1,Math.floor(Math.min(tileW,tileH)/8));
-    const W=10, H=11;
+    // 16×18 sprite — more pixel detail, ps fills tile
+    const ps=Math.max(1,Math.floor(Math.min(tileW,tileH)/14));
+    const W=16, H=18;
     const ox=Math.round(x)-Math.floor(W*ps/2);
     const oy=Math.round(y)-Math.floor(H*ps/2);
     if(this.state==='eaten'){
       this._drawPixelEyes(ctx,ox,oy,ps,false,true);
       return;
     }
-    // show frightened appearance for exiting ghosts with pending fright too
     const effectivelyFrightened=this.state==='frightened'||(this._pendingFrightened>0&&this.state==='exiting');
     const flashing=effectivelyFrightened&&this.state==='frightened'&&this.frightenedTimer<2;
     const frightened=effectivelyFrightened;
     const col=frightened?(flashing&&Math.floor(t*6)%2?'#ffffff':'#1a0080'):this.color;
     ctx.fillStyle=col;
     const waveOff=Math.floor(this.wobble*1.5)%2;
-    for(let row=0;row<H;row++){
-      for(let col2=0;col2<W;col2++){
-        if(row<5){
-          const dx=col2-4.5,dy=row-4.5;
-          if(dx*dx+dy*dy>25)continue;
+    for(let r=0;r<H;r++){
+      for(let c=0;c<W;c++){
+        let draw=true;
+        if(r<8){ const dx=c-7.5,dy=r-7.5; if(dx*dx+dy*dy>64)draw=false; }
+        if(draw&&r>=14){
+          const grp=Math.floor(c/2)%2;
+          if(grp===waveOff){if(r>=16)draw=false;}else{if(r<=15)draw=false;}
         }
-        if(row>=9){
-          const skip=(col2%2===waveOff)?row===10:row===9;
-          if(skip)continue;
-        }
-        ctx.fillRect(ox+col2*ps,oy+row*ps,ps,ps);
+        if(draw)ctx.fillRect(ox+c*ps,oy+r*ps,ps,ps);
       }
     }
     this._drawPixelEyes(ctx,ox,oy,ps,frightened,false);
@@ -1017,24 +1019,23 @@ class Ghost{
   _drawPixelEyes(ctx,ox,oy,ps,frightened,eaten){
     if(frightened){
       ctx.fillStyle='#ffffff';
-      ctx.fillRect(ox+2*ps,oy+3*ps,ps*2,ps*2);
-      ctx.fillRect(ox+6*ps,oy+3*ps,ps*2,ps*2);
+      ctx.fillRect(ox+2*ps,oy+3*ps,ps*4,ps*4);
+      ctx.fillRect(ox+10*ps,oy+3*ps,ps*4,ps*4);
       ctx.fillStyle='#aaaaff';
-      ctx.fillRect(ox+3*ps,oy+4*ps,ps,ps);
-      ctx.fillRect(ox+7*ps,oy+4*ps,ps,ps);
-      // zigzag mouth
+      ctx.fillRect(ox+3*ps,oy+5*ps,ps*2,ps*2);
+      ctx.fillRect(ox+11*ps,oy+5*ps,ps*2,ps*2);
       ctx.fillStyle='#ffffff';
-      for(let i=0;i<8;i++)ctx.fillRect(ox+(i+1)*ps,oy+(7+(i%2))*ps,ps,ps);
+      for(let i=0;i<8;i++)ctx.fillRect(ox+(i*2+1)*ps,oy+(10+(i%2))*ps,ps*2,ps);
       return;
     }
     const d=DIR[this.dir]||{x:0,y:0};
     const po={x:Math.round(d.x*ps),y:Math.round(d.y*ps)};
     ctx.fillStyle='#ffffff';
-    ctx.fillRect(ox+1*ps,oy+3*ps,ps*3,ps*3);
-    ctx.fillRect(ox+6*ps,oy+3*ps,ps*3,ps*3);
+    ctx.fillRect(ox+2*ps,oy+3*ps,ps*4,ps*4);
+    ctx.fillRect(ox+10*ps,oy+3*ps,ps*4,ps*4);
     ctx.fillStyle='#0000cc';
-    ctx.fillRect(ox+2*ps+po.x,oy+4*ps+po.y,ps*2,ps*2);
-    ctx.fillRect(ox+7*ps+po.x,oy+4*ps+po.y,ps*2,ps*2);
+    ctx.fillRect(ox+3*ps+po.x,oy+4*ps+po.y,ps*2,ps*2);
+    ctx.fillRect(ox+11*ps+po.x,oy+4*ps+po.y,ps*2,ps*2);
   }
   _drawEyes(){} // legacy stub
 }
@@ -1068,7 +1069,7 @@ class Fruit {
   }
   draw(ctx,tileW,tileH,t){
     if(!this.alive)return;
-    const ps=Math.max(1,Math.floor(Math.min(tileW,tileH)/8));
+    const ps=Math.max(1,Math.floor(Math.min(tileW,tileH)/14));
     const cx=Math.round(this.col*tileW+tileW/2);
     const cy=Math.round(this.row*tileH+tileH/2+Math.sin(this.bounce)*3);
     this._drawCandy(ctx,cx,cy,ps,t);
