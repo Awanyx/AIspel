@@ -1748,9 +1748,7 @@ class Game {
     ctx.fillStyle='#000'; ctx.fillRect(0,0,cw,ch);
     // Board interior background — drawn before maze tiles so walls sit on top
     if(this._boardBg&&this._boardBg.complete&&this._boardBg.naturalWidth>0){
-      ctx.save(); ctx.globalAlpha=0.8;
       ctx.drawImage(this._boardBg,0,0,cw,ch);
-      ctx.restore();
     }
     if(!this.maze)return;
     ctx.save();
