@@ -758,8 +758,8 @@ class PacMan {
   }
   draw(ctx,tileW,tileH,t){
     const{x,y}=this.getPixel(tileW,tileH);
-    const ps=Math.max(1,Math.floor(tileW/10));
-    const half=5; // pixel radius
+    const ps=Math.max(1,Math.floor(Math.min(tileW,tileH)/8));
+    const half=Math.floor(Math.min(tileW,tileH)/(2*ps)); // fills tile
     if(this.deathPlaying){
       const a=Math.min(this.deathAnim,1);
       ctx.fillStyle='#FFE135';
@@ -849,11 +849,14 @@ class Ghost{
       return;
     }
     if(this.state==='eaten'){
-      // eyes return to house
-      if(this._moveToward(9,9,dt,maze,this.speed*1.8)){
-        this.row=9; this.col=9; this.px=0; this.py=0;
+      // navigate tile-by-tile back to house (no diagonal through walls)
+      this.targetRow=9; this.targetCol=9;
+      if(this.row===9&&this.col===9&&Math.abs(this.px)<2&&Math.abs(this.py)<2){
+        this.px=0; this.py=0;
         this.state='house'; this.exitTimer=1.5;
+        return;
       }
+      this._moveTowardTarget(dt,maze,this.speed*1.8,true);
       return;
     }
     if(this.state==='frightened'){
@@ -895,11 +898,11 @@ class Ghost{
     this.px+=dx*s; this.py+=dy*s;
     return false;
   }
-  _moveTowardTarget(dt,maze,spd){
+  _moveTowardTarget(dt,maze,spd,allowDoor=false){
     const tw=maze.tileW||22, th=maze.tileH||22;
     // if centered on tile, choose next direction
     if(Math.abs(this.px)<1&&Math.abs(this.py)<1){
-      const best=this._bestDir(maze);
+      const best=this._bestDir(maze,allowDoor);
       if(best)this.dir=best;
     }
     const d=DIR[this.dir];
@@ -909,7 +912,7 @@ class Ghost{
     if(Math.abs(this.px)>=tw||Math.abs(this.py)>=th){
       const nr=this.row+d.y;
       const nc=((this.col+d.x+COLS)%COLS);
-      if(!maze.isWall(nr,nc)&&!maze.isGhostDoor(nr,nc)){
+      if(!maze.isWall(nr,nc)&&(allowDoor||!maze.isGhostDoor(nr,nc))){
         this.row=((nr+ROWS)%ROWS); this.col=nc;
         if(this.px>=tw)this.px-=tw; else if(this.px<=-tw)this.px+=tw;
         if(this.py>=th)this.py-=th; else if(this.py<=-th)this.py+=th;
@@ -918,25 +921,26 @@ class Ghost{
         const rev=dirOpp(this.dir);
         const rr=this.row+DIR[rev].y;
         const rc=((this.col+DIR[rev].x+COLS)%COLS);
-        if(!maze.isWall(rr,rc)&&!maze.isGhostDoor(rr,rc))this.dir=rev;
+        if(!maze.isWall(rr,rc)&&(allowDoor||!maze.isGhostDoor(rr,rc)))this.dir=rev;
       }
     }
   }
-  _bestDir(maze){
+  _bestDir(maze,allowDoor=false){
     const opp=dirOpp(this.dir);
     let best=null, bestDist=Infinity;
     for(const d of DIRS){
       if(d===opp)continue;
       const nr=this.row+DIR[d].y;
       const nc=((this.col+DIR[d].x+COLS)%COLS);
-      if(maze.isWall(nr,nc)||maze.isGhostDoor(nr,nc))continue;
+      if(maze.isWall(nr,nc))continue;
+      if(!allowDoor&&maze.isGhostDoor(nr,nc))continue;
       const dist=Math.abs(nr-this.targetRow)+Math.abs(nc-this.targetCol);
       if(dist<bestDist){bestDist=dist;best=d}
     }
     if(!best){
       const nr=this.row+DIR[opp].y;
       const nc=((this.col+DIR[opp].x+COLS)%COLS);
-      if(!maze.isWall(nr,nc)&&!maze.isGhostDoor(nr,nc))best=opp;
+      if(!maze.isWall(nr,nc)&&(allowDoor||!maze.isGhostDoor(nr,nc)))best=opp;
     }
     return best||this.dir;
   }
@@ -980,7 +984,7 @@ class Ghost{
   }
   draw(ctx,tileW,tileH,t){
     const{x,y}=this.getPixel(tileW,tileH);
-    const ps=Math.max(1,Math.floor(tileW/10));
+    const ps=Math.max(1,Math.floor(Math.min(tileW,tileH)/8));
     const W=10, H=11;
     const ox=Math.round(x)-Math.floor(W*ps/2);
     const oy=Math.round(y)-Math.floor(H*ps/2);
@@ -1064,7 +1068,7 @@ class Fruit {
   }
   draw(ctx,tileW,tileH,t){
     if(!this.alive)return;
-    const ps=Math.max(1,Math.floor(tileW/10));
+    const ps=Math.max(1,Math.floor(Math.min(tileW,tileH)/8));
     const cx=Math.round(this.col*tileW+tileW/2);
     const cy=Math.round(this.row*tileH+tileH/2+Math.sin(this.bounce)*3);
     this._drawCandy(ctx,cx,cy,ps,t);
