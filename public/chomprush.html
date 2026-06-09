@@ -488,10 +488,10 @@ class AudioManager {
 class Particle{
   constructor(){this.reset()}
   reset(){this.alive=false}
-  init(x,y,vx,vy,life,r,color,text=''){
+  init(x,y,vx,vy,life,r,color,text='',square=false){
     this.x=x;this.y=y;this.vx=vx;this.vy=vy;
     this.life=life;this.maxLife=life;this.r=r;
-    this.color=color;this.text=text;this.alive=true;
+    this.color=color;this.text=text;this.square=square;this.alive=true;
   }
   update(dt){
     if(!this.alive)return;
@@ -509,6 +509,10 @@ class Particle{
       ctx.font=`bold ${this.r}px SuperWarming, Arial`;
       ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.fillText(this.text,this.x,this.y);
+    } else if(this.square){
+      ctx.fillStyle=this.color;
+      const s=Math.ceil(this.r*2);
+      ctx.fillRect(Math.round(this.x-this.r),Math.round(this.y-this.r),s,s);
     } else {
       ctx.fillStyle=this.color;
       ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
@@ -529,27 +533,28 @@ class ParticleSystem{
     }
   }
   sugarBurst(x,y){
-    // small warm sugar-crystal burst for dot eating
-    const cols=['#fff8ee','#ffe4a0','#ffd27a','#ffffff'];
-    for(let i=0;i<10;i++){
-      const a=Math.random()*Math.PI*2, s=30+Math.random()*55;
+    // pixel sugar-crystal burst — tiny squares for 132px retro style
+    const cols=['#fff8ee','#ffe4a0','#ffd27a','#ffffff','#f5c842'];
+    for(let i=0;i<12;i++){
+      const a=Math.random()*Math.PI*2, s=35+Math.random()*60;
       const c=cols[Math.floor(Math.random()*cols.length)];
-      this._get().init(x,y,Math.cos(a)*s,Math.sin(a)*s-25,0.35+Math.random()*0.25,1.5+Math.random()*2,c);
+      const r=1+Math.floor(Math.random()*2); // 1 or 2 px half-size → 2×2 or 4×4 square
+      this._get().init(x,y,Math.cos(a)*s,Math.sin(a)*s-30,0.35+Math.random()*0.3,r,c,'',true);
     }
   }
   cookieCrumble(x,y){
-    // large cookie-crumble explosion for eating a frightened ghost
-    const cols=['#8B4513','#c8691a','#d4872a','#fff8ee','#e8c97a'];
+    // pixel gingerbread-chunk explosion — rectangular squares of various sizes
+    const cols=['#7a3c12','#8f4e1a','#c8691a','#d4872a','#fff8ee','#e8c97a'];
     for(let i=0;i<28;i++){
       const a=Math.random()*Math.PI*2, s=70+Math.random()*160;
       const c=cols[Math.floor(Math.random()*cols.length)];
-      const r=2+Math.random()*5;
-      this._get().init(x,y,Math.cos(a)*s,Math.sin(a)*s-90,0.7+Math.random()*0.5,r,c);
+      const r=2+Math.floor(Math.random()*4); // 2-5 half-size → 4×4 to 10×10 chunks
+      this._get().init(x,y,Math.cos(a)*s,Math.sin(a)*s-90,0.7+Math.random()*0.5,r,c,'',true);
     }
-    // icing sugar sprinkle (tiny white bits)
-    for(let i=0;i<14;i++){
-      const a=Math.random()*Math.PI*2, s=50+Math.random()*100;
-      this._get().init(x,y,Math.cos(a)*s,Math.sin(a)*s-60,0.5+Math.random()*0.4,1,'#fff8ee');
+    // icing sugar: tiny 1-px white squares
+    for(let i=0;i<16;i++){
+      const a=Math.random()*Math.PI*2, s=50+Math.random()*110;
+      this._get().init(x,y,Math.cos(a)*s,Math.sin(a)*s-60,0.5+Math.random()*0.45,1,'#fff8ee','',true);
     }
   }
   scorePopup(x,y,text,color='#FFE135'){
@@ -651,25 +656,54 @@ class Maze {
           ctx.fillStyle='#000'; ctx.fillRect(x,y,w,h); continue;
         }
         if(v===1){
-          // Gingerbread wall: warm brown fill + white icing piped on exposed edges
+          // Gingerbread wall: layered pixel-art biscuit
+          // 1. Dark base
+          ctx.fillStyle='#3e1a06'; ctx.fillRect(x,y,w,h);
+          // 2. Main biscuit body
+          ctx.fillStyle='#7a3c12'; ctx.fillRect(x+ps,y+ps,w-ps*2,h-ps*2);
+          // 3. Inner highlight layer (lighter centre band)
+          ctx.fillStyle='#8f4e1a'; ctx.fillRect(x+ps*2,y+ps*2,w-ps*4,h-ps*4);
+          // 4. Pixel dot texture grid on body (dark pores, spaced every 3px-units)
           ctx.fillStyle='#5c2a0a';
-          ctx.fillRect(x,y,w,h);
-          ctx.fillStyle='#6e3410'; // slightly lighter inner panel
-          ctx.fillRect(x+ps,y+ps,w-ps*2,h-ps*2);
+          for(let dy=ps*3;dy<h-ps*3;dy+=ps*3){
+            for(let dx=ps*3;dx<w-ps*3;dx+=ps*3){
+              ctx.fillRect(x+dx,y+dy,ps,ps);
+            }
+          }
           const top=this.isWall(r-1,c), bot=this.isWall(r+1,c);
           const lft=this.isWall(r,c-1), rgt=this.isWall(r,c+1);
-          // white icing piped on exposed edges (2px thick, rounded feel)
+          // 5. Icing: 3-layer pipe on exposed edges
+          //    bottom layer: warm cream shadow
+          ctx.fillStyle='#d4a96a';
+          if(!top){ctx.fillRect(x,y,w,ps*3);}
+          if(!bot){ctx.fillRect(x,y+h-ps*3,w,ps*3);}
+          if(!lft){ctx.fillRect(x,y,ps*3,h);}
+          if(!rgt){ctx.fillRect(x+w-ps*3,y,ps*3,h);}
+          //    middle layer: bright white icing
           ctx.fillStyle='#fff8ee';
           if(!top){ctx.fillRect(x,y,w,ps*2);}
           if(!bot){ctx.fillRect(x,y+h-ps*2,w,ps*2);}
           if(!lft){ctx.fillRect(x,y,ps*2,h);}
           if(!rgt){ctx.fillRect(x+w-ps*2,y,ps*2,h);}
-          // warm cream glow at icing corners
-          ctx.fillStyle='rgba(255,240,200,0.4)';
-          if(!top&&!lft)ctx.fillRect(x+ps*2,y+ps*2,ps*2,ps*2);
-          if(!top&&!rgt)ctx.fillRect(x+w-ps*4,y+ps*2,ps*2,ps*2);
-          if(!bot&&!lft)ctx.fillRect(x+ps*2,y+h-ps*4,ps*2,ps*2);
-          if(!bot&&!rgt)ctx.fillRect(x+w-ps*4,y+h-ps*4,ps*2,ps*2);
+          //    top highlight pixel row (pure white)
+          ctx.fillStyle='#ffffff';
+          if(!top){ctx.fillRect(x,y,w,ps);}
+          if(!lft){ctx.fillRect(x,y,ps,h);}
+          // 6. Icing blob at exposed outer corners
+          ctx.fillStyle='#fff8ee';
+          if(!top&&!lft){ctx.fillRect(x,y,ps*4,ps*4);}
+          if(!top&&!rgt){ctx.fillRect(x+w-ps*4,y,ps*4,ps*4);}
+          if(!bot&&!lft){ctx.fillRect(x,y+h-ps*4,ps*4,ps*4);}
+          if(!bot&&!rgt){ctx.fillRect(x+w-ps*4,y+h-ps*4,ps*4,ps*4);}
+          // 7. Candy sprinkles: 1px dots inside body (deterministic by tile position)
+          const sprinkleColors=['#dd0000','#00aa44','#e8c800','#c050ff','#ff6688'];
+          const seed=(r*37+c*13)%5;
+          for(let si=0;si<3;si++){
+            const sc=sprinkleColors[(seed+si*7)%5];
+            const sdx=ps*2+((r*17+c*11+si*19)%(w-ps*4));
+            const sdy=ps*2+((r*23+c*7+si*13)%(h-ps*4));
+            ctx.fillStyle=sc; ctx.fillRect(x+sdx,y+sdy,ps,ps);
+          }
         } else if(v===2){
           // gingerbread heart
           const mx=x+Math.floor(w/2), my=y+Math.floor(h/2);
@@ -1308,35 +1342,57 @@ class SnowSystem{
   }
   _make(randomY=false){
     const cw=window.innerWidth, ch=window.innerHeight;
+    // size 0=single pixel, 1=3×3 cross, 2=5×5 star
+    const size=Math.random()<0.5?0:Math.random()<0.6?1:2;
     return{
       x:Math.random()*cw,
       y:randomY?Math.random()*ch:-8,
-      r:1+Math.random()*2.5,
-      vx:(Math.random()-0.5)*18,
-      vy:18+Math.random()*28,
+      size,
+      vx:(Math.random()-0.5)*16,
+      vy:14+Math.random()*24,
       wobble:Math.random()*Math.PI*2,
-      wobbleSpeed:0.6+Math.random()*1.2,
-      alpha:0.3+Math.random()*0.5,
+      wobbleSpeed:0.5+Math.random()*1.1,
+      alpha:0.35+Math.random()*0.55,
     };
   }
   update(dt){
     const ch=window.innerHeight;
     this.flakes.forEach(f=>{
       f.wobble+=f.wobbleSpeed*dt;
-      f.x+=f.vx*dt+Math.sin(f.wobble)*22*dt;
+      f.x+=f.vx*dt+Math.sin(f.wobble)*18*dt;
       f.y+=f.vy*dt;
       if(f.y>ch+10)Object.assign(f,this._make(false));
     });
   }
+  _drawFlake(ctx,fx,fy,size){
+    const p=1; // base pixel unit — always 1 screen px for crispness
+    if(size===0){
+      // single pixel
+      ctx.fillRect(Math.round(fx),Math.round(fy),p,p);
+    } else if(size===1){
+      // 3×3 cross: centre + 4 arms
+      const cx=Math.round(fx), cy=Math.round(fy);
+      ctx.fillRect(cx,   cy-p, p, p*3); // vertical bar
+      ctx.fillRect(cx-p, cy,   p*3, p); // horizontal bar
+    } else {
+      // 5×5 pixel-art snowflake: cross + diagonal tips
+      const cx=Math.round(fx), cy=Math.round(fy);
+      ctx.fillRect(cx,   cy-2, p, p*5); // vertical
+      ctx.fillRect(cx-2, cy,   p*5, p); // horizontal
+      // diagonal dots at distance 2
+      ctx.fillRect(cx-2, cy-2, p, p);
+      ctx.fillRect(cx+2, cy-2, p, p);
+      ctx.fillRect(cx-2, cy+2, p, p);
+      ctx.fillRect(cx+2, cy+2, p, p);
+    }
+  }
   draw(ctx,offsetX=0,offsetY=0){
     ctx.save();
-    ctx.translate(-offsetX,-offsetY); // draw in screen space
+    ctx.translate(-offsetX,-offsetY);
+    ctx.fillStyle='#e8f4ff';
     this.flakes.forEach(f=>{
       ctx.globalAlpha=f.alpha;
-      ctx.fillStyle='#e8f4ff';
-      ctx.beginPath();
-      ctx.arc(f.x,f.y,f.r,0,Math.PI*2);
-      ctx.fill();
+      this._drawFlake(ctx,f.x,f.y,f.size);
     });
     ctx.globalAlpha=1;
     ctx.restore();
