@@ -620,43 +620,65 @@ class Maze {
           if(!bot&&!lft)ctx.fillRect(x+ps,y+h-ps*2,ps,ps);
           if(!bot&&!rgt)ctx.fillRect(x+w-ps*2,y+h-ps*2,ps,ps);
         } else if(v===2){
-          // gingerbread man dot — proportional to tile like Pac-Man
-          const half2=Math.floor(Math.min(w,h)/(2*sp));
+          // gingerbread heart
           const mx=x+Math.floor(w/2), my=y+Math.floor(h/2);
+          const hx=mx-3*sp, hy=my-3*sp;
           ctx.fillStyle='#c8691a';
-          ctx.fillRect(mx-sp,my-half2*sp+sp*0,sp*2,sp*2);       // head
-          ctx.fillRect(mx-sp,my-half2*sp+sp*2,sp*2,sp*3);       // body
-          ctx.fillRect(mx-sp*2,my-half2*sp+sp*2,sp,sp);         // left arm
-          ctx.fillRect(mx+sp,my-half2*sp+sp*2,sp,sp);           // right arm
-          ctx.fillRect(mx-sp,my-half2*sp+sp*5,sp,sp*2);         // left leg
-          ctx.fillRect(mx,my-half2*sp+sp*5,sp,sp*2);            // right leg
-          ctx.fillStyle='#fff';
-          ctx.fillRect(mx-sp/2|0,my-half2*sp+sp*3,sp,sp);       // button 1
-          ctx.fillRect(mx-sp/2|0,my-half2*sp+sp*4,sp,sp);       // button 2
-          ctx.fillStyle='#333';
-          ctx.fillRect(mx-sp,my-half2*sp+sp,sp,sp);             // left eye
-          ctx.fillRect(mx,my-half2*sp+sp,sp,sp);                // right eye
+          ctx.fillRect(hx+sp,   hy,       2*sp, 2*sp); // left bump
+          ctx.fillRect(hx+4*sp, hy,       2*sp, 2*sp); // right bump
+          ctx.fillRect(hx,      hy+sp,    7*sp, 2*sp); // rows 1-2 full
+          ctx.fillRect(hx+sp,   hy+3*sp,  5*sp, sp);   // row 3
+          ctx.fillRect(hx+2*sp, hy+4*sp,  3*sp, sp);   // row 4
+          ctx.fillRect(hx+3*sp, hy+5*sp,  sp,   sp);   // point
+          ctx.fillStyle='rgba(255,255,255,0.55)';
+          ctx.fillRect(hx+sp,   hy,       sp,   sp);   // left shine
+          ctx.fillRect(hx+4*sp, hy,       sp,   sp);   // right shine
         } else if(v===3){
-          // decorated gingerbread power pellet — bigger, blinks
+          // gingerbread man power pellet (pixel art, matches reference)
           const on=Math.floor(t*3)%2===0;
           if(on){
-            const half2=Math.floor(Math.min(w,h)/(2*sp));
-            const mx=x+Math.floor(w/2), my=y+Math.floor(h/2);
-            ctx.fillStyle='#c8691a';
-            ctx.fillRect(mx-sp*2,my-half2*sp,sp*4,sp*3);          // head
-            ctx.fillRect(mx-sp*2,my-half2*sp+sp*3,sp*4,sp*4);     // body
-            ctx.fillRect(mx-sp*4,my-half2*sp+sp*3,sp*2,sp*2);     // left arm
-            ctx.fillRect(mx+sp*2,my-half2*sp+sp*3,sp*2,sp*2);     // right arm
-            ctx.fillRect(mx-sp*2,my-half2*sp+sp*7,sp*2,sp*2);     // left leg
-            ctx.fillRect(mx,my-half2*sp+sp*7,sp*2,sp*2);          // right leg
-            ctx.fillStyle='#ff3a3a';
-            ctx.fillRect(mx-sp,my-half2*sp+sp,sp*2,sp);           // icing top
-            ctx.fillRect(mx-sp,my-half2*sp+sp*4,sp*2,sp);         // icing mid
+            const p=sp;
+            const gx=x+Math.floor(w/2)-5*p, gy=y+Math.floor(h/2)-7*p;
+            // body
+            ctx.fillStyle='#8B4513';
+            ctx.fillRect(gx+2*p, gy,      6*p, p);    // head top
+            ctx.fillRect(gx+p,   gy+p,    8*p, 4*p);  // head mid
+            ctx.fillRect(gx+2*p, gy+5*p,  6*p, p);    // head bottom
+            ctx.fillRect(gx+2*p, gy+6*p,  6*p, 6*p);  // body
+            ctx.fillRect(gx,     gy+6*p,  2*p, 3*p);  // left arm
+            ctx.fillRect(gx+8*p, gy+6*p,  2*p, 3*p);  // right arm
+            ctx.fillRect(gx+2*p, gy+12*p, 2*p, 2*p);  // left boot
+            ctx.fillRect(gx+6*p, gy+12*p, 2*p, 2*p);  // right boot
+            // eyes
+            ctx.fillStyle='#111';
+            ctx.fillRect(gx+3*p, gy+2*p, p, p);
+            ctx.fillRect(gx+6*p, gy+2*p, p, p);
+            // blush
+            ctx.fillStyle='#FF88AA';
+            ctx.fillRect(gx+2*p, gy+3*p, p, p);
+            ctx.fillRect(gx+7*p, gy+3*p, p, p);
+            // smile (white with gap)
             ctx.fillStyle='#fff';
-            ctx.fillRect(mx-sp,my-half2*sp+sp*5,sp*2,sp);         // white icing
-            ctx.fillStyle='#333';
-            ctx.fillRect(mx-sp,my-half2*sp+sp,sp,sp);             // left eye
-            ctx.fillRect(mx,my-half2*sp+sp,sp,sp);                // right eye
+            ctx.fillRect(gx+2*p, gy+4*p, 6*p, p);
+            ctx.fillStyle='#8B4513';
+            ctx.fillRect(gx+4*p, gy+4*p, p,   p);  // tooth gap
+            // arm icing
+            ctx.fillStyle='#fff';
+            ctx.fillRect(gx,     gy+6*p, 2*p, p);
+            ctx.fillRect(gx+8*p, gy+6*p, 2*p, p);
+            // buttons
+            ctx.fillStyle='#dd0000';
+            ctx.fillRect(gx+4*p, gy+7*p, 2*p, p);
+            ctx.fillStyle='#00aa00';
+            ctx.fillRect(gx+4*p, gy+8*p, 2*p, p);
+            ctx.fillStyle='#dd0000';
+            ctx.fillRect(gx+4*p, gy+9*p, 2*p, p);
+            // belt icing
+            ctx.fillStyle='#fff';
+            ctx.fillRect(gx+2*p, gy+11*p, 6*p, p);
+            // boot icing
+            ctx.fillRect(gx+2*p, gy+12*p, 2*p, p);
+            ctx.fillRect(gx+6*p, gy+12*p, 2*p, p);
           }
         } else if(v===4){
           // ghost door — horizontal pixel bar
@@ -860,6 +882,8 @@ class Ghost{
       this.px=0;
       if(this._moveToward(9,9,dt,maze,this.speed*1.8)){
         this.row=9; this.col=9; this.px=0; this.py=0;
+        this._exitedDoor=false; // must reset so next exit runs phase 1 correctly
+        this._pendingFrightened=0;
         this.state='house'; this.exitTimer=1.5;
       }
       return;
@@ -905,8 +929,8 @@ class Ghost{
   }
   _moveTowardTarget(dt,maze,spd,allowDoor=false){
     const tw=maze.tileW||22, th=maze.tileH||22;
-    // if centered on tile, choose next direction
-    if(Math.abs(this.px)<1&&Math.abs(this.py)<1){
+    // update direction when near tile centre (generous threshold handles typical overshoot)
+    if(Math.abs(this.px)<tw*0.25&&Math.abs(this.py)<th*0.25){
       const best=this._bestDir(maze,allowDoor);
       if(best)this.dir=best;
     }
@@ -921,6 +945,9 @@ class Ghost{
         this.row=((nr+ROWS)%ROWS); this.col=nc;
         if(this.px>=tw)this.px-=tw; else if(this.px<=-tw)this.px+=tw;
         if(this.py>=th)this.py-=th; else if(this.py<=-th)this.py+=th;
+        // snap tiny remainders so intersection checks fire reliably
+        if(Math.abs(this.px)<2)this.px=0;
+        if(Math.abs(this.py)<2)this.py=0;
       } else {
         this.px=0; this.py=0;
         const rev=dirOpp(this.dir);
@@ -951,7 +978,7 @@ class Ghost{
   }
   _moveRandom(dt,maze,spd){
     const tw=maze.tileW||22, th=maze.tileH||22;
-    if(Math.abs(this.px)<1&&Math.abs(this.py)<1){
+    if(Math.abs(this.px)<tw*0.25&&Math.abs(this.py)<th*0.25){
       const opp=dirOpp(this.dir);
       const valid=DIRS.filter(d=>{
         if(d===opp)return false;
@@ -970,6 +997,8 @@ class Ghost{
         this.row=((nr+ROWS)%ROWS); this.col=nc;
         if(this.px>=tw)this.px-=tw; else if(this.px<=-tw)this.px+=tw;
         if(this.py>=th)this.py-=th; else if(this.py<=-th)this.py+=th;
+        if(Math.abs(this.px)<2)this.px=0;
+        if(Math.abs(this.py)<2)this.py=0;
       } else {this.px=0;this.py=0;this.dir=dirOpp(this.dir);}
     }
   }
@@ -982,7 +1011,7 @@ class Ghost{
     this.state='frightened'; this.frightenedTimer=duration;
   }
   eat(){
-    this.state='eaten'; this.row=this.row; this.px=0; this.py=0;
+    this.state='eaten'; this.px=0; this.py=0;
   }
   getPixel(tileW,tileH){
     return{x:this.col*tileW+tileW/2+this.px, y:this.row*tileH+tileH/2+this.py}
