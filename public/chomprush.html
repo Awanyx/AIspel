@@ -658,9 +658,9 @@ class Maze {
           // Draw from tile sheet: 3 cols × 4 rows = 12 tiles
           if(this._tileSheet&&this._tileSheet.complete&&this._tileSheet.naturalWidth>0){
             const sheet=this._tileSheet;
-            const cols=3, rows=4;
+            const cols=4, rows=4;
             const sw=sheet.naturalWidth/cols, sh=sheet.naturalHeight/rows;
-            const idx=(r*7+c*13)%12;
+            const idx=(r*7+c*13)%16;
             const sx=(idx%cols)*sw, sy=Math.floor(idx/cols)*sh;
             // Square-crop source (centre) so tiles never stretch
             const srcSq=Math.min(sw,sh);
@@ -1771,6 +1771,12 @@ class Game {
     // debug
     if(this.debug)this._drawDebug(cw,ch);
     ctx.restore();
+    // Vignette — drawn in screen space after everything else
+    const vg=ctx.createRadialGradient(cw/2,ch/2,Math.min(cw,ch)*0.3,cw/2,ch/2,Math.max(cw,ch)*0.78);
+    vg.addColorStop(0,'rgba(0,0,0,0)');
+    vg.addColorStop(1,'rgba(0,0,0,0.72)');
+    ctx.fillStyle=vg;
+    ctx.fillRect(0,0,cw,ch);
   }
   _drawDebug(cw,ch){
     ctx.fillStyle='rgba(0,255,0,0.7)';
