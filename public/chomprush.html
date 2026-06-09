@@ -100,8 +100,8 @@ DEBUG MODE: Press ` (backtick) to toggle debug overlay (FPS, AI targets, god mod
 
   <!-- Level Banner -->
   <div id="levelBanner">
-    <div id="levelBannerTitle">LEVEL 1</div>
-    <div id="levelBannerSub">Let's go! 🌟</div>
+    <div id="levelBannerTitle">NIVÅ 1</div>
+    <div id="levelBannerSub">Kör igång! 🌟</div>
   </div>
 
   <!-- D-pad -->
@@ -122,49 +122,49 @@ DEBUG MODE: Press ` (backtick) to toggle debug overlay (FPS, AI targets, god mod
   <div id="scorePopups"></div>
 
   <!-- Close call -->
-  <div id="closeCall"><div id="closeCallText">CLOSE CALL! 💨</div></div>
+  <div id="closeCall"><div id="closeCallText">NÄSTAN! 💨</div></div>
 
   <!-- START SCREEN -->
   <div class="overlay" id="startScreen">
-    <div class="bigTitle" style="background:linear-gradient(135deg,#FFE135,#ff8c00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 20px rgba(255,193,7,0.4))">CHOMP<br>RUSH</div>
-    <div class="subtitle">👾 Eat dots. Chomp ghosts. Survive!</div>
+    <div class="bigTitle" style="background:linear-gradient(135deg,#FFE135,#ff8c00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 20px rgba(255,193,7,0.4))">Björnes<br>pepparkaksjakt</div>
+    <div class="subtitle">👾 Ät pepparkakor. Skräm spöken. Överlev!</div>
     <canvas id="menuPacman" width="120" height="60" style="margin:10px 0"></canvas>
-    <button class="btn btn-primary" onclick="G.startGame()">▶ PLAY NOW</button>
-    <button class="btn btn-secondary" onclick="G.showTutorial()">📖 How to Play</button>
+    <button class="btn btn-primary" onclick="G.startGame()">▶ SPELA NU</button>
+    <button class="btn btn-secondary" onclick="G.showTutorial()">📖 Hur man spelar</button>
   </div>
 
   <!-- TUTORIAL SCREEN -->
   <div class="overlay hidden" id="tutorialScreen">
-    <div style="font-size:clamp(20px,6vw,36px);font-weight:900;color:#FFE135;margin-bottom:16px;font-family:'ChristmasCookies',serif">HOW TO PLAY</div>
+    <div style="font-size:clamp(20px,6vw,36px);font-weight:900;color:#FFE135;margin-bottom:16px;font-family:'ChristmasCookies',serif">HUR MAN SPELAR</div>
     <div style="max-width:320px;text-align:left;font-size:clamp(13px,3.2vw,18px);line-height:1.7;color:#ddd">
-      <div style="margin-bottom:10px">👆 <b style="color:#FFE135">Swipe</b> or use the <b style="color:#FFE135">D-pad</b> to move</div>
-      <div style="margin-bottom:10px">⚪ Eat all <b style="color:#fff">dots</b> to clear the level</div>
-      <div style="margin-bottom:10px">🔵 Grab a <b style="color:#00e5ff">power pellet</b> to make ghosts scared!</div>
-      <div style="margin-bottom:10px">👻 <b style="color:#00e5ff">Eat scared ghosts</b> for bonus points!</div>
-      <div style="margin-bottom:10px">❤️ You have <b style="color:#ff4444">3 strikes</b> — good luck!</div>
-      <div style="margin-bottom:10px">🍒 Catch the <b style="color:#ff6b6b">fruit</b> for big bonus points!</div>
+      <div style="margin-bottom:10px">👆 <b style="color:#FFE135">Svep</b> eller använd <b style="color:#FFE135">styrkorset</b> för att röra dig</div>
+      <div style="margin-bottom:10px">⚪ Ät alla <b style="color:#fff">pepparkakor</b> för att klara nivån</div>
+      <div style="margin-bottom:10px">🔵 Ta en <b style="color:#00e5ff">kraftpeparkaka</b> för att skrämma spökena!</div>
+      <div style="margin-bottom:10px">👻 <b style="color:#00e5ff">Ät skrämda spöken</b> för bonuspoäng!</div>
+      <div style="margin-bottom:10px">❤️ Du har <b style="color:#ff4444">3 chanser</b> — lycka till!</div>
+      <div style="margin-bottom:10px">🍒 Fånga <b style="color:#ff6b6b">godiset</b> för stora bonuspoäng!</div>
     </div>
-    <button class="btn btn-primary" onclick="G.hideTutorial()">GOT IT! ✅</button>
+    <button class="btn btn-primary" onclick="G.hideTutorial()">FATTAT! ✅</button>
   </div>
 
   <!-- PAUSE SCREEN -->
   <div class="overlay hidden" id="pauseScreen">
-    <div class="bigTitle" style="color:#FFE135;font-size:clamp(28px,8vw,52px)">PAUSED ⏸</div>
-    <div class="subtitle">Take a breather!</div>
-    <button class="btn btn-primary" onclick="G.resume()">▶ RESUME</button>
-    <button class="btn btn-secondary" onclick="G.audio.toggleMute();this.textContent=G.audio.muted?'🔇 Unmute':'🔊 Mute'">🔊 Mute</button>
-    <button class="btn btn-secondary" onclick="G.showTutorial()">📖 How to Play</button>
-    <button class="btn btn-secondary" onclick="G.restart()">🔄 Restart</button>
+    <div class="bigTitle" style="color:#FFE135;font-size:clamp(28px,8vw,52px)">PAUS ⏸</div>
+    <div class="subtitle">Ta en paus!</div>
+    <button class="btn btn-primary" onclick="G.resume()">▶ FORTSÄTT</button>
+    <button class="btn btn-secondary" onclick="G.audio.toggleMute();this.textContent=G.audio.muted?'🔇 Slå på ljud':'🔊 Stäng av ljud'">🔊 Stäng av ljud</button>
+    <button class="btn btn-secondary" onclick="G.showTutorial()">📖 Hur man spelar</button>
+    <button class="btn btn-secondary" onclick="G.restart()">🔄 Börja om</button>
   </div>
 
   <!-- GAME OVER SCREEN -->
   <div class="overlay hidden" id="gameOverScreen">
     <div id="goEmoji" style="font-size:clamp(48px,15vw,90px)">👻</div>
-    <div id="goTitle" class="bigTitle" style="font-size:clamp(24px,7vw,48px);color:#ff4444;margin:6px 0">GAME OVER</div>
+    <div id="goTitle" class="bigTitle" style="font-size:clamp(24px,7vw,48px);color:#ff4444;margin:6px 0">SPELET SLUT</div>
     <div id="goMsg" style="font-size:clamp(14px,3.5vw,20px);color:#aaa;margin-bottom:16px;text-align:center;padding:0 20px"></div>
     <div id="goScore" style="font-size:clamp(28px,8vw,52px);color:#FFE135;font-weight:900;text-shadow:0 0 12px rgba(255,225,53,0.5);font-family:'ChristmasCookies',serif">0</div>
     <div id="goStats" style="font-size:clamp(12px,3vw,16px);color:#888;margin:6px 0 18px;text-align:center;line-height:1.8"></div>
-    <button class="btn btn-primary" onclick="G.restart()">🔄 PLAY AGAIN</button>
+    <button class="btn btn-primary" onclick="G.restart()">🔄 SPELA IGEN</button>
   </div>
 </div>
 
@@ -1314,19 +1314,19 @@ class Game {
     this.powered=false; this.powerCombo=0;
     this._levelCfg=cfg;
     this.audio.startSiren(cfg.sirenSpeed);
-    document.getElementById('hudLevel').textContent=`Level ${this.level}`;
+    document.getElementById('hudLevel').textContent=`Nivå ${this.level}`;
     this._updateHUD();
   }
   _showLevelBanner(cb){
     const labels=['',
-      "Let's go! 🌟","Getting warmed up!","Speeding up! ⚡",
-      "Getting Spicy! 🌶️","Uh oh... 😬","DANGER ZONE ⚠️",
-      "Ghost Party 👻","Madness Mode 🔥","Are you for real?! 💀",
+      "Kör igång! 🌟","Värmer upp!","Snabbare nu! ⚡",
+      "Det hettnar till! 🌶️","Oj då... 😬","FARLIG ZON ⚠️",
+      "Spökfest 👻","Galenskapsnivå 🔥","Menar du allvar?! 💀",
       "LEGENDARY! 🏆","BEYOND LEGENDARY 👑"
     ];
     const banner=document.getElementById('levelBanner');
-    document.getElementById('levelBannerTitle').textContent=`LEVEL ${this.level}`;
-    document.getElementById('levelBannerSub').textContent=labels[Math.min(this.level,labels.length-1)]||'EXPERT MODE 🎯';
+    document.getElementById('levelBannerTitle').textContent=`NIVÅ ${this.level}`;
+    document.getElementById('levelBannerSub').textContent=labels[Math.min(this.level,labels.length-1)]||'EXPERTLÄGE 🎯';
     banner.classList.add('show');
     setTimeout(()=>{banner.classList.remove('show');cb&&setTimeout(cb,300)},1800);
   }
@@ -1430,17 +1430,17 @@ class Game {
     this.state='gameOver';
     this.audio.stopSiren();
     const messages=[
-      [0,3,'👻 The ghosts win this time!'],
-      [4,6,'🏆 Ghost Hunter! Great run!'],
-      [7,10,'🌟 Pac-Master! Incredible!'],
-      [11,99,'🌌 LEGENDARY! You\'re unstoppable!'],
+      [0,3,'👻 Spökena vann den här gången!'],
+      [4,6,'🏆 Spökjägare! Bra kämpat!'],
+      [7,10,'🌟 Pepparkaksmästare! Otroligt!'],
+      [11,99,'🌌 LEGENDARISK! Du är oemotståndlig!'],
     ];
     const m=messages.find(([a,b])=>this.level>=a&&this.level<=b)||messages[0];
     document.getElementById('goEmoji').textContent=m[2].split(' ')[0];
-    document.getElementById('goMsg').textContent=`Level ${this.level} reached!  ${m[2]}`;
+    document.getElementById('goMsg').textContent=`Nådde nivå ${this.level}!  ${m[2]}`;
     document.getElementById('goScore').textContent=this.score.toLocaleString();
     document.getElementById('goStats').innerHTML=
-      `🟡 Dots eaten: ${this.totalDots}<br>👻 Ghosts eaten: ${this.totalGhosts}`;
+      `🟡 Pepparkakor ätna: ${this.totalDots}<br>👻 Spöken ätna: ${this.totalGhosts}`;
     this._show('gameOverScreen');
   }
   _loop(ts){
