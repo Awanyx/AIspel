@@ -655,71 +655,19 @@ class Maze {
         // Border region: transparent — page background shows here
         if(r<b||r>=ROWS-b||c<b||c>=COLS-b){ continue; }
         if(v===1){
-          // ── Gingerbread house wall ──────────────────────────────────
-          const top=this.isWall(r-1,c), bot=this.isWall(r+1,c);
-          const lft=this.isWall(r,c-1), rgt=this.isWall(r,c+1);
-          // p2 = pixel unit sized to tile, at least 2px so detail shows at any scale
-          const p2=Math.max(2,Math.floor(Math.min(w,h)/8));
-
-          // 1. Dark mortar outline
-          ctx.fillStyle='#2e0f02'; ctx.fillRect(x,y,w,h);
-
-          // 2. Warm golden biscuit fill
-          ctx.fillStyle='#c8762a'; ctx.fillRect(x+p2,y+p2,w-p2*2,h-p2*2);
-
-          // 3. Interlocking darker checker patches (half-tile size, r+c parity)
-          //    Each wall tile is split into 2×2 sub-cells; even/odd by world coords
-          const half=Math.floor((w-p2*2)/2);
-          const halfh=Math.floor((h-p2*2)/2);
-          for(let gi=0;gi<2;gi++){
-            for(let gj=0;gj<2;gj++){
-              if((gi+gj+r+c)%2===0){
-                ctx.fillStyle='#8c4a14';
-                ctx.fillRect(x+p2+gi*half, y+p2+gj*halfh, half, halfh);
-              }
-            }
+          // Draw from tile sheet: 3 cols × 4 rows = 12 tiles
+          // Pick deterministically by wall position so pattern is consistent
+          if(this._tileSheet&&this._tileSheet.complete&&this._tileSheet.naturalWidth>0){
+            const sheet=this._tileSheet;
+            const cols=3, rows=4;
+            const sw=sheet.naturalWidth/cols, sh=sheet.naturalHeight/rows;
+            const idx=(r*7+c*13)%12;
+            const sx=(idx%cols)*sw, sy=Math.floor(idx/cols)*sh;
+            ctx.drawImage(sheet,sx,sy,sw,sh,x,y,w,h);
+          } else {
+            // Fallback while sheet loads
+            ctx.fillStyle='#7a3c12'; ctx.fillRect(x,y,w,h);
           }
-
-          // 4. Top-left inner highlight (light source)
-          ctx.fillStyle='#e8923a';
-          ctx.fillRect(x+p2, y+p2, w-p2*2, p2);   // top highlight row
-          ctx.fillRect(x+p2, y+p2, p2, h-p2*2);   // left highlight col
-
-          // 5. Bottom-right inner shadow (thickness/depth)
-          ctx.fillStyle='#5a2408';
-          ctx.fillRect(x+p2, y+h-p2*2, w-p2*2, p2);  // bottom shadow row
-          ctx.fillRect(x+w-p2*2, y+p2, p2, h-p2*2);  // right shadow col
-
-          // 6. White icing on maze-facing (non-wall) edges — thick pipe look
-          const ip=Math.max(2, p2);
-          ctx.fillStyle='#b89060'; // icing shadow
-          if(!top){ctx.fillRect(x,y,w,ip*2);}
-          if(!bot){ctx.fillRect(x,y+h-ip*2,w,ip*2);}
-          if(!lft){ctx.fillRect(x,y,ip*2,h);}
-          if(!rgt){ctx.fillRect(x+w-ip*2,y,ip*2,h);}
-          ctx.fillStyle='#fff4e0'; // icing body
-          if(!top){ctx.fillRect(x,y,w,ip+ip/2|0);}
-          if(!bot){ctx.fillRect(x,y+h-(ip+ip/2|0),w,ip+ip/2|0);}
-          if(!lft){ctx.fillRect(x,y,ip+ip/2|0,h);}
-          if(!rgt){ctx.fillRect(x+w-(ip+ip/2|0),y,ip+ip/2|0,h);}
-          ctx.fillStyle='#ffffff'; // icing highlight
-          if(!top){ctx.fillRect(x,y,w,ip);}
-          if(!lft){ctx.fillRect(x,y,ip,h);}
-
-          // 7. Corner icing blobs
-          ctx.fillStyle='#fff4e0';
-          if(!top&&!lft){ctx.fillRect(x,y,ip*3,ip*2);ctx.fillRect(x,y,ip*2,ip*3);}
-          if(!top&&!rgt){ctx.fillRect(x+w-ip*3,y,ip*3,ip*2);ctx.fillRect(x+w-ip*2,y,ip*2,ip*3);}
-          if(!bot&&!lft){ctx.fillRect(x,y+h-ip*2,ip*3,ip*2);ctx.fillRect(x,y+h-ip*3,ip*2,ip*3);}
-          if(!bot&&!rgt){ctx.fillRect(x+w-ip*3,y+h-ip*2,ip*3,ip*2);ctx.fillRect(x+w-ip*2,y+h-ip*3,ip*2,ip*3);}
-
-          // 8. Candy dot sprinkles — 1 bright square per tile, deterministic
-          const candyCols=['#ee1111','#11cc44','#f5c800','#2288ff','#ff33aa'];
-          const cseed=r*31+c*17;
-          const cdx=p2*2+((cseed*3)%(Math.max(1,w-p2*4)));
-          const cdy=p2*2+((cseed*7)%(Math.max(1,h-p2*4)));
-          ctx.fillStyle=candyCols[cseed%5];
-          ctx.fillRect(x+cdx,y+cdy,p2,p2);
         } else if(v===2){
           // gingerbread heart
           const mx=x+Math.floor(w/2), my=y+Math.floor(h/2);
@@ -1534,7 +1482,13 @@ class Game {
       this._boardBg=new Image();
       this._boardBg.src='/board_bg.png';
     }
+    // Load gingerbread tile sheet (once, reused across levels)
+    if(!this._tileSheet){
+      this._tileSheet=new Image();
+      this._tileSheet.src='/tile_sheet.png';
+    }
     this.maze=new Maze(this.level);
+    this.maze._tileSheet=this._tileSheet;
     this._resize(); // recalculate tile sizes for this level's borderSize
     const cfg=getLevelConfig(this.level);
     this.pacman=new PacMan(this.maze);
