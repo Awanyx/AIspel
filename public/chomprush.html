@@ -1607,7 +1607,9 @@ class Game {
 // ================================================================
 //  BOOT
 // ================================================================
-const G = new Game();
+// Wait for @font-face files to finish downloading before starting so
+// canvas text (score popups) uses the correct font from frame one.
+document.fonts.ready.then(()=>{ new Game(); });
 </script>
 </body>
 </html>
