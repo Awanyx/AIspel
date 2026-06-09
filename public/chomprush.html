@@ -122,7 +122,7 @@ DEBUG MODE: Press ` (backtick) to toggle debug overlay (FPS, AI targets, god mod
   <div id="scorePopups"></div>
 
   <!-- Close call -->
-  <div id="closeCall"><div id="closeCallText">NÄSTAN! 💨</div></div>
+  <div id="closeCall"><div id="closeCallText">AJ DÅ! 💨</div></div>
 
   <!-- START SCREEN -->
   <div class="overlay" id="startScreen">
@@ -130,21 +130,21 @@ DEBUG MODE: Press ` (backtick) to toggle debug overlay (FPS, AI targets, god mod
     <div class="subtitle">👾 Ät pepparkakor. Skräm spöken. Överlev!</div>
     <canvas id="menuPacman" width="120" height="60" style="margin:10px 0"></canvas>
     <button class="btn btn-primary" onclick="G.startGame()">▶ SPELA NU</button>
-    <button class="btn btn-secondary" onclick="G.showTutorial()">📖 Hur man spelar</button>
+    <button class="btn btn-secondary" onclick="G.showTutorial()">📖 Så spelar du</button>
   </div>
 
   <!-- TUTORIAL SCREEN -->
   <div class="overlay hidden" id="tutorialScreen">
-    <div style="font-size:clamp(20px,6vw,36px);font-weight:900;color:#FFE135;margin-bottom:16px;font-family:'ChristmasCookies',serif">HUR MAN SPELAR</div>
+    <div style="font-size:clamp(20px,6vw,36px);font-weight:900;color:#FFE135;margin-bottom:16px;font-family:'ChristmasCookies',serif">SÅ SPELAR DU</div>
     <div style="max-width:320px;text-align:left;font-size:clamp(13px,3.2vw,18px);line-height:1.7;color:#ddd">
-      <div style="margin-bottom:10px">👆 <b style="color:#FFE135">Svep</b> eller använd <b style="color:#FFE135">styrkorset</b> för att röra dig</div>
+      <div style="margin-bottom:10px">👆 <b style="color:#FFE135">Svep</b> eller använd <b style="color:#FFE135">pilarna</b> för att röra dig</div>
       <div style="margin-bottom:10px">⚪ Ät alla <b style="color:#fff">pepparkakor</b> för att klara nivån</div>
-      <div style="margin-bottom:10px">🔵 Ta en <b style="color:#00e5ff">kraftpeparkaka</b> för att skrämma spökena!</div>
+      <div style="margin-bottom:10px">🔵 Ät en <b style="color:#00e5ff">pepparkaksgubbe</b> för att skrämma spökena!</div>
       <div style="margin-bottom:10px">👻 <b style="color:#00e5ff">Ät skrämda spöken</b> för bonuspoäng!</div>
       <div style="margin-bottom:10px">❤️ Du har <b style="color:#ff4444">3 chanser</b> — lycka till!</div>
-      <div style="margin-bottom:10px">🍒 Fånga <b style="color:#ff6b6b">godiset</b> för stora bonuspoäng!</div>
+      <div style="margin-bottom:10px">🍒 Fånga <b style="color:#ff6b6b">godiset</b> för bonuspoäng!</div>
     </div>
-    <button class="btn btn-primary" onclick="G.hideTutorial()">FATTAT! ✅</button>
+    <button class="btn btn-primary" onclick="G.hideTutorial()">FATTAR! ✅</button>
   </div>
 
   <!-- PAUSE SCREEN -->
@@ -153,7 +153,7 @@ DEBUG MODE: Press ` (backtick) to toggle debug overlay (FPS, AI targets, god mod
     <div class="subtitle">Ta en paus!</div>
     <button class="btn btn-primary" onclick="G.resume()">▶ FORTSÄTT</button>
     <button class="btn btn-secondary" onclick="G.audio.toggleMute();this.textContent=G.audio.muted?'🔇 Slå på ljud':'🔊 Stäng av ljud'">🔊 Stäng av ljud</button>
-    <button class="btn btn-secondary" onclick="G.showTutorial()">📖 Hur man spelar</button>
+    <button class="btn btn-secondary" onclick="G.showTutorial()">📖 Så spelar du</button>
     <button class="btn btn-secondary" onclick="G.restart()">🔄 Börja om</button>
   </div>
 
