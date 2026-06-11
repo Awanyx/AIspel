@@ -660,12 +660,7 @@ class Maze {
           const idx=(r*7+c*13)%4;
           const tile=tiles&&tiles[idx];
           if(tile&&tile.complete&&tile.naturalWidth>0){
-            // Square-crop source centre, render as square centred in cell
-            const srcSq=Math.min(tile.naturalWidth,tile.naturalHeight);
-            const srcOx=(tile.naturalWidth-srcSq)/2, srcOy=(tile.naturalHeight-srcSq)/2;
-            const dSq=Math.min(w,h);
-            const dOx=(w-dSq)/2, dOy=(h-dSq)/2;
-            ctx.drawImage(tile,srcOx,srcOy,srcSq,srcSq,x+dOx,y+dOy,dSq,dSq);
+            ctx.drawImage(tile,x,y,w,h);
           } else {
             ctx.fillStyle='#7a3c12'; ctx.fillRect(x,y,w,h);
           }
