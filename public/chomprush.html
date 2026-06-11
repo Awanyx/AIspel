@@ -745,7 +745,7 @@ class Maze {
           ctx.fillRect(x+ps,barY,w-ps*2,1);
           ctx.fillRect(x+ps,barY+barH-1,w-ps*2,1);
         } else if(v===5){
-          // Ghost house interior — transparent so board_bg shows through
+          ctx.fillStyle='rgba(0,0,0,0.45)'; ctx.fillRect(x,y,w,h);
         }
       }
     }
