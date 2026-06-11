@@ -655,20 +655,17 @@ class Maze {
         // Border region: transparent — page background shows here
         if(r<b||r>=ROWS-b||c<b||c>=COLS-b){ continue; }
         if(v===1){
-          // Draw from tile sheet: 3 cols × 4 rows = 12 tiles
-          if(this._tileSheet&&this._tileSheet.complete&&this._tileSheet.naturalWidth>0){
-            const sheet=this._tileSheet;
-            const cols=4, rows=4;
-            const sw=sheet.naturalWidth/cols, sh=sheet.naturalHeight/rows;
-            const idx=(r*7+c*13)%16;
-            const sx=(idx%cols)*sw, sy=Math.floor(idx/cols)*sh;
-            // Square-crop source (centre) so tiles never stretch
-            const srcSq=Math.min(sw,sh);
-            const srcOx=(sw-srcSq)/2, srcOy=(sh-srcSq)/2;
-            // Render as square centred in the destination cell
+          // Draw one of 4 individual wall tiles, picked by position
+          const tiles=this._wallTiles;
+          const idx=(r*7+c*13)%4;
+          const tile=tiles&&tiles[idx];
+          if(tile&&tile.complete&&tile.naturalWidth>0){
+            // Square-crop source centre, render as square centred in cell
+            const srcSq=Math.min(tile.naturalWidth,tile.naturalHeight);
+            const srcOx=(tile.naturalWidth-srcSq)/2, srcOy=(tile.naturalHeight-srcSq)/2;
             const dSq=Math.min(w,h);
             const dOx=(w-dSq)/2, dOy=(h-dSq)/2;
-            ctx.drawImage(sheet,sx+srcOx,sy+srcOy,srcSq,srcSq,x+dOx,y+dOy,dSq,dSq);
+            ctx.drawImage(tile,srcOx,srcOy,srcSq,srcSq,x+dOx,y+dOy,dSq,dSq);
           } else {
             ctx.fillStyle='#7a3c12'; ctx.fillRect(x,y,w,h);
           }
@@ -1486,13 +1483,13 @@ class Game {
       this._boardBg=new Image();
       this._boardBg.src='./board_bg.png';
     }
-    // Load gingerbread tile sheet (once, reused across levels)
-    if(!this._tileSheet){
-      this._tileSheet=new Image();
-      this._tileSheet.src='./tile_sheet.png';
+    // Load individual wall tiles (once, reused across levels)
+    if(!this._wallTiles){
+      const names=['./assets/Tile1.png','./assets/tile2.png','./assets/tile3.png','./assets/tile4.png'];
+      this._wallTiles=names.map(src=>{ const img=new Image(); img.src=src; return img; });
     }
     this.maze=new Maze(this.level);
-    this.maze._tileSheet=this._tileSheet;
+    this.maze._wallTiles=this._wallTiles;
     this._resize(); // recalculate tile sizes for this level's borderSize
     const cfg=getLevelConfig(this.level);
     this.pacman=new PacMan(this.maze);
