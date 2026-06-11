@@ -1082,33 +1082,51 @@ class Ghost{
   }
   draw(ctx,tileW,tileH,t){
     const{x,y}=this.getPixel(tileW,tileH);
-    // 16×18 sprite — more pixel detail, ps fills tile
     const ps=Math.max(1,Math.floor(Math.min(tileW,tileH)/14));
-    const W=16, H=18;
-    const ox=Math.round(x)-Math.floor(W*ps/2);
-    const oy=Math.round(y)-Math.floor(H*ps/2);
+    const size=Math.round(Math.min(tileW,tileH)*1.2);
+    const dx=Math.round(x)-size/2, dy=Math.round(y)-size/2;
+
     if(this.state==='eaten'){
+      // just show eyes when eaten
+      const W=16,H=18,ox=Math.round(x)-Math.floor(W*ps/2),oy=Math.round(y)-Math.floor(H*ps/2);
       this._drawPixelEyes(ctx,ox,oy,ps,false,true);
       return;
     }
+
     const effectivelyFrightened=this.state==='frightened'||(this._pendingFrightened>0&&this.state==='exiting');
     const flashing=effectivelyFrightened&&this.state==='frightened'&&this.frightenedTimer<2;
-    const frightened=effectivelyFrightened;
-    const col=frightened?(flashing&&Math.floor(t*6)%2?'#ffffff':'#1a0080'):this.color;
-    ctx.fillStyle=col;
-    const waveOff=Math.floor(this.wobble*1.5)%2;
-    for(let r=0;r<H;r++){
-      for(let c=0;c<W;c++){
-        let draw=true;
-        if(r<8){ const dx=c-7.5,dy=r-7.5; if(dx*dx+dy*dy>64)draw=false; }
-        if(draw&&r>=14){
-          const grp=Math.floor(c/2)%2;
-          if(grp===waveOff){if(r>=16)draw=false;}else{if(r<=15)draw=false;}
+
+    if(effectivelyFrightened){
+      // Pixel frightened ghost (blue/white flash)
+      const W=16,H=18,ox=Math.round(x)-Math.floor(W*ps/2),oy=Math.round(y)-Math.floor(H*ps/2);
+      const col=flashing&&Math.floor(t*6)%2?'#ffffff':'#1a0080';
+      ctx.fillStyle=col;
+      const waveOff=Math.floor(this.wobble*1.5)%2;
+      for(let r=0;r<H;r++){
+        for(let c=0;c<W;c++){
+          let draw=true;
+          if(r<8){const ddx=c-7.5,ddy=r-7.5;if(ddx*ddx+ddy*ddy>64)draw=false;}
+          if(draw&&r>=14){const grp=Math.floor(c/2)%2;if(grp===waveOff){if(r>=16)draw=false;}else{if(r<=15)draw=false;}}
+          if(draw)ctx.fillRect(ox+c*ps,oy+r*ps,ps,ps);
         }
-        if(draw)ctx.fillRect(ox+c*ps,oy+r*ps,ps,ps);
       }
+      this._drawPixelEyes(ctx,ox,oy,ps,true,false);
+      return;
     }
-    this._drawPixelEyes(ctx,ox,oy,ps,frightened,false);
+
+    // Sprite sheet: 5×5 grid of 25 frames, animate at 8fps
+    const sheet=this.sheet;
+    if(sheet&&sheet.complete&&sheet.naturalWidth>0){
+      const cols=5, rows=5, totalFrames=cols*rows;
+      const fw=sheet.naturalWidth/cols, fh=sheet.naturalHeight/rows;
+      const frame=Math.floor(t*8)%totalFrames;
+      const sx=(frame%cols)*fw, sy=Math.floor(frame/cols)*fh;
+      ctx.drawImage(sheet,sx,sy,fw,fh,dx,dy,size,size);
+    } else {
+      // Fallback pixel ghost while sheet loads
+      ctx.fillStyle=this.color;
+      ctx.fillRect(dx,dy,size,size);
+    }
   }
   _drawPixelEyes(ctx,ox,oy,ps,frightened,eaten){
     if(frightened){
@@ -1503,6 +1521,11 @@ class Game {
       const names=['./Tile1.png','./tile2.png','./tile3.png','./tile4.png'];
       this._wallTiles=names.map(src=>{ const img=new Image(); img.src=src; return img; });
     }
+    // Ghost sprite sheets: index matches ghost id 0-3
+    if(!this._ghostSheets){
+      const sheets=['./Lazlo-idle-red.png','./Lazlo-idle-purple.png','./Lazlo-idle-green.png','./Lazlo-idle.png'];
+      this._ghostSheets=sheets.map(src=>{ const img=new Image(); img.src=src; return img; });
+    }
     this.maze=new Maze(this.level);
     this.maze._wallTiles=this._wallTiles;
     this._resize(); // recalculate tile sizes for this level's borderSize
@@ -1513,6 +1536,7 @@ class Game {
     for(let i=0;i<cfg.ghostCount;i++){
       const g=new Ghost(i,this.maze);
       g.speed=cfg.ghostSpeed;
+      g.sheet=this._ghostSheets[i];
       this.ghosts.push(g);
     }
     this.fruit=null; this.fruitSpawned=false;
