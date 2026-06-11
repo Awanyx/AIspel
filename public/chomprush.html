@@ -1097,20 +1097,18 @@ class Ghost{
     const flashing=effectivelyFrightened&&this.state==='frightened'&&this.frightenedTimer<2;
 
     if(effectivelyFrightened){
-      // Pixel frightened ghost (blue/white flash)
-      const W=16,H=18,ox=Math.round(x)-Math.floor(W*ps/2),oy=Math.round(y)-Math.floor(H*ps/2);
-      const col=flashing&&Math.floor(t*6)%2?'#ffffff':'#1a0080';
-      ctx.fillStyle=col;
-      const waveOff=Math.floor(this.wobble*1.5)%2;
-      for(let r=0;r<H;r++){
-        for(let c=0;c<W;c++){
-          let draw=true;
-          if(r<8){const ddx=c-7.5,ddy=r-7.5;if(ddx*ddx+ddy*ddy>64)draw=false;}
-          if(draw&&r>=14){const grp=Math.floor(c/2)%2;if(grp===waveOff){if(r>=16)draw=false;}else{if(r<=15)draw=false;}}
-          if(draw)ctx.fillRect(ox+c*ps,oy+r*ps,ps,ps);
-        }
+      const fs=this.frightSheet;
+      if(fs&&fs.complete&&fs.naturalWidth>0){
+        const cols=5,rows=5,totalFrames=cols*rows;
+        const fw=fs.naturalWidth/cols, fh=fs.naturalHeight/rows;
+        const frame=Math.floor(t*8)%totalFrames;
+        const sx=(frame%cols)*fw, sy=Math.floor(frame/cols)*fh;
+        // Flash by alternating opacity when timer is low
+        ctx.save();
+        if(flashing) ctx.globalAlpha=Math.floor(t*6)%2?0.3:1;
+        ctx.drawImage(fs,sx,sy,fw,fh,dx,dy,size,size);
+        ctx.restore();
       }
-      this._drawPixelEyes(ctx,ox,oy,ps,true,false);
       return;
     }
 
@@ -1526,6 +1524,10 @@ class Game {
       const sheets=['./Lazlo-idle-red.png','./Lazlo-idle-purple.png','./Lazlo-idle-green.png','./Lazlo-idle.png'];
       this._ghostSheets=sheets.map(src=>{ const img=new Image(); img.src=src; return img; });
     }
+    if(!this._ghostFrightSheet){
+      this._ghostFrightSheet=new Image();
+      this._ghostFrightSheet.src='./Lazlo-idle-frightened.png';
+    }
     this.maze=new Maze(this.level);
     this.maze._wallTiles=this._wallTiles;
     this._resize(); // recalculate tile sizes for this level's borderSize
@@ -1537,6 +1539,7 @@ class Game {
       const g=new Ghost(i,this.maze);
       g.speed=cfg.ghostSpeed;
       g.sheet=this._ghostSheets[i];
+      g.frightSheet=this._ghostFrightSheet;
       this.ghosts.push(g);
     }
     this.fruit=null; this.fruitSpawned=false;
