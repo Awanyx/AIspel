@@ -1083,7 +1083,7 @@ class Ghost{
   draw(ctx,tileW,tileH,t){
     const{x,y}=this.getPixel(tileW,tileH);
     const ps=Math.max(1,Math.floor(Math.min(tileW,tileH)/14));
-    const size=Math.round(Math.min(tileW,tileH)*1.2);
+    const size=Math.round(Math.min(tileW,tileH)*2.2);
     const dx=Math.round(x)-size/2, dy=Math.round(y)-size/2;
 
     if(this.state==='eaten'){
