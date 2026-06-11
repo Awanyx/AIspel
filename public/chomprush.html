@@ -58,7 +58,7 @@ DEBUG MODE: Press ` (backtick) to toggle debug overlay (FPS, AI targets, god mod
   .strikeHeart{font-size:clamp(14px,3.5vw,20px);transition:transform 0.3s,opacity 0.3s}
   .strikeHeart.lost{opacity:0.2;transform:scale(0.7)}
   #hudMute{background:none;border:none;cursor:pointer;font-size:clamp(16px,4vw,22px);color:#ccc;padding:4px}
-  #canvas{display:block;touch-action:none;z-index:1;border-radius:6px;box-shadow:0 0 40px rgba(0,0,0,0.8)}
+  #canvas{display:block;touch-action:none;z-index:1;background:transparent}
   /* Overlays */
   .overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20;background:rgba(0,0,0,0.88);color:#fff}
   .overlay.hidden{display:none}
@@ -1427,25 +1427,31 @@ class Game {
   _resize(){
     const hudH=document.getElementById('hud').getBoundingClientRect().height||44;
     const dpadEl=document.getElementById('dpad');
-    // D-pad: 3 rows × 52px + 2 gaps × 4px = 164px body, 14px from bottom
     const dpadH=dpadEl&&!dpadEl.classList.contains('hidden')?178:14;
-    const inset=document.body.classList.contains('bg-level')?10:0;
-    const cw=Math.floor(window.innerWidth-inset*2);
-    const ch=Math.max(100,Math.floor(window.innerHeight-hudH-dpadH-inset*2));
+    // Canvas fills the full available area (background shows around the board)
+    const cw=Math.floor(window.innerWidth);
+    const ch=Math.max(100,Math.floor(window.innerHeight-hudH-dpadH));
     const dpr=Math.min(window.devicePixelRatio||1,2);
     canvas.width=cw*dpr; canvas.height=ch*dpr;
     canvas.style.width=cw+'px'; canvas.style.height=ch+'px';
     canvas.style.position='absolute';
-    canvas.style.top=(hudH+inset)+'px';
-    canvas.style.left=inset+'px';
+    canvas.style.top=hudH+'px';
+    canvas.style.left='0';
     ctx.scale(dpr,dpr);
     ctx.imageSmoothingEnabled=false;
     this._canvasW=cw; this._canvasH=ch;
-    // Scale tiles so only the ACTIVE (non-border) columns/rows fill the screen.
-    // Border tiles are drawn off-screen via the translation in _draw().
+    // Letterbox: fit active maze at 1:1 aspect ratio, centred on canvas
     const b=this.maze?(this.maze.borderSize||0):3;
     const activeCols=COLS-2*b, activeRows=ROWS-2*b;
-    this.tileW=cw/activeCols; this.tileH=ch/activeRows;
+    const aspect=activeCols/activeRows; // 1:1 for a square maze
+    let boardW, boardH;
+    if(cw/ch>aspect){ boardH=ch; boardW=ch*aspect; }
+    else            { boardW=cw; boardH=cw/aspect; }
+    this._boardOffX=Math.round((cw-boardW)/2);
+    this._boardOffY=Math.round((ch-boardH)/2);
+    this._boardW=Math.round(boardW);
+    this._boardH=Math.round(boardH);
+    this.tileW=boardW/activeCols; this.tileH=boardH/activeRows;
     if(this.maze){this.maze.tileW=this.tileW;this.maze.tileH=this.tileH;}
   }
   _animateMenu(){
@@ -1751,21 +1757,24 @@ class Game {
   _draw(){
     const cw=this._canvasW||canvas.width, ch=this._canvasH||canvas.height;
     ctx.clearRect(0,0,cw,ch);
-    ctx.fillStyle='#000'; ctx.fillRect(0,0,cw,ch);
-    // Board interior background — drawn before maze tiles so walls sit on top
+    // Canvas is transparent so body background (winter image) shows around the board
+    const bOX=this._boardOffX||0, bOY=this._boardOffY||0;
+    const bW=this._boardW||cw, bH=this._boardH||ch;
+    // Board interior background — clipped to board area
     if(this._boardBg&&this._boardBg.complete&&this._boardBg.naturalWidth>0){
-      ctx.drawImage(this._boardBg,0,0,cw,ch);
+      ctx.drawImage(this._boardBg,bOX,bOY,bW,bH);
+    } else {
+      ctx.fillStyle='#000'; ctx.fillRect(bOX,bOY,bW,bH);
     }
     if(!this.maze)return;
     ctx.save();
-    // Shift so border columns/rows render off-screen — active maze fills the canvas
+    // Translate: board offset + hide border tiles
     const b=this.maze.borderSize||0;
-    ctx.translate(-b*this.tileW+(this._shakeX||0),-b*this.tileH+(this._shakeY||0));
+    ctx.translate(bOX-b*this.tileW+(this._shakeX||0), bOY-b*this.tileH+(this._shakeY||0));
     // maze
     this.maze.draw(ctx,this.tileW,this.tileH,this.t);
     // snow — drawn in screen space so it drifts over corridors
-    const bOx=b*this.tileW, bOy=b*this.tileH;
-    this.snow.draw(ctx,-(this._shakeX||0)+bOx,-(this._shakeY||0)+bOy);
+    this.snow.draw(ctx,-(this._shakeX||0)+bOX+b*this.tileW,-(this._shakeY||0)+bOY+b*this.tileH);
     // fruit
     if(this.fruit&&this.fruit.alive)this.fruit.draw(ctx,this.tileW,this.tileH,this.t);
     // ghosts
