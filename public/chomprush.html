@@ -726,9 +726,24 @@ class Maze {
             ctx.fillRect(gx+6*p, gy+12*p, 2*p, p);
           }
         } else if(v===4){
-          // ghost door — horizontal pixel bar
-          ctx.fillStyle='#ff88ff';
-          ctx.fillRect(x+ps,y+Math.floor(h*0.42),w-ps*2,ps*2);
+          // ghost door — candy cane striped bar
+          const barY=y+Math.floor(h*0.38), barH=Math.max(4,ps*3);
+          const stripeW=Math.max(2,ps*2);
+          // white base
+          ctx.fillStyle='#ffffff';
+          ctx.fillRect(x+ps,barY,w-ps*2,barH);
+          // red diagonal stripes drawn as vertical slices
+          ctx.fillStyle='#cc1111';
+          for(let sx2=0;sx2<w-ps*2;sx2+=stripeW*2){
+            // diagonal effect: offset stripe top by position
+            const sliceX=x+ps+sx2;
+            const sliceW=Math.min(stripeW,x+w-ps-sliceX);
+            if(sliceW>0) ctx.fillRect(sliceX,barY,sliceW,barH);
+          }
+          // thin white outline top/bottom
+          ctx.fillStyle='rgba(255,255,255,0.8)';
+          ctx.fillRect(x+ps,barY,w-ps*2,1);
+          ctx.fillRect(x+ps,barY+barH-1,w-ps*2,1);
         } else if(v===5){
           // Ghost house interior — transparent so board_bg shows through
         }
