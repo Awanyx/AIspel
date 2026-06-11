@@ -1757,14 +1757,11 @@ class Game {
   _draw(){
     const cw=this._canvasW||canvas.width, ch=this._canvasH||canvas.height;
     ctx.clearRect(0,0,cw,ch);
-    // Canvas is transparent so body background (winter image) shows around the board
     const bOX=this._boardOffX||0, bOY=this._boardOffY||0;
     const bW=this._boardW||cw, bH=this._boardH||ch;
-    // Board interior background — clipped to board area
+    // Board interior background
     if(this._boardBg&&this._boardBg.complete&&this._boardBg.naturalWidth>0){
       ctx.drawImage(this._boardBg,bOX,bOY,bW,bH);
-    } else {
-      ctx.fillStyle='#000'; ctx.fillRect(bOX,bOY,bW,bH);
     }
     if(!this.maze)return;
     ctx.save();
