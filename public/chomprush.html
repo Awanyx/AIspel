@@ -867,8 +867,7 @@ class PacMan {
       const frame=Math.floor(t*8)%25;
       ctx.save();
       ctx.translate(Math.round(x),Math.round(y));
-      const ang={right:0,down:Math.PI/2,left:Math.PI,up:-Math.PI/2}[this.dir]||0;
-      ctx.rotate(ang);
+      if(this.dir==='left') ctx.scale(-1,1);
       ctx.drawImage(sheet,(frame%cols)*fw,Math.floor(frame/cols)*fh,fw,fh,-size/2,-size/2,size,size);
       ctx.restore();
     } else {
