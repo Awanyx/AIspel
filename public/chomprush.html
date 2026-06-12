@@ -697,7 +697,12 @@ class Maze {
           if(img&&img.complete&&img.naturalWidth>0){
             const barH=Math.round(h*0.35);
             const barY=y+Math.floor((h-barH)/2);
-            ctx.drawImage(img,x,barY,w,barH);
+            const cx2=x+w/2, cy2=barY+barH/2;
+            ctx.save();
+            ctx.translate(cx2,cy2);
+            ctx.rotate(Math.PI/2);
+            ctx.drawImage(img,-barH/2,-w/2,barH,w);
+            ctx.restore();
           } else {
             // fallback drawn bar
             const barH=Math.max(4,Math.round(h*0.28));
