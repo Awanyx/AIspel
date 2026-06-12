@@ -646,7 +646,7 @@ class Maze {
   draw(ctx,tileW,tileH,t){
     this.tileW=tileW; this.tileH=tileH;
     const ps=Math.max(1,Math.floor(tileW/9));  // wall border pixel size
-    const sp=Math.max(2,Math.floor(Math.min(tileW,tileH)/10)); // collectible sprite pixel size
+    const sp=Math.max(1,Math.floor(Math.min(tileW,tileH)/16)); // collectible sprite pixel size
     const [c1]=this.wallColor;
     const b=this.borderSize||0;
     for(let r=0;r<ROWS;r++){
@@ -806,10 +806,10 @@ class Maze {
           // dark line on bottom edge
           ctx.fillStyle='rgba(100,0,0,0.5)';
           ctx.fillRect(bx, barY+barH-sp, bw, sp);
-          // end caps — rounded effect with dark dots
+          // end caps — thin 1px dark lines
           ctx.fillStyle='#880000';
-          ctx.fillRect(bx,        barY, sp, barH);
-          ctx.fillRect(bx+bw-sp,  barY, sp, barH);
+          ctx.fillRect(bx,       barY, 1, barH);
+          ctx.fillRect(bx+bw-1,  barY, 1, barH);
         } else if(v===5){
         }
       }
