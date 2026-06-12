@@ -667,65 +667,121 @@ class Maze {
             ctx.fillStyle='#7a3c12'; ctx.fillRect(x,y,w,h);
           }
         } else if(v===2){
-          // gingerbread heart
+          // gingerbread heart — detailed pixel art
           const mx=x+Math.floor(w/2), my=y+Math.floor(h/2);
           const hx=mx-3*sp, hy=my-3*sp;
+          // dark outline
+          ctx.fillStyle='#7a3a08';
+          ctx.fillRect(hx+sp,   hy-sp,    2*sp, sp);   // left bump top outline
+          ctx.fillRect(hx+4*sp, hy-sp,    2*sp, sp);   // right bump top outline
+          ctx.fillRect(hx,      hy,       sp,   3*sp);  // left edge
+          ctx.fillRect(hx+7*sp, hy,       sp,   3*sp);  // right edge
+          ctx.fillRect(hx+sp,   hy+3*sp,  sp,   sp);   // lower-left edge
+          ctx.fillRect(hx+6*sp, hy+3*sp,  sp,   sp);   // lower-right edge
+          ctx.fillRect(hx+2*sp, hy+4*sp,  sp,   sp);
+          ctx.fillRect(hx+5*sp, hy+4*sp,  sp,   sp);
+          ctx.fillRect(hx+3*sp, hy+5*sp,  sp,   sp);
+          ctx.fillRect(hx+4*sp, hy+5*sp,  sp,   sp);   // bottom tip outline
+          // base fill — warm gingerbread
           ctx.fillStyle='#c8691a';
           ctx.fillRect(hx+sp,   hy,       2*sp, 2*sp); // left bump
           ctx.fillRect(hx+4*sp, hy,       2*sp, 2*sp); // right bump
-          ctx.fillRect(hx,      hy+sp,    7*sp, 2*sp); // rows 1-2 full
-          ctx.fillRect(hx+sp,   hy+3*sp,  5*sp, sp);   // row 3
-          ctx.fillRect(hx+2*sp, hy+4*sp,  3*sp, sp);   // row 4
-          ctx.fillRect(hx+3*sp, hy+5*sp,  sp,   sp);   // point
-          ctx.fillStyle='rgba(255,255,255,0.55)';
+          ctx.fillRect(hx+sp,   hy+2*sp,  5*sp, sp);
+          ctx.fillRect(hx,      hy+sp,    7*sp, 2*sp);
+          ctx.fillRect(hx+sp,   hy+3*sp,  5*sp, sp);
+          ctx.fillRect(hx+2*sp, hy+4*sp,  3*sp, sp);
+          ctx.fillRect(hx+3*sp, hy+5*sp,  sp,   sp);
+          // lighter centre highlight
+          ctx.fillStyle='#e07c28';
+          ctx.fillRect(hx+2*sp, hy+sp,    2*sp, sp);
+          ctx.fillRect(hx+4*sp, hy+sp,    2*sp, sp);  // midline glow
+          // white icing drizzle along top bumps
+          ctx.fillStyle='rgba(255,255,255,0.80)';
           ctx.fillRect(hx+sp,   hy,       sp,   sp);   // left shine
           ctx.fillRect(hx+4*sp, hy,       sp,   sp);   // right shine
+          ctx.fillRect(hx+2*sp, hy+sp,    sp,   sp);
+          // shadow bottom-right
+          ctx.fillStyle='rgba(80,30,0,0.35)';
+          ctx.fillRect(hx+4*sp, hy+3*sp,  2*sp, sp);
+          ctx.fillRect(hx+3*sp, hy+4*sp,  3*sp, sp);
+          ctx.fillRect(hx+3*sp, hy+5*sp,  sp,   sp);
         } else if(v===3){
-          // gingerbread man power pellet (pixel art, matches reference)
+          // gingerbread man power pellet — detailed pixel art
           const on=Math.floor(t*3)%2===0;
           if(on){
             const p=sp;
             const gx=x+Math.floor(w/2)-5*p, gy=y+Math.floor(h/2)-7*p;
-            // body
-            ctx.fillStyle='#8B4513';
-            ctx.fillRect(gx+2*p, gy,      6*p, p);    // head top
-            ctx.fillRect(gx+p,   gy+p,    8*p, 4*p);  // head mid
-            ctx.fillRect(gx+2*p, gy+5*p,  6*p, p);    // head bottom
-            ctx.fillRect(gx+2*p, gy+6*p,  6*p, 6*p);  // body
-            ctx.fillRect(gx,     gy+6*p,  2*p, 3*p);  // left arm
-            ctx.fillRect(gx+8*p, gy+6*p,  2*p, 3*p);  // right arm
-            ctx.fillRect(gx+2*p, gy+12*p, 2*p, 2*p);  // left boot
-            ctx.fillRect(gx+6*p, gy+12*p, 2*p, 2*p);  // right boot
-            // eyes
+            // dark outline pass
+            ctx.fillStyle='#4a1f00';
+            ctx.fillRect(gx+2*p, gy-p,     6*p, p);   // head crown outline
+            ctx.fillRect(gx+p,   gy,        p,   6*p); // head left outline
+            ctx.fillRect(gx+9*p, gy,        p,   6*p); // head right outline
+            ctx.fillRect(gx+2*p, gy+6*p,   p,   p);   // neck left
+            ctx.fillRect(gx+8*p, gy+6*p,   p,   p);   // neck right
+            ctx.fillRect(gx-p,   gy+6*p,   p,   4*p); // left arm outline
+            ctx.fillRect(gx+10*p,gy+6*p,   p,   4*p); // right arm outline
+            ctx.fillRect(gx+p,   gy+12*p,  p,   3*p); // left leg outline
+            ctx.fillRect(gx+8*p, gy+12*p,  p,   3*p); // right leg outline
+            ctx.fillRect(gx+2*p, gy+15*p,  2*p, p);   // left boot bottom
+            ctx.fillRect(gx+7*p, gy+15*p,  2*p, p);   // right boot bottom
+            // body fill — gingerbread brown
+            ctx.fillStyle='#c47830';
+            ctx.fillRect(gx+2*p, gy,       6*p, p);   // head top
+            ctx.fillRect(gx+p,   gy+p,     8*p, 4*p); // head mid
+            ctx.fillRect(gx+2*p, gy+5*p,   6*p, p);   // head bottom / chin
+            ctx.fillRect(gx+2*p, gy+6*p,   6*p, 6*p); // torso
+            ctx.fillRect(gx,     gy+6*p,   2*p, 3*p); // left arm
+            ctx.fillRect(gx+8*p, gy+6*p,   2*p, 3*p); // right arm
+            ctx.fillRect(gx+2*p, gy+12*p,  2*p, 3*p); // left leg
+            ctx.fillRect(gx+6*p, gy+12*p,  2*p, 3*p); // right leg
+            ctx.fillRect(gx+2*p, gy+14*p,  3*p, p);   // left boot
+            ctx.fillRect(gx+6*p, gy+14*p,  3*p, p);   // right boot
+            // lighter face highlight
+            ctx.fillStyle='#d9924a';
+            ctx.fillRect(gx+3*p, gy+p,     4*p, 2*p);
+            // darker shading — right side / underside
+            ctx.fillStyle='#96541c';
+            ctx.fillRect(gx+7*p, gy+p,     p,   4*p); // right face shadow
+            ctx.fillRect(gx+7*p, gy+6*p,   p,   5*p); // right torso shadow
+            ctx.fillRect(gx+8*p, gy+8*p,   p,   p);   // arm shadow
+            // eyes — dark with tiny white sparkle
             ctx.fillStyle='#111';
-            ctx.fillRect(gx+3*p, gy+2*p, p, p);
-            ctx.fillRect(gx+6*p, gy+2*p, p, p);
-            // blush
-            ctx.fillStyle='#FF88AA';
-            ctx.fillRect(gx+2*p, gy+3*p, p, p);
-            ctx.fillRect(gx+7*p, gy+3*p, p, p);
-            // smile (white with gap)
+            ctx.fillRect(gx+3*p, gy+2*p,   p,   p);
+            ctx.fillRect(gx+6*p, gy+2*p,   p,   p);
             ctx.fillStyle='#fff';
-            ctx.fillRect(gx+2*p, gy+4*p, 6*p, p);
-            ctx.fillStyle='#8B4513';
-            ctx.fillRect(gx+4*p, gy+4*p, p,   p);  // tooth gap
-            // arm icing
+            ctx.fillRect(gx+3*p, gy+2*p,   Math.ceil(p*0.4), Math.ceil(p*0.4));
+            ctx.fillRect(gx+6*p, gy+2*p,   Math.ceil(p*0.4), Math.ceil(p*0.4));
+            // blush cheeks
+            ctx.fillStyle='rgba(255,120,140,0.75)';
+            ctx.fillRect(gx+2*p, gy+3*p,   p,   p);
+            ctx.fillRect(gx+7*p, gy+3*p,   p,   p);
+            // white icing smile — two teeth
             ctx.fillStyle='#fff';
-            ctx.fillRect(gx,     gy+6*p, 2*p, p);
-            ctx.fillRect(gx+8*p, gy+6*p, 2*p, p);
-            // buttons
-            ctx.fillStyle='#dd0000';
-            ctx.fillRect(gx+4*p, gy+7*p, 2*p, p);
-            ctx.fillStyle='#00aa00';
-            ctx.fillRect(gx+4*p, gy+8*p, 2*p, p);
-            ctx.fillStyle='#dd0000';
-            ctx.fillRect(gx+4*p, gy+9*p, 2*p, p);
-            // belt icing
+            ctx.fillRect(gx+3*p, gy+4*p,   2*p, p);
+            ctx.fillRect(gx+6*p, gy+4*p,   p,   p);
+            // icing squiggles on arms
+            ctx.fillStyle='rgba(255,255,255,0.85)';
+            ctx.fillRect(gx,     gy+6*p,   2*p, p);
+            ctx.fillRect(gx+8*p, gy+6*p,   2*p, p);
+            // buttons — red / green / red
+            ctx.fillStyle='#ee1111';
+            ctx.fillRect(gx+4*p, gy+7*p,   2*p, p);
+            ctx.fillStyle='#22bb22';
+            ctx.fillRect(gx+4*p, gy+8*p,   2*p, p);
+            ctx.fillStyle='#ee1111';
+            ctx.fillRect(gx+4*p, gy+9*p,   2*p, p);
+            // button shine
+            ctx.fillStyle='rgba(255,255,255,0.6)';
+            ctx.fillRect(gx+4*p, gy+7*p,   p,   Math.ceil(p*0.5));
+            // waist icing belt
             ctx.fillStyle='#fff';
-            ctx.fillRect(gx+2*p, gy+11*p, 6*p, p);
+            ctx.fillRect(gx+2*p, gy+11*p,  6*p, p);
+            ctx.fillStyle='#ffdd00';
+            ctx.fillRect(gx+4*p, gy+11*p,  2*p, p);   // gold belt buckle
             // boot icing
-            ctx.fillRect(gx+2*p, gy+12*p, 2*p, p);
-            ctx.fillRect(gx+6*p, gy+12*p, 2*p, p);
+            ctx.fillStyle='#fff';
+            ctx.fillRect(gx+2*p, gy+14*p,  2*p, p);
+            ctx.fillRect(gx+6*p, gy+14*p,  2*p, p);
           }
         } else if(v===4){
           // ghost door — candy cane striped bar
