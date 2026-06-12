@@ -144,11 +144,10 @@ DEBUG MODE: Press ` (backtick) to toggle debug overlay (FPS, AI targets, god mod
 
   <!-- START SCREEN -->
   <div class="overlay" id="startScreen">
-    <img src="./Menu-bear.png" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);width:min(55vw,320px);opacity:0.85;pointer-events:none;z-index:0;filter:drop-shadow(0 8px 24px rgba(0,0,0,0.5))" alt="">
-    <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:inherit">
+    <img src="./Menu-bear.png" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-72%);width:min(75vw,420px);opacity:0.9;pointer-events:none;z-index:0;filter:drop-shadow(0 8px 32px rgba(0,0,0,0.6))" alt="">
+    <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:inherit;margin-top:min(38vw,220px)">
       <div class="bigTitle" style="background:linear-gradient(135deg,#FFE135,#ff8c00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 20px rgba(255,193,7,0.4))">Björnes<br>pepparkaksjakt</div>
       <div class="subtitle">👾 Ät pepparkakor. Skräm spöken. Överlev!</div>
-      <canvas id="menuPacman" width="120" height="60" style="margin:10px 0"></canvas>
       <button class="btn btn-primary" onclick="G.startGame()">▶ SPELA NU</button>
       <button class="btn btn-secondary" onclick="G.showTutorial()">📖 Så spelar du</button>
     </div>
