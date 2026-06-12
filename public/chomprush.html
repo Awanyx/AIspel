@@ -144,11 +144,14 @@ DEBUG MODE: Press ` (backtick) to toggle debug overlay (FPS, AI targets, god mod
 
   <!-- START SCREEN -->
   <div class="overlay" id="startScreen">
-    <div class="bigTitle" style="background:linear-gradient(135deg,#FFE135,#ff8c00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 20px rgba(255,193,7,0.4))">Björnes<br>pepparkaksjakt</div>
-    <div class="subtitle">👾 Ät pepparkakor. Skräm spöken. Överlev!</div>
-    <canvas id="menuPacman" width="120" height="60" style="margin:10px 0"></canvas>
-    <button class="btn btn-primary" onclick="G.startGame()">▶ SPELA NU</button>
-    <button class="btn btn-secondary" onclick="G.showTutorial()">📖 Så spelar du</button>
+    <img src="./Menu-bear.png" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);width:min(55vw,320px);opacity:0.85;pointer-events:none;z-index:0;filter:drop-shadow(0 8px 24px rgba(0,0,0,0.5))" alt="">
+    <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:inherit">
+      <div class="bigTitle" style="background:linear-gradient(135deg,#FFE135,#ff8c00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 20px rgba(255,193,7,0.4))">Björnes<br>pepparkaksjakt</div>
+      <div class="subtitle">👾 Ät pepparkakor. Skräm spöken. Överlev!</div>
+      <canvas id="menuPacman" width="120" height="60" style="margin:10px 0"></canvas>
+      <button class="btn btn-primary" onclick="G.startGame()">▶ SPELA NU</button>
+      <button class="btn btn-secondary" onclick="G.showTutorial()">📖 Så spelar du</button>
+    </div>
   </div>
 
   <!-- TUTORIAL SCREEN -->
@@ -807,7 +810,9 @@ class PacMan {
       else this.px=0;
       if(Math.abs(this.py)>1)this.py+=(stopY-this.py)*Math.min(1,snapSpd/Math.max(1,Math.abs(this.py)));
       else this.py=0;
+      this._isMoving=Math.abs(this.px)>1||Math.abs(this.py)>1;
     } else {
+      this._isMoving=true;
       const speed=maze.isTunnel(this.row,this.col)?this.speed*0.6:this.speed;
       this.px+=d.x*speed*dt*tw;
       this.py+=d.y*speed*dt*th;
@@ -839,34 +844,53 @@ class PacMan {
   }
   draw(ctx,tileW,tileH,t){
     const{x,y}=this.getPixel(tileW,tileH);
-    const ps=Math.max(1,Math.floor(Math.min(tileW,tileH)/14));
-    const half=Math.floor(Math.min(tileW,tileH)/(2*ps)); // fills tile
+    const size=Math.round(Math.min(tileW,tileH)*2.0);
+    const dx=Math.round(x)-size/2, dy=Math.round(y)-size/2;
     if(this.deathPlaying){
       const a=Math.min(this.deathAnim,1);
-      ctx.fillStyle='#FFE135';
       ctx.globalAlpha=Math.max(0,1-a);
-      const sz=Math.round((half*2+1)*ps*(1-a*0.5));
-      ctx.fillRect(Math.round(x)-Math.floor(sz/2),Math.round(y)-Math.floor(sz/2),sz,sz);
+      const s=Math.round(size*(1-a*0.5));
+      const sheet=this._idleSheet;
+      if(sheet&&sheet.complete&&sheet.naturalWidth>0){
+        const cols=5,rows=5,fw=sheet.naturalWidth/cols,fh=sheet.naturalHeight/rows;
+        const frame=Math.floor(t*8)%25;
+        ctx.drawImage(sheet,(frame%cols)*fw,Math.floor(frame/cols)*fh,fw,fh,Math.round(x)-s/2,Math.round(y)-s/2,s,s);
+      } else {
+        ctx.fillStyle='#FFE135';
+        ctx.fillRect(Math.round(x)-s/2,Math.round(y)-s/2,s,s);
+      }
       ctx.globalAlpha=1;
       return;
     }
-    const ang={right:0,down:Math.PI/2,left:Math.PI,up:-Math.PI/2}[this.dir]||0;
-    const mAngle=this.chomp*Math.PI;
-    ctx.save();
-    ctx.translate(Math.round(x),Math.round(y));
-    ctx.rotate(ang);
-    ctx.fillStyle='#FFE135';
-    for(let py=-half;py<=half;py++){
-      for(let px=-half;px<=half;px++){
-        if(px*px+py*py>half*half)continue;
-        if(px>=0&&Math.abs(Math.atan2(py,px))<mAngle)continue;
-        ctx.fillRect(px*ps,py*ps,ps,ps);
+    const sheet=this._isMoving?this._walkSheet:this._idleSheet;
+    if(sheet&&sheet.complete&&sheet.naturalWidth>0){
+      const cols=5,rows=5,fw=sheet.naturalWidth/cols,fh=sheet.naturalHeight/rows;
+      const frame=Math.floor(t*8)%25;
+      ctx.save();
+      ctx.translate(Math.round(x),Math.round(y));
+      const ang={right:0,down:Math.PI/2,left:Math.PI,up:-Math.PI/2}[this.dir]||0;
+      ctx.rotate(ang);
+      ctx.drawImage(sheet,(frame%cols)*fw,Math.floor(frame/cols)*fh,fw,fh,-size/2,-size/2,size,size);
+      ctx.restore();
+    } else {
+      // fallback pixel pac
+      const ps=Math.max(1,Math.floor(Math.min(tileW,tileH)/14));
+      const half=Math.floor(Math.min(tileW,tileH)/(2*ps));
+      const ang={right:0,down:Math.PI/2,left:Math.PI,up:-Math.PI/2}[this.dir]||0;
+      const mAngle=this.chomp*Math.PI;
+      ctx.save();
+      ctx.translate(Math.round(x),Math.round(y));
+      ctx.rotate(ang);
+      ctx.fillStyle='#FFE135';
+      for(let py=-half;py<=half;py++){
+        for(let px=-half;px<=half;px++){
+          if(px*px+py*py>half*half)continue;
+          if(px>=0&&Math.abs(Math.atan2(py,px))<mAngle)continue;
+          ctx.fillRect(px*ps,py*ps,ps,ps);
+        }
       }
+      ctx.restore();
     }
-    ctx.restore();
-    // eye always in top half — never rotates with body
-    ctx.fillStyle='#222222';
-    ctx.fillRect(Math.round(x)+Math.round(half*ps*0.2),Math.round(y)-Math.round(half*ps*0.55),ps*2,ps*2);
   }
 }
 
@@ -1528,12 +1552,22 @@ class Game {
       this._ghostFrightSheet=new Image();
       this._ghostFrightSheet.src='./Lazlo-idle-frightened.png';
     }
+    if(!this._playerIdleSheet){
+      this._playerIdleSheet=new Image();
+      this._playerIdleSheet.src='./player-idle.png';
+    }
+    if(!this._playerWalkSheet){
+      this._playerWalkSheet=new Image();
+      this._playerWalkSheet.src='./player-walk.png';
+    }
     this.maze=new Maze(this.level);
     this.maze._wallTiles=this._wallTiles;
     this._resize(); // recalculate tile sizes for this level's borderSize
     const cfg=getLevelConfig(this.level);
     this.pacman=new PacMan(this.maze);
     this.pacman.speed=cfg.pacSpeed;
+    this.pacman._idleSheet=this._playerIdleSheet;
+    this.pacman._walkSheet=this._playerWalkSheet;
     this.ghosts=[];
     for(let i=0;i<cfg.ghostCount;i++){
       const g=new Ghost(i,this.maze);
