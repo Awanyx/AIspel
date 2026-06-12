@@ -667,149 +667,45 @@ class Maze {
             ctx.fillStyle='#7a3c12'; ctx.fillRect(x,y,w,h);
           }
         } else if(v===2){
-          // gingerbread heart — 9×7 pixel grid, centred in tile
-          const mx=x+Math.floor(w/2), my=y+Math.floor(h/2);
-          // heart pixel map: rows top→bottom
-          // each row: array of [col, colourIndex]
-          // 0=outline, 1=base, 2=highlight, 3=shine, 4=shadow, 5=icing
-          const HR=[
-            [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],  // unused — grid approach below
-          ];
-          // 9-wide, 7-tall grid  (0=empty, O=outline, B=base, H=hi, S=shade, W=icing)
-          const O=1,B=2,H=3,S=4,W=5,_=0;
-          const hg=[
-            [_,O,O,B,_,B,O,O,_],  // row0: two bumps
-            [O,B,H,B,B,B,H,B,O],  // row1: bump fill + highlight
-            [O,B,H,B,B,B,B,S,O],  // row2: centre
-            [_,O,B,B,B,B,S,O,_],  // row3
-            [_,_,O,B,B,S,O,_,_],  // row4
-            [_,_,_,O,B,O,_,_,_],  // row5: tip
-            [_,_,_,_,O,_,_,_,_],  // row6: point
-          ];
-          const hcl=['','#5a2500','#c8691a','#e07c28','#8a3e08','rgba(255,255,255,0.85)'];
-          const hx=mx-4*sp, hy=my-3*sp;
-          ctx.save();
-          for(let hr=0;hr<hg.length;hr++){
-            for(let hc=0;hc<hg[hr].length;hc++){
-              const hv=hg[hr][hc]; if(!hv)continue;
-              ctx.fillStyle=hcl[hv];
-              ctx.fillRect(hx+hc*sp, hy+hr*sp, sp, sp);
-            }
+          // regular collectible — image centred in tile, ~60% tile size
+          const img=this._collectImg;
+          if(img&&img.complete&&img.naturalWidth>0){
+            const sz=Math.round(Math.min(w,h)*0.6);
+            const ix=x+Math.floor((w-sz)/2), iy=y+Math.floor((h-sz)/2);
+            ctx.drawImage(img,ix,iy,sz,sz);
+          } else {
+            // pixel fallback
+            const mx=x+Math.floor(w/2),my=y+Math.floor(h/2);
+            ctx.fillStyle='#c8691a';
+            ctx.fillRect(mx-sp,my-sp,sp*2,sp*2);
           }
-          // white icing drizzle on top bumps
-          ctx.fillStyle='rgba(255,255,255,0.9)';
-          ctx.fillRect(hx+2*sp, hy,     sp, sp);
-          ctx.fillRect(hx+6*sp, hy,     sp, sp);
-          ctx.fillRect(hx+sp,   hy+sp,  sp, sp);
-          ctx.fillRect(hx+5*sp, hy+sp,  sp, sp);
-          ctx.restore();
         } else if(v===3){
-          // gingerbread man power pellet — always visible, gentle glow pulse
-          // p sized so the 12p-wide, 16p-tall sprite fits in the tile
-          const p=Math.max(1,Math.floor(Math.min(w,h)/16));
-          const gx=x+Math.floor(w/2)-5*p, gy=y+Math.floor(h/2)-8*p;
-          // dark outline
-          ctx.fillStyle='#3a1500';
-          ctx.fillRect(gx+2*p, gy,      6*p,  p);   // head top
-          ctx.fillRect(gx+p,   gy,      p,    6*p);  // head left
-          ctx.fillRect(gx+9*p, gy,      p,    6*p);  // head right
-          ctx.fillRect(gx+2*p, gy+6*p,  p,    p);    // neck-left
-          ctx.fillRect(gx+8*p, gy+6*p,  p,    p);    // neck-right
-          ctx.fillRect(gx-p,   gy+6*p,  p,    4*p);  // left arm outer
-          ctx.fillRect(gx+10*p,gy+6*p,  p,    4*p);  // right arm outer
-          ctx.fillRect(gx+p,   gy+12*p, p,    4*p);  // left leg outer
-          ctx.fillRect(gx+8*p, gy+12*p, p,    4*p);  // right leg outer
-          ctx.fillRect(gx+2*p, gy+15*p, 3*p,  p);    // left boot bottom
-          ctx.fillRect(gx+6*p, gy+15*p, 3*p,  p);    // right boot bottom
-          // body — warm gingerbread
-          ctx.fillStyle='#c87830';
-          ctx.fillRect(gx+2*p, gy+p,    6*p,  5*p);  // head fill
-          ctx.fillRect(gx+2*p, gy+6*p,  6*p,  6*p);  // torso
-          ctx.fillRect(gx,     gy+6*p,  2*p,  3*p);  // left arm
-          ctx.fillRect(gx+8*p, gy+6*p,  2*p,  3*p);  // right arm
-          ctx.fillRect(gx+2*p, gy+12*p, 2*p,  4*p);  // left leg
-          ctx.fillRect(gx+6*p, gy+12*p, 2*p,  4*p);  // right leg
-          ctx.fillRect(gx+2*p, gy+14*p, 3*p,  p);    // left boot toe
-          ctx.fillRect(gx+6*p, gy+14*p, 3*p,  p);    // right boot toe
-          // face highlight (top-left of head)
-          ctx.fillStyle='#d9924a';
-          ctx.fillRect(gx+3*p, gy+p,    3*p,  2*p);
-          // face shadow (right of head)
-          ctx.fillStyle='#8a4a18';
-          ctx.fillRect(gx+7*p, gy+p,    p,    4*p);
-          // torso shadow
-          ctx.fillRect(gx+7*p, gy+7*p,  p,    4*p);
-          // eyes
-          ctx.fillStyle='#111';
-          ctx.fillRect(gx+3*p, gy+2*p,  p,    p);
-          ctx.fillRect(gx+6*p, gy+2*p,  p,    p);
-          ctx.fillStyle='rgba(255,255,255,0.9)';
-          ctx.fillRect(gx+3*p, gy+2*p,  Math.ceil(p*0.5), Math.ceil(p*0.5));
-          ctx.fillRect(gx+6*p, gy+2*p,  Math.ceil(p*0.5), Math.ceil(p*0.5));
-          // blush
-          ctx.fillStyle='rgba(255,100,130,0.8)';
-          ctx.fillRect(gx+2*p, gy+3*p,  p,    p);
-          ctx.fillRect(gx+7*p, gy+3*p,  p,    p);
-          // white icing smile
-          ctx.fillStyle='#fff';
-          ctx.fillRect(gx+3*p, gy+4*p,  p,    p);
-          ctx.fillRect(gx+5*p, gy+4*p,  p,    p);
-          ctx.fillRect(gx+4*p, gy+5*p,  2*p,  p);
-          // arm icing
-          ctx.fillStyle='rgba(255,255,255,0.85)';
-          ctx.fillRect(gx,     gy+6*p,  2*p,  p);
-          ctx.fillRect(gx+8*p, gy+6*p,  2*p,  p);
-          // red/green/red buttons
-          ctx.fillStyle='#ee2222'; ctx.fillRect(gx+4*p, gy+7*p, 2*p, p);
-          ctx.fillStyle='#22cc22'; ctx.fillRect(gx+4*p, gy+8*p, 2*p, p);
-          ctx.fillStyle='#ee2222'; ctx.fillRect(gx+4*p, gy+9*p, 2*p, p);
-          // belt + gold buckle
-          ctx.fillStyle='#fff';
-          ctx.fillRect(gx+2*p, gy+11*p, 6*p, p);
-          ctx.fillStyle='#ffdd00';
-          ctx.fillRect(gx+4*p, gy+11*p, 2*p, p);
-          // boot icing
-          ctx.fillStyle='#fff';
-          ctx.fillRect(gx+2*p, gy+14*p, 2*p, p);
-          ctx.fillRect(gx+6*p, gy+14*p, 2*p, p);
-        } else if(v===4){
-          // ghost door — detailed candy cane bar
-          const barH=Math.max(sp*4, Math.round(h*0.28));
-          const barY=y+Math.floor((h-barH)/2);
-          const bx=x+ps, bw=w-ps*2;
-          const stripeW=Math.max(sp, Math.round(bw/7));
-          // drop shadow behind bar
-          ctx.fillStyle='rgba(0,0,0,0.35)';
-          ctx.fillRect(bx+sp, barY+sp, bw, barH);
-          // dark border
-          ctx.fillStyle='#660000';
-          ctx.fillRect(bx-sp, barY-sp, bw+sp*2, barH+sp*2);
-          // white base
-          ctx.fillStyle='#f8f0e8';
-          ctx.fillRect(bx, barY, bw, barH);
-          // red diagonal stripes — true diagonal using pixel slices
-          ctx.fillStyle='#cc1111';
-          for(let sx=0;sx<bw+barH;sx+=stripeW*2){
-            ctx.save();
-            ctx.beginPath();
-            ctx.rect(bx, barY, bw, barH);
-            ctx.clip();
-            ctx.fillRect(bx+sx-barH, barY, stripeW, barH+barH);
-            ctx.restore();
+          // rare collectible (power pellet) — image centred, ~80% tile size
+          const img=this._rareImg;
+          if(img&&img.complete&&img.naturalWidth>0){
+            const sz=Math.round(Math.min(w,h)*0.8);
+            const ix=x+Math.floor((w-sz)/2), iy=y+Math.floor((h-sz)/2);
+            ctx.drawImage(img,ix,iy,sz,sz);
+          } else {
+            const mx=x+Math.floor(w/2),my=y+Math.floor(h/2);
+            ctx.fillStyle='#ffdd00';
+            ctx.fillRect(mx-sp*2,my-sp*2,sp*4,sp*4);
           }
-          // pink highlight stripe along top third
-          ctx.fillStyle='rgba(255,200,200,0.5)';
-          ctx.fillRect(bx, barY, bw, Math.ceil(barH/3));
-          // white shine on top edge
-          ctx.fillStyle='rgba(255,255,255,0.8)';
-          ctx.fillRect(bx, barY, bw, sp);
-          // dark line on bottom edge
-          ctx.fillStyle='rgba(100,0,0,0.5)';
-          ctx.fillRect(bx, barY+barH-sp, bw, sp);
-          // end caps — thin 1px dark lines
-          ctx.fillStyle='#880000';
-          ctx.fillRect(bx,       barY, 1, barH);
-          ctx.fillRect(bx+bw-1,  barY, 1, barH);
+        } else if(v===4){
+          // ghost door — uploaded candy cane bar image, or drawn fallback
+          const img=this._ghostBarsImg;
+          if(img&&img.complete&&img.naturalWidth>0){
+            const barH=Math.round(h*0.35);
+            const barY=y+Math.floor((h-barH)/2);
+            ctx.drawImage(img,x,barY,w,barH);
+          } else {
+            // fallback drawn bar
+            const barH=Math.max(4,Math.round(h*0.28));
+            const barY=y+Math.floor((h-barH)/2);
+            ctx.fillStyle='#fff'; ctx.fillRect(x,barY,w,barH);
+            ctx.fillStyle='#cc1111';
+            for(let sx=0;sx<w;sx+=6){ctx.fillRect(x+sx,barY,3,barH);}
+          }
         } else if(v===5){
         }
       }
@@ -1622,8 +1518,23 @@ class Game {
       this._playerWalkSheet=new Image();
       this._playerWalkSheet.src='./player-walk.png';
     }
+    if(!this._collectImg){
+      this._collectImg=new Image();
+      this._collectImg.src='./game-collectible.png';
+    }
+    if(!this._rareImg){
+      this._rareImg=new Image();
+      this._rareImg.src='./game-rare-collectible.png';
+    }
+    if(!this._ghostBarsImg){
+      this._ghostBarsImg=new Image();
+      this._ghostBarsImg.src='./ghost-bars.png';
+    }
     this.maze=new Maze(this.level);
     this.maze._wallTiles=this._wallTiles;
+    this.maze._collectImg=this._collectImg;
+    this.maze._rareImg=this._rareImg;
+    this.maze._ghostBarsImg=this._ghostBarsImg;
     this._resize(); // recalculate tile sizes for this level's borderSize
     const cfg=getLevelConfig(this.level);
     this.pacman=new PacMan(this.maze);
