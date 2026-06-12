@@ -705,14 +705,9 @@ class Maze {
           ctx.restore();
         } else if(v===3){
           // gingerbread man power pellet — always visible, gentle glow pulse
-          const pulse=0.75+0.25*Math.sin(t*4);
-          ctx.save();
-          ctx.globalAlpha=pulse;
-          const p=sp;
+          // p sized so the 12p-wide, 16p-tall sprite fits in the tile
+          const p=Math.max(1,Math.floor(Math.min(w,h)/16));
           const gx=x+Math.floor(w/2)-5*p, gy=y+Math.floor(h/2)-8*p;
-          // outer glow
-          ctx.fillStyle='rgba(255,200,100,0.3)';
-          ctx.fillRect(gx-p, gy-p, 12*p, 18*p);
           // dark outline
           ctx.fillStyle='#3a1500';
           ctx.fillRect(gx+2*p, gy,      6*p,  p);   // head top
@@ -777,7 +772,6 @@ class Maze {
           ctx.fillStyle='#fff';
           ctx.fillRect(gx+2*p, gy+14*p, 2*p, p);
           ctx.fillRect(gx+6*p, gy+14*p, 2*p, p);
-          ctx.restore();
         } else if(v===4){
           // ghost door — detailed candy cane bar
           const barH=Math.max(sp*4, Math.round(h*0.28));
